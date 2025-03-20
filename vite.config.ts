@@ -8,8 +8,8 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "localhost", // Changé de "::" à "localhost"
-    port: 8080,
-    strictPort: false, // Permettre de changer de port si 8080 est occupé
+    port: 3000, // Changé de 8080 à 3000 pour correspondre à l'URL attendue
+    strictPort: true, // Force l'utilisation du port 3000
     open: true, // Ouvre automatiquement le navigateur
   },
   plugins: [
