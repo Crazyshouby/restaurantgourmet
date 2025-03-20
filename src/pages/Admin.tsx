@@ -38,12 +38,18 @@ const Admin = () => {
     const authStatus = queryParams.get('auth');
     
     if (authStatus === 'success') {
+      console.log('Auth success détecté, mise à jour des paramètres admin...');
+      
       const updateAdminSettings = async () => {
         try {
           const { data: sessionData } = await supabase.auth.getSession();
           const session = sessionData.session;
           
+          console.log('Session récupérée:', session ? 'Valide' : 'Invalide');
+          
           if (session?.provider_token && session?.user?.email) {
+            console.log('Mise à jour des paramètres avec email:', session.user.email);
+            
             const { error } = await supabase
               .from('admin_settings')
               .update({
@@ -64,12 +70,19 @@ const Admin = () => {
               toast.success("Connexion Google réussie", {
                 description: "Votre compte Google a été connecté avec succès."
               });
+              
+              console.log('Paramètres mis à jour avec succès');
+            } else {
+              console.error('Erreur lors de la mise à jour dans Supabase:', error);
             }
+          } else {
+            console.warn('Session valide mais provider_token ou email manquant');
           }
         } catch (error) {
           console.error("Erreur lors de la mise à jour des paramètres:", error);
         }
         
+        // Nettoyage de l'URL
         window.history.replaceState({}, document.title, location.pathname);
       };
       
@@ -79,9 +92,12 @@ const Admin = () => {
     const loadData = async () => {
       setIsLoading(true);
       try {
+        console.log('Chargement des données initiales...');
         await loadReservations();
         
         const isConnected = await GoogleCalendarService.isConnected();
+        console.log('État de la connexion Google:', isConnected ? 'Connecté' : 'Déconnecté');
+        
         if (isConnected) {
           const { data, error } = await supabase
             .from('admin_settings')
@@ -90,6 +106,7 @@ const Admin = () => {
             .single();
           
           if (!error && data) {
+            console.log('Paramètres admin chargés:', data.google_email);
             setAdminSettings({
               googleConnected: data.google_connected,
               googleEmail: data.google_email,
@@ -106,6 +123,8 @@ const Admin = () => {
     
     loadData();
     
+    // Configuration du listener pour les changements d'état d'authentification
+    console.log('Configuration du listener pour l\'authentification...');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session?.user?.email);

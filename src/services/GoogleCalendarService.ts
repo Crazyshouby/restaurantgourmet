@@ -37,11 +37,9 @@ export class GoogleCalendarService {
   // Connecte l'utilisateur à Google Calendar via OAuth
   static async connect(): Promise<{ success: boolean; email?: string; token?: string }> {
     try {
-      // Utilisation de la bonne URI de redirection pour Supabase
-      const redirectUri = 'https://jmgzepudbaemnxrswmss.supabase.co/auth/v1/callback';
+      console.log('Démarrage du processus de connexion Google...');
       
-      console.log('Démarrage de la connexion Google avec redirectUri:', redirectUri);
-      
+      // Utilisation du callback Supabase standard
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -55,13 +53,14 @@ export class GoogleCalendarService {
       });
       
       if (error) {
-        console.error('Erreur lors de la connexion à Google:', error);
+        console.error('Erreur lors de la connexion à Google OAuth:', error);
         return { success: false };
       }
       
+      console.log('Redirection OAuth initiée avec succès');
       return { success: true };
     } catch (error) {
-      console.error('Erreur lors de la connexion à Google:', error);
+      console.error('Exception lors de la connexion à Google:', error);
       return { success: false };
     }
   }
@@ -100,6 +99,7 @@ export class GoogleCalendarService {
       const isConnected = await this.isConnected();
       
       if (!isConnected) {
+        console.log('Google Calendar non connecté, impossible de créer un événement');
         return { success: false };
       }
       
@@ -116,6 +116,8 @@ export class GoogleCalendarService {
       const dateString = reservation.date instanceof Date 
         ? reservation.date.toISOString().split('T')[0] 
         : reservation.date;
+      
+      console.log('Création d\'événement pour la date:', dateString, 'à', reservation.time);
       
       // Création de l'événement
       const eventData = {
@@ -144,16 +146,17 @@ export class GoogleCalendarService {
       const data = await response.json();
       
       if (!response.ok) {
-        console.error('Erreur lors de la création de l\'événement:', data);
+        console.error('Erreur API lors de la création de l\'événement:', data);
         return { success: false };
       }
       
+      console.log('Événement créé avec succès, ID:', data.id);
       return {
         success: true,
         eventId: data.id
       };
     } catch (error) {
-      console.error('Erreur lors de la création de l\'événement Google Calendar:', error);
+      console.error('Exception lors de la création de l\'événement Google Calendar:', error);
       return { success: false };
     }
   }
@@ -164,6 +167,7 @@ export class GoogleCalendarService {
       const isConnected = await this.isConnected();
       
       if (!isConnected) {
+        console.log('Google Calendar non connecté, impossible de récupérer les événements');
         return [];
       }
       
@@ -172,7 +176,7 @@ export class GoogleCalendarService {
       const accessToken = sessionData.session?.provider_token;
       
       if (!accessToken) {
-        console.error('Token d\'accès non disponible');
+        console.error('Token d\'accès non disponible pour récupérer les événements');
         return [];
       }
       
@@ -186,13 +190,13 @@ export class GoogleCalendarService {
       const data = await response.json();
       
       if (!response.ok) {
-        console.error('Erreur lors de la récupération des événements:', data);
+        console.error('Erreur API lors de la récupération des événements:', data);
         return [];
       }
       
       return data.items || [];
     } catch (error) {
-      console.error('Erreur lors de la récupération des événements Google Calendar:', error);
+      console.error('Exception lors de la récupération des événements Google Calendar:', error);
       return [];
     }
   }

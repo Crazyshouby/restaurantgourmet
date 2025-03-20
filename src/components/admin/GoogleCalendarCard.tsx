@@ -46,6 +46,11 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
     setIsLoading(true);
     
     try {
+      console.log("Démarrage du processus de connexion Google...");
+      toast.info("Redirection vers Google", {
+        description: "Vous allez être redirigé pour vous connecter à votre compte Google."
+      });
+      
       await GoogleCalendarService.connect();
     } catch (error) {
       console.error("Erreur lors de la connexion à Google:", error);
@@ -60,6 +65,7 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
     setIsLoading(true);
     
     try {
+      console.log("Démarrage de la déconnexion Google...");
       const result = await GoogleCalendarService.disconnect();
       
       if (result.success) {
@@ -91,6 +97,7 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
     setIsLoading(true);
     
     try {
+      console.log("Démarrage de la synchronisation...");
       const result = await ReservationService.syncWithGoogleCalendar();
       
       if (result.success) {
