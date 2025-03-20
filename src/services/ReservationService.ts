@@ -1,5 +1,5 @@
 
-import { GoogleCalendarService } from './GoogleCalendarService';
+import { GoogleCalendarService } from './google-calendar';
 import { Reservation } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 
