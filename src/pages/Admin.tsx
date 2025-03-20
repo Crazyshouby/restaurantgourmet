@@ -46,11 +46,42 @@ const Admin = () => {
     const authStatus = queryParams.get('auth');
     
     if (authStatus === 'success') {
-      toast.success("Connexion Google réussie", {
-        description: "Votre compte Google a été connecté avec succès."
-      });
+      const updateAdminSettings = async () => {
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const session = sessionData.session;
+          
+          if (session?.provider_token && session?.user?.email) {
+            const { error } = await supabase
+              .from('admin_settings')
+              .update({
+                google_connected: true,
+                google_refresh_token: session.refresh_token,
+                google_email: session.user.email,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', 1);
+            
+            if (!error) {
+              setAdminSettings({
+                googleConnected: true,
+                googleEmail: session.user.email,
+                googleRefreshToken: session.refresh_token
+              });
+              
+              toast.success("Connexion Google réussie", {
+                description: "Votre compte Google a été connecté avec succès."
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors de la mise à jour des paramètres:", error);
+        }
+        
+        window.history.replaceState({}, document.title, location.pathname);
+      };
       
-      window.history.replaceState({}, document.title, location.pathname);
+      updateAdminSettings();
     }
     
     const loadData = async () => {
@@ -83,6 +114,16 @@ const Admin = () => {
     };
     
     loadData();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [location]);
   
   const handleGoogleConnect = async () => {

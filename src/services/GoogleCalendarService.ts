@@ -37,17 +37,24 @@ export class GoogleCalendarService {
   // Connecte l'utilisateur à Google Calendar via OAuth
   static async connect(): Promise<{ success: boolean; email?: string; token?: string }> {
     try {
-      // Obtenir l'URL d'authentification Google
-      const response = await fetch('/api/google-auth/init');
-      const data = await response.json();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+            scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+          },
+          redirectTo: `${window.location.origin}/admin?auth=success`,
+        },
+      });
       
-      if (data.url) {
-        // Rediriger vers la page d'authentification Google
-        window.location.href = data.url;
-        return { success: true }; // Ce code ne sera pas exécuté en raison de la redirection
+      if (error) {
+        console.error('Erreur lors de la connexion à Google:', error);
+        return { success: false };
       }
       
-      return { success: false };
+      return { success: true };
     } catch (error) {
       console.error('Erreur lors de la connexion à Google:', error);
       return { success: false };
@@ -57,6 +64,10 @@ export class GoogleCalendarService {
   // Déconnecte l'utilisateur de Google Calendar
   static async disconnect(): Promise<{ success: boolean }> {
     try {
+      // D'abord, signOut uniquement pour les sessions Google
+      await supabase.auth.signOut();
+      
+      // Puis mise à jour des paramètres admin
       const { error } = await supabase
         .from('admin_settings')
         .update({
@@ -87,26 +98,55 @@ export class GoogleCalendarService {
         return { success: false };
       }
       
-      // Appeler l'Edge Function pour créer l'événement
-      const response = await fetch('/api/google-auth/create-event', {
+      // Obtenir le token d'accès actuel
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.provider_token;
+      
+      if (!accessToken) {
+        console.error('Token d\'accès non disponible');
+        return { success: false };
+      }
+      
+      // Formatage de la date et de l'heure
+      const dateString = reservation.date instanceof Date 
+        ? reservation.date.toISOString().split('T')[0] 
+        : reservation.date;
+      
+      // Création de l'événement
+      const eventData = {
+        summary: `Réservation: ${reservation.name}`,
+        description: `Réservation pour ${reservation.guests} personne(s)\nTél: ${reservation.phone}\nEmail: ${reservation.email}\nNotes: ${reservation.notes || "Aucune"}`,
+        start: {
+          dateTime: `${dateString}T${reservation.time}:00`,
+          timeZone: 'Europe/Paris',
+        },
+        end: {
+          dateTime: `${dateString}T${parseInt(reservation.time.split(':')[0]) + 2}:${reservation.time.split(':')[1]}:00`,
+          timeZone: 'Europe/Paris',
+        },
+      };
+      
+      // Appel direct à l'API Google Calendar
+      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${accessToken}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ reservation })
+        body: JSON.stringify(eventData)
       });
       
       const data = await response.json();
       
-      if (data.success && data.eventId) {
-        return {
-          success: true,
-          eventId: data.eventId
-        };
-      } else {
-        console.error('Erreur lors de la création de l\'événement:', data.error);
+      if (!response.ok) {
+        console.error('Erreur lors de la création de l\'événement:', data);
         return { success: false };
       }
+      
+      return {
+        success: true,
+        eventId: data.id
+      };
     } catch (error) {
       console.error('Erreur lors de la création de l\'événement Google Calendar:', error);
       return { success: false };
@@ -122,16 +162,30 @@ export class GoogleCalendarService {
         return [];
       }
       
-      // Appeler l'Edge Function pour récupérer les événements
-      const response = await fetch('/api/google-auth/events');
-      const data = await response.json();
+      // Obtenir le token d'accès actuel
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.provider_token;
       
-      if (data.items && Array.isArray(data.items)) {
-        return data.items;
-      } else {
-        console.error('Format de données incorrect pour les événements:', data);
+      if (!accessToken) {
+        console.error('Token d\'accès non disponible');
         return [];
       }
+      
+      // Appel direct à l'API Google Calendar
+      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Erreur lors de la récupération des événements:', data);
+        return [];
+      }
+      
+      return data.items || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des événements Google Calendar:', error);
       return [];
