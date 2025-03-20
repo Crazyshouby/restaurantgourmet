@@ -18,7 +18,17 @@ const SCOPES = [
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   const url = new URL(req.url);
   const path = url.pathname.split("/").pop();
 
@@ -36,7 +46,7 @@ serve(async (req) => {
     authUrl.searchParams.append("state", state);
     
     return new Response(JSON.stringify({ url: authUrl.toString() }), {
-      headers: { "Content-Type": "application/json" },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
   }
@@ -50,7 +60,7 @@ serve(async (req) => {
       if (!code) {
         return new Response(
           JSON.stringify({ error: "Code d'autorisation manquant" }),
-          { headers: { "Content-Type": "application/json" }, status: 400 }
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
         );
       }
       
@@ -96,10 +106,15 @@ serve(async (req) => {
       }
       
       // Redirection vers la page d'administration avec un message de succès
+      // Utilisation de l'URL d'origine pour la redirection (avec le bon protocole et domaine)
+      const redirectUrl = new URL("/admin", url.origin);
+      redirectUrl.searchParams.append("auth", "success");
+      
       return new Response(null, {
         status: 302,
         headers: {
-          Location: `${url.origin}/admin?auth=success`,
+          ...corsHeaders,
+          "Location": redirectUrl.toString(),
         },
       });
     } catch (error) {
@@ -107,7 +122,7 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ error: error.message }),
-        { headers: { "Content-Type": "application/json" }, status: 500 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
   }
@@ -146,12 +161,12 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ access_token: tokenData.access_token }),
-        { headers: { "Content-Type": "application/json" }, status: 200 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     } catch (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { headers: { "Content-Type": "application/json" }, status: 500 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
   }
@@ -169,6 +184,7 @@ serve(async (req) => {
       // Récupération d'un token d'accès valide
       const tokenResponse = await fetch(`${url.origin}/google-auth/refresh-token`, {
         method: "GET",
+        headers: corsHeaders,
       });
       
       const tokenData = await tokenResponse.json();
@@ -214,12 +230,12 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify({ success: true, eventId: calendarData.id }),
-        { headers: { "Content-Type": "application/json" }, status: 200 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     } catch (error) {
       return new Response(
         JSON.stringify({ error: error.message, success: false }),
-        { headers: { "Content-Type": "application/json" }, status: 500 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
   }
@@ -230,6 +246,7 @@ serve(async (req) => {
       // Récupération d'un token d'accès valide
       const tokenResponse = await fetch(`${url.origin}/google-auth/refresh-token`, {
         method: "GET",
+        headers: corsHeaders,
       });
       
       const tokenData = await tokenResponse.json();
@@ -249,12 +266,12 @@ serve(async (req) => {
       
       return new Response(
         JSON.stringify(calendarData),
-        { headers: { "Content-Type": "application/json" }, status: 200 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
     } catch (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { headers: { "Content-Type": "application/json" }, status: 500 }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
   }
@@ -262,6 +279,6 @@ serve(async (req) => {
   // Route par défaut
   return new Response(
     JSON.stringify({ error: "Route non trouvée" }),
-    { headers: { "Content-Type": "application/json" }, status: 404 }
+    { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
   );
 });
