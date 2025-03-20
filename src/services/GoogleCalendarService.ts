@@ -37,6 +37,11 @@ export class GoogleCalendarService {
   // Connecte l'utilisateur à Google Calendar via OAuth
   static async connect(): Promise<{ success: boolean; email?: string; token?: string }> {
     try {
+      // Utilisation de la bonne URI de redirection pour Supabase
+      const redirectUri = 'https://jmgzepudbaemnxrswmss.supabase.co/auth/v1/callback';
+      
+      console.log('Démarrage de la connexion Google avec redirectUri:', redirectUri);
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
