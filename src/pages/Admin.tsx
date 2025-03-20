@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,11 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CalendarClock, Check, ExternalLink, GoogleIcon, RefreshCw, X } from "lucide-react";
+import { CalendarClock, Check, ExternalLink, RefreshCw, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminSettings } from "@/types";
 
-// Composant GoogleIcon absent de lucide-react, nous le créons
 const GoogleIcon = () => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -38,9 +36,7 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [reservations, setReservations] = useState<any[]>([]);
   
-  // Simuler le chargement des réservations
   useEffect(() => {
-    // Dans une vraie application, ces données viendraient de Supabase
     const mockReservations = [
       { 
         id: "1", 
@@ -70,8 +66,6 @@ const Admin = () => {
   const handleGoogleConnect = () => {
     setIsLoading(true);
     
-    // Simuler la connexion à Google Calendar
-    // Dans une vraie application, cela ouvrirait l'OAuth de Google
     setTimeout(() => {
       setAdminSettings({
         googleConnected: true,
@@ -90,7 +84,6 @@ const Admin = () => {
   const handleGoogleDisconnect = () => {
     setIsLoading(true);
     
-    // Simuler la déconnexion
     setTimeout(() => {
       setAdminSettings({
         googleConnected: false,
@@ -109,7 +102,6 @@ const Admin = () => {
   const syncNow = () => {
     setIsLoading(true);
     
-    // Simuler la synchronisation manuelle
     setTimeout(() => {
       toast.success("Synchronisation terminée", {
         description: "Toutes les réservations ont été synchronisées avec Google Calendar."
