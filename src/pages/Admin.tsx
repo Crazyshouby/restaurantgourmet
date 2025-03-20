@@ -42,6 +42,7 @@ const Admin = () => {
       
       const updateAdminSettings = async () => {
         try {
+          setIsLoading(true);
           const { data: sessionData } = await supabase.auth.getSession();
           const session = sessionData.session;
           
@@ -72,18 +73,29 @@ const Admin = () => {
               });
               
               console.log('Paramètres mis à jour avec succès');
+              await loadReservations();
             } else {
               console.error('Erreur lors de la mise à jour dans Supabase:', error);
+              toast.error("Erreur de connexion", {
+                description: "Impossible de mettre à jour les paramètres."
+              });
             }
           } else {
             console.warn('Session valide mais provider_token ou email manquant');
+            toast.error("Erreur de connexion", {
+              description: "Informations de session incomplètes."
+            });
           }
         } catch (error) {
           console.error("Erreur lors de la mise à jour des paramètres:", error);
+          toast.error("Erreur de connexion", {
+            description: "Une erreur est survenue lors de la mise à jour des paramètres."
+          });
+        } finally {
+          setIsLoading(false);
+          // Nettoyage de l'URL
+          window.history.replaceState({}, document.title, location.pathname);
         }
-        
-        // Nettoyage de l'URL
-        window.history.replaceState({}, document.title, location.pathname);
       };
       
       updateAdminSettings();
@@ -116,6 +128,9 @@ const Admin = () => {
         }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
+        toast.error("Erreur de chargement", {
+          description: "Impossible de charger les données."
+        });
       } finally {
         setIsLoading(false);
       }
@@ -128,6 +143,10 @@ const Admin = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event, session?.user?.email);
+        
+        if (event === 'SIGNED_IN' && session?.provider_token) {
+          console.log('Utilisateur connecté avec un provider_token');
+        }
       }
     );
     

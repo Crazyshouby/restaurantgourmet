@@ -43,15 +43,25 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
   setAdminSettings
 }) => {
   const handleGoogleConnect = async () => {
-    setIsLoading(true);
-    
     try {
       console.log("Démarrage du processus de connexion Google...");
       toast.info("Redirection vers Google", {
         description: "Vous allez être redirigé pour vous connecter à votre compte Google."
       });
       
-      await GoogleCalendarService.connect();
+      // Augmentons le temps de chargement pour éviter les clics multiples pendant la redirection
+      setIsLoading(true);
+      
+      const result = await GoogleCalendarService.connect();
+      
+      if (!result.success) {
+        toast.error("Erreur de connexion", {
+          description: "Une erreur est survenue lors de la connexion à Google."
+        });
+        setIsLoading(false);
+      }
+      
+      // Note: Le loader reste actif jusqu'à la redirection
     } catch (error) {
       console.error("Erreur lors de la connexion à Google:", error);
       toast.error("Erreur de connexion", {

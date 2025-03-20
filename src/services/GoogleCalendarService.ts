@@ -39,16 +39,16 @@ export class GoogleCalendarService {
     try {
       console.log('Démarrage du processus de connexion Google...');
       
-      // Utilisation du callback Supabase standard
+      // Configuration simplifiée du flux OAuth
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-            scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+            scope: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile openid',
           },
-          redirectTo: `${window.location.origin}/admin?auth=success`,
+          redirectTo: window.location.origin + '/admin?auth=success',
         },
       });
       
