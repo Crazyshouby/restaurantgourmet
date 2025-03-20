@@ -4,9 +4,10 @@ import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
 import ReservationForm from "@/components/ReservationForm";
 import { Button } from "@/components/ui/button";
-import { InfoIcon, ExternalLink } from "lucide-react";
+import { InfoIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { ReservationService } from "@/services/ReservationService";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -16,11 +17,16 @@ const Index = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulation d'envoi à l'API - à remplacer par un appel à Supabase
-      console.log("Données de réservation:", formData);
-      
-      // Simuler un délai d'envoi
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Appel à Supabase via ReservationService
+      await ReservationService.createReservation({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        date: formData.date,
+        time: formData.time,
+        guests: formData.guests,
+        notes: formData.notes
+      });
       
       toast.success("Réservation confirmée", {
         description: `Votre table est réservée pour le ${format(formData.date, "d MMMM à HH:mm")}`,

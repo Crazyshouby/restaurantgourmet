@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import { CalendarClock, Check, ExternalLink, RefreshCw, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminSettings } from "@/types";
+import { GoogleCalendarService } from "@/services/GoogleCalendarService";
+import { ReservationService } from "@/services/ReservationService";
+import { Reservation } from "@/types";
+import { supabase } from "@/integrations/supabase/client";
 
 const GoogleIcon = () => (
   <svg 
@@ -34,81 +38,129 @@ const Admin = () => {
   });
   
   const [isLoading, setIsLoading] = useState(false);
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   
   useEffect(() => {
-    const mockReservations = [
-      { 
-        id: "1", 
-        name: "Jean Dupont", 
-        date: new Date(2023, 9, 15), 
-        time: "19:30", 
-        guests: 4,
-        email: "jean@example.com",
-        phone: "06 12 34 56 78",
-        googleEventId: "abc123"
-      },
-      { 
-        id: "2", 
-        name: "Marie Martin", 
-        date: new Date(2023, 9, 16), 
-        time: "12:30", 
-        guests: 2,
-        email: "marie@example.com",
-        phone: "07 98 76 54 32",
-        googleEventId: "def456"
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const reservationsData = await ReservationService.getReservations();
+        setReservations(reservationsData);
+        
+        const isConnected = await GoogleCalendarService.isConnected();
+        if (isConnected) {
+          const { data, error } = await supabase
+            .from('admin_settings')
+            .select('*')
+            .eq('id', 1)
+            .single();
+          
+          if (!error && data) {
+            setAdminSettings({
+              googleConnected: data.google_connected,
+              googleEmail: data.google_email,
+              googleRefreshToken: data.google_refresh_token
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
     
-    setReservations(mockReservations);
+    loadData();
   }, []);
   
-  const handleGoogleConnect = () => {
+  const handleGoogleConnect = async () => {
     setIsLoading(true);
     
-    setTimeout(() => {
-      setAdminSettings({
-        googleConnected: true,
-        googleEmail: "admin@restaurant.com",
-        googleRefreshToken: "mock-token"
-      });
+    try {
+      const result = await GoogleCalendarService.connect();
       
-      toast.success("Compte Google connecté avec succès", {
-        description: "Les réservations seront synchronisées automatiquement."
+      if (result.success) {
+        setAdminSettings({
+          googleConnected: true,
+          googleEmail: result.email,
+          googleRefreshToken: result.token
+        });
+        
+        toast.success("Compte Google connecté avec succès", {
+          description: "Les réservations seront synchronisées automatiquement."
+        });
+      } else {
+        toast.error("Erreur de connexion", {
+          description: "Impossible de se connecter à Google Calendar."
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la connexion à Google:", error);
+      toast.error("Erreur de connexion", {
+        description: "Une erreur est survenue. Veuillez réessayer."
       });
-      
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
   
-  const handleGoogleDisconnect = () => {
+  const handleGoogleDisconnect = async () => {
     setIsLoading(true);
     
-    setTimeout(() => {
-      setAdminSettings({
-        googleConnected: false,
-        googleEmail: undefined,
-        googleRefreshToken: undefined
-      });
+    try {
+      const result = await GoogleCalendarService.disconnect();
       
-      toast.info("Compte Google déconnecté", {
-        description: "La synchronisation est désactivée."
+      if (result.success) {
+        setAdminSettings({
+          googleConnected: false,
+          googleEmail: undefined,
+          googleRefreshToken: undefined
+        });
+        
+        toast.info("Compte Google déconnecté", {
+          description: "La synchronisation est désactivée."
+        });
+      } else {
+        toast.error("Erreur de déconnexion", {
+          description: "Impossible de déconnecter le compte Google."
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion de Google:", error);
+      toast.error("Erreur de déconnexion", {
+        description: "Une erreur est survenue. Veuillez réessayer."
       });
-      
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
   
-  const syncNow = () => {
+  const syncNow = async () => {
     setIsLoading(true);
     
-    setTimeout(() => {
-      toast.success("Synchronisation terminée", {
-        description: "Toutes les réservations ont été synchronisées avec Google Calendar."
-      });
+    try {
+      const result = await ReservationService.syncWithGoogleCalendar();
       
+      if (result.success) {
+        toast.success("Synchronisation terminée", {
+          description: `${result.syncedCount} réservation(s) synchronisée(s) avec Google Calendar.`
+        });
+        
+        const updatedReservations = await ReservationService.getReservations();
+        setReservations(updatedReservations);
+      } else {
+        toast.error("Erreur de synchronisation", {
+          description: "Impossible de synchroniser avec Google Calendar."
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la synchronisation:", error);
+      toast.error("Erreur de synchronisation", {
+        description: "Une erreur est survenue. Veuillez réessayer."
+      });
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
   
   return (

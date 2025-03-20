@@ -1,45 +1,98 @@
 
-// Ce service est une simulation qui sera remplacé par l'intégration réelle avec Google Calendar via Supabase
+import { supabase } from '@/integrations/supabase/client';
+import { Reservation, AdminSettings } from '@/types';
+
 export class GoogleCalendarService {
-  // Vérifie si l'utilisateur est connecté à Google Calendar
-  static async isConnected(): Promise<boolean> {
-    // Simuler un appel à Supabase pour vérifier si le token est présent
-    return localStorage.getItem('googleRefreshToken') !== null;
+  // Récupère les paramètres d'administration
+  private static async getAdminSettings(): Promise<AdminSettings> {
+    try {
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('*')
+        .eq('id', 1)
+        .single();
+      
+      if (error) {
+        console.error('Erreur lors de la récupération des paramètres admin:', error);
+        return { googleConnected: false };
+      }
+      
+      return {
+        googleConnected: data.google_connected,
+        googleRefreshToken: data.google_refresh_token,
+        googleEmail: data.google_email
+      };
+    } catch (error) {
+      console.error('Erreur lors de la récupération des paramètres admin:', error);
+      return { googleConnected: false };
+    }
   }
 
-  // Connecte l'utilisateur à Google Calendar
+  // Vérifie si l'utilisateur est connecté à Google Calendar
+  static async isConnected(): Promise<boolean> {
+    const settings = await this.getAdminSettings();
+    return settings.googleConnected && !!settings.googleRefreshToken;
+  }
+
+  // Connecte l'utilisateur à Google Calendar (simulation)
   static async connect(): Promise<{ success: boolean; email?: string; token?: string }> {
-    // Cette fonction serait remplacée par l'OAuth de Google via Supabase
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockToken = "mock-refresh-token-" + Date.now();
-        localStorage.setItem('googleRefreshToken', mockToken);
-        localStorage.setItem('googleEmail', 'admin@restaurant.com');
-        
-        resolve({
-          success: true,
-          email: 'admin@restaurant.com',
-          token: mockToken
-        });
-      }, 1000);
-    });
+    try {
+      const mockToken = "mock-refresh-token-" + Date.now();
+      const mockEmail = 'admin@restaurant.com';
+      
+      // Met à jour les paramètres dans Supabase
+      const { error } = await supabase
+        .from('admin_settings')
+        .update({
+          google_connected: true,
+          google_refresh_token: mockToken,
+          google_email: mockEmail
+        })
+        .eq('id', 1);
+      
+      if (error) {
+        console.error('Erreur lors de la connexion à Google:', error);
+        return { success: false };
+      }
+      
+      return {
+        success: true,
+        email: mockEmail,
+        token: mockToken
+      };
+    } catch (error) {
+      console.error('Erreur lors de la connexion à Google:', error);
+      return { success: false };
+    }
   }
 
   // Déconnecte l'utilisateur de Google Calendar
   static async disconnect(): Promise<{ success: boolean }> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        localStorage.removeItem('googleRefreshToken');
-        localStorage.removeItem('googleEmail');
-        
-        resolve({ success: true });
-      }, 500);
-    });
+    try {
+      const { error } = await supabase
+        .from('admin_settings')
+        .update({
+          google_connected: false,
+          google_refresh_token: null,
+          google_email: null
+        })
+        .eq('id', 1);
+      
+      if (error) {
+        console.error('Erreur lors de la déconnexion de Google:', error);
+        return { success: false };
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion de Google:', error);
+      return { success: false };
+    }
   }
 
-  // Crée un événement dans Google Calendar
+  // Crée un événement dans Google Calendar (simulation)
   static async createEvent(reservation: any): Promise<{ success: boolean; eventId?: string }> {
-    // Cette fonction serait remplacée par l'API Google Calendar via Supabase
+    // Simule l'appel à l'API Google (serait remplacé par une véritable intégration)
     return new Promise((resolve) => {
       setTimeout(() => {
         const mockEventId = "google-event-" + Date.now();
@@ -65,9 +118,9 @@ export class GoogleCalendarService {
     });
   }
 
-  // Récupère tous les événements du calendrier
+  // Récupère tous les événements du calendrier (simulation)
   static async getEvents(): Promise<any[]> {
-    // Cette fonction serait remplacée par l'API Google Calendar via Supabase
+    // Simule une requête à l'API Google
     return new Promise((resolve) => {
       setTimeout(() => {
         const mockEvents = [

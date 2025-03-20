@@ -9,7 +9,69 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_settings: {
+        Row: {
+          google_connected: boolean
+          google_email: string | null
+          google_refresh_token: string | null
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          google_connected?: boolean
+          google_email?: string | null
+          google_refresh_token?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          google_connected?: boolean
+          google_email?: string | null
+          google_refresh_token?: string | null
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          created_at: string
+          date: string
+          email: string
+          google_event_id: string | null
+          guests: number
+          id: string
+          name: string
+          notes: string | null
+          phone: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          email: string
+          google_event_id?: string | null
+          guests: number
+          id?: string
+          name: string
+          notes?: string | null
+          phone: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          email?: string
+          google_event_id?: string | null
+          guests?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          time?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
