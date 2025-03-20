@@ -19,11 +19,13 @@ serve(async (req) => {
   const url = new URL(req.url);
   const path = url.pathname.split("/").pop();
 
+  console.log(`Requête reçue: ${req.method} ${url.pathname} depuis ${url.origin}`);
+
   // Router pour les différentes fonctionalités
   try {
     switch (path) {
       case "init":
-        return await handleInit();
+        return await handleInit(url);
 
       case "callback":
         return await handleCallback(url);

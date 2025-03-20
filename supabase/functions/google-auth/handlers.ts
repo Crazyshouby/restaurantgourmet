@@ -15,12 +15,18 @@ import {
 } from "./utils.ts";
 
 // Initialisation de l'authentification Google
-export async function handleInit() {
+export async function handleInit(url: URL) {
   const state = crypto.randomUUID();
   const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   
+  // Utilisons l'URL d'origine pour déterminer le bon URI de redirection
+  const origin = url.origin;
+  const effectiveRedirectUri = REDIRECT_URI || `${origin}/google-auth/callback`;
+  
+  console.log("Initialisation OAuth avec redirection vers:", effectiveRedirectUri);
+  
   authUrl.searchParams.append("client_id", CLIENT_ID);
-  authUrl.searchParams.append("redirect_uri", REDIRECT_URI);
+  authUrl.searchParams.append("redirect_uri", effectiveRedirectUri);
   authUrl.searchParams.append("response_type", "code");
   authUrl.searchParams.append("scope", SCOPES.join(" "));
   authUrl.searchParams.append("access_type", "offline");
@@ -40,6 +46,14 @@ export async function handleCallback(url: URL) {
       return createErrorResponse("Code d'autorisation manquant", 400);
     }
     
+    console.log("Code d'autorisation reçu, échange contre des tokens...");
+    
+    // Utilisons l'URL d'origine pour déterminer le bon URI de redirection
+    const origin = url.origin;
+    const effectiveRedirectUri = REDIRECT_URI || `${origin}/google-auth/callback`;
+    
+    console.log("Utilisation de l'URI de redirection:", effectiveRedirectUri);
+    
     // Échange du code contre des tokens
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -48,7 +62,7 @@ export async function handleCallback(url: URL) {
         code,
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
-        redirect_uri: REDIRECT_URI,
+        redirect_uri: effectiveRedirectUri,
         grant_type: "authorization_code",
       }),
     });
@@ -56,8 +70,11 @@ export async function handleCallback(url: URL) {
     const tokenData = await tokenRes.json();
     
     if (!tokenData.access_token || !tokenData.refresh_token) {
+      console.error("Tokens invalides reçus:", tokenData);
       throw new Error("Tokens invalides reçus de Google");
     }
+    
+    console.log("Tokens reçus avec succès, récupération des informations du profil...");
     
     // Récupération des informations du profil utilisateur
     const profileRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
@@ -65,6 +82,7 @@ export async function handleCallback(url: URL) {
     });
     
     const profileData = await profileRes.json();
+    console.log("Profil récupéré:", profileData.email);
     
     // Mise à jour des paramètres admin dans Supabase
     const { error } = await supabase
@@ -78,13 +96,19 @@ export async function handleCallback(url: URL) {
       .eq("id", 1);
     
     if (error) {
+      console.error("Erreur de mise à jour Supabase:", error);
       throw new Error("Erreur lors de la mise à jour des paramètres admin: " + error.message);
     }
     
+    console.log("Paramètres admin mis à jour avec succès");
+    
     // Redirection vers la page d'administration avec un message de succès
-    // Utilisation de l'URL d'origine pour la redirection (avec le bon protocole et domaine)
-    const redirectUrl = new URL("/admin", url.origin);
-    redirectUrl.searchParams.append("auth", "success");
+    // Nous utilisons une URL absolue pour la redirection
+    const appHostname = Deno.env.get("APP_HOSTNAME") || url.hostname.replace('jmgzpeubdaemrxvsmwss', 'app');
+    const appProtocol = appHostname.includes('localhost') ? 'http:' : 'https:';
+    const redirectUrl = new URL("/admin?auth=success", `${appProtocol}//${appHostname}`);
+    
+    console.log("Redirection vers:", redirectUrl.toString());
     
     return createRedirectResponse(redirectUrl.toString());
   } catch (error) {
