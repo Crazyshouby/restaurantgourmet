@@ -7,7 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { CalendarClock, Check, ExternalLink, RefreshCw, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { AdminSettings } from "@/types";
 import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 import { ReservationService } from "@/services/ReservationService";
@@ -32,6 +32,7 @@ const GoogleIcon = () => (
 );
 
 const Admin = () => {
+  const location = useLocation();
   const [adminSettings, setAdminSettings] = useState<AdminSettings>({
     googleConnected: false,
     googleEmail: undefined,
@@ -41,6 +42,17 @@ const Admin = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   
   useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const authStatus = queryParams.get('auth');
+    
+    if (authStatus === 'success') {
+      toast.success("Connexion Google réussie", {
+        description: "Votre compte Google a été connecté avec succès."
+      });
+      
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+    
     const loadData = async () => {
       setIsLoading(true);
       try {
@@ -71,35 +83,18 @@ const Admin = () => {
     };
     
     loadData();
-  }, []);
+  }, [location]);
   
   const handleGoogleConnect = async () => {
     setIsLoading(true);
     
     try {
-      const result = await GoogleCalendarService.connect();
-      
-      if (result.success) {
-        setAdminSettings({
-          googleConnected: true,
-          googleEmail: result.email,
-          googleRefreshToken: result.token
-        });
-        
-        toast.success("Compte Google connecté avec succès", {
-          description: "Les réservations seront synchronisées automatiquement."
-        });
-      } else {
-        toast.error("Erreur de connexion", {
-          description: "Impossible de se connecter à Google Calendar."
-        });
-      }
+      await GoogleCalendarService.connect();
     } catch (error) {
       console.error("Erreur lors de la connexion à Google:", error);
       toast.error("Erreur de connexion", {
         description: "Une erreur est survenue. Veuillez réessayer."
       });
-    } finally {
       setIsLoading(false);
     }
   };

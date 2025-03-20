@@ -34,32 +34,20 @@ export class GoogleCalendarService {
     return settings.googleConnected && !!settings.googleRefreshToken;
   }
 
-  // Connecte l'utilisateur à Google Calendar (simulation)
+  // Connecte l'utilisateur à Google Calendar via OAuth
   static async connect(): Promise<{ success: boolean; email?: string; token?: string }> {
     try {
-      const mockToken = "mock-refresh-token-" + Date.now();
-      const mockEmail = 'admin@restaurant.com';
+      // Obtenir l'URL d'authentification Google
+      const response = await fetch('/api/google-auth/init');
+      const data = await response.json();
       
-      // Met à jour les paramètres dans Supabase
-      const { error } = await supabase
-        .from('admin_settings')
-        .update({
-          google_connected: true,
-          google_refresh_token: mockToken,
-          google_email: mockEmail
-        })
-        .eq('id', 1);
-      
-      if (error) {
-        console.error('Erreur lors de la connexion à Google:', error);
-        return { success: false };
+      if (data.url) {
+        // Rediriger vers la page d'authentification Google
+        window.location.href = data.url;
+        return { success: true }; // Ce code ne sera pas exécuté en raison de la redirection
       }
       
-      return {
-        success: true,
-        email: mockEmail,
-        token: mockToken
-      };
+      return { success: false };
     } catch (error) {
       console.error('Erreur lors de la connexion à Google:', error);
       return { success: false };
@@ -90,69 +78,63 @@ export class GoogleCalendarService {
     }
   }
 
-  // Crée un événement dans Google Calendar (simulation)
+  // Crée un événement dans Google Calendar
   static async createEvent(reservation: any): Promise<{ success: boolean; eventId?: string }> {
-    // Ensure date is handled correctly - if it's a Date object convert to string format
-    const dateString = reservation.date instanceof Date 
-      ? reservation.date.toISOString().split('T')[0]
-      : reservation.date;
-    
-    // Simule l'appel à l'API Google (serait remplacé par une véritable intégration)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockEventId = "google-event-" + Date.now();
-        
-        console.log('Créé événement Google Calendar:', {
-          summary: `Réservation: ${reservation.name}`,
-          description: `Réservation pour ${reservation.guests} personne(s)\nTél: ${reservation.phone}\nEmail: ${reservation.email}\nNotes: ${reservation.notes || 'Aucune'}`,
-          start: {
-            dateTime: `${dateString}T${reservation.time}:00`,
-            timeZone: 'Europe/Paris',
-          },
-          end: {
-            dateTime: `${dateString}T${parseInt(reservation.time.split(':')[0]) + 2}:${reservation.time.split(':')[1]}:00`,
-            timeZone: 'Europe/Paris',
-          },
-        });
-        
-        resolve({ 
+    try {
+      const isConnected = await this.isConnected();
+      
+      if (!isConnected) {
+        return { success: false };
+      }
+      
+      // Appeler l'Edge Function pour créer l'événement
+      const response = await fetch('/api/google-auth/create-event', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ reservation })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success && data.eventId) {
+        return {
           success: true,
-          eventId: mockEventId
-        });
-      }, 800);
-    });
+          eventId: data.eventId
+        };
+      } else {
+        console.error('Erreur lors de la création de l\'événement:', data.error);
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'événement Google Calendar:', error);
+      return { success: false };
+    }
   }
 
-  // Récupère tous les événements du calendrier (simulation)
+  // Récupère tous les événements du calendrier
   static async getEvents(): Promise<any[]> {
-    // Simule une requête à l'API Google
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockEvents = [
-          {
-            id: 'event-1',
-            summary: 'Réservation: Jean Dupont',
-            start: {
-              dateTime: '2023-10-15T19:30:00+02:00',
-            },
-            end: {
-              dateTime: '2023-10-15T21:30:00+02:00',
-            },
-          },
-          {
-            id: 'event-2',
-            summary: 'Réservation: Marie Martin',
-            start: {
-              dateTime: '2023-10-16T12:30:00+02:00',
-            },
-            end: {
-              dateTime: '2023-10-16T14:30:00+02:00',
-            },
-          },
-        ];
-        
-        resolve(mockEvents);
-      }, 1000);
-    });
+    try {
+      const isConnected = await this.isConnected();
+      
+      if (!isConnected) {
+        return [];
+      }
+      
+      // Appeler l'Edge Function pour récupérer les événements
+      const response = await fetch('/api/google-auth/events');
+      const data = await response.json();
+      
+      if (data.items && Array.isArray(data.items)) {
+        return data.items;
+      } else {
+        console.error('Format de données incorrect pour les événements:', data);
+        return [];
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des événements Google Calendar:', error);
+      return [];
+    }
   }
 }
