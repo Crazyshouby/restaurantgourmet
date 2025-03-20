@@ -92,6 +92,11 @@ export class GoogleCalendarService {
 
   // Crée un événement dans Google Calendar (simulation)
   static async createEvent(reservation: any): Promise<{ success: boolean; eventId?: string }> {
+    // Ensure date is handled correctly - if it's a Date object convert to string format
+    const dateString = reservation.date instanceof Date 
+      ? reservation.date.toISOString().split('T')[0]
+      : reservation.date;
+    
     // Simule l'appel à l'API Google (serait remplacé par une véritable intégration)
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -101,11 +106,11 @@ export class GoogleCalendarService {
           summary: `Réservation: ${reservation.name}`,
           description: `Réservation pour ${reservation.guests} personne(s)\nTél: ${reservation.phone}\nEmail: ${reservation.email}\nNotes: ${reservation.notes || 'Aucune'}`,
           start: {
-            dateTime: `${reservation.date.toISOString().split('T')[0]}T${reservation.time}:00`,
+            dateTime: `${dateString}T${reservation.time}:00`,
             timeZone: 'Europe/Paris',
           },
           end: {
-            dateTime: `${reservation.date.toISOString().split('T')[0]}T${parseInt(reservation.time.split(':')[0]) + 2}:${reservation.time.split(':')[1]}:00`,
+            dateTime: `${dateString}T${parseInt(reservation.time.split(':')[0]) + 2}:${reservation.time.split(':')[1]}:00`,
             timeZone: 'Europe/Paris',
           },
         });

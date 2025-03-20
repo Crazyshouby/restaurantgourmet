@@ -48,15 +48,21 @@ export class ReservationService {
         }
       }
       
+      // Convert Date object to ISO string format (YYYY-MM-DD) for Supabase
+      const dateString = reservation.date instanceof Date 
+        ? reservation.date.toISOString().split('T')[0] 
+        : reservation.date;
+      
       const newReservation = {
         ...reservation,
+        date: dateString,
         google_event_id: googleEventId
       };
       
       // Enregistre dans Supabase
       const { data, error } = await supabase
         .from('reservations')
-        .insert([newReservation])
+        .insert(newReservation)
         .select();
       
       if (error) {
