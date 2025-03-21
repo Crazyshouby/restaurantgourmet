@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -177,6 +178,7 @@ const Admin = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1 space-y-6">
+              {/* Google Calendar Card placed first (at the top) */}
               <GoogleCalendarCard 
                 adminSettings={adminSettings}
                 isLoading={isLoading}
@@ -185,6 +187,7 @@ const Admin = () => {
                 setAdminSettings={setAdminSettings}
               />
               
+              {/* Capacity Settings placed second (below Google Calendar) */}
               <CapacitySettings 
                 adminSettings={adminSettings}
                 onSettingsUpdated={loadAdminSettings}
