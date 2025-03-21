@@ -105,7 +105,7 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
           {reservationsByDay.length > 0 ? <div className="space-y-4">
               {reservationsByDay.map((dayGroup, groupIndex) => <div key={dayGroup.date.toISOString()}>
                   {/* Afficher la date avec un séparateur à gauche seulement */}
-                  <div className="flex items-center gap-2 py-3">
+                  <div className="flex items-center gap-2 my-0 py-[7px] px-0">
                     <Separator className="w-12" />
                     <span className="text-sm font-medium text-muted-foreground capitalize whitespace-nowrap">
                       {formatDate(dayGroup.date)}
