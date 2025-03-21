@@ -46,9 +46,8 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
             }}
             locale={fr}
             className="rounded-md"
-            // Utilisation du bon nom de propriété dans classNames
             classNames={{
-              day: "rounded-full" // Changed from 'day_button' to 'day'
+              day_button: "rounded-full"
             }}
           />
         </div>
