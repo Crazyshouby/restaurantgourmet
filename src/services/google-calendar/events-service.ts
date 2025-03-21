@@ -1,5 +1,6 @@
 
 import { formatDateTimeForCalendar, calculateEndTime } from './utils';
+import { GoogleCalendarApiClient } from './api-client';
 import { GoogleCalendarAuthService } from './auth-service';
 import { GoogleCalendarEventResponse, GoogleCalendarEvent } from './types';
 import { Reservation } from '@/types';
@@ -8,18 +9,8 @@ export class GoogleCalendarEventsService {
   // Crée un événement dans Google Calendar
   static async createEvent(reservation: any): Promise<GoogleCalendarEventResponse> {
     try {
-      const isConnected = await GoogleCalendarAuthService.isConnected();
-      
-      if (!isConnected) {
+      if (!(await GoogleCalendarAuthService.isConnected())) {
         console.log('Google Calendar non connecté, impossible de créer un événement');
-        return { success: false };
-      }
-      
-      // Obtenir le token d'accès actuel
-      const accessToken = await GoogleCalendarAuthService.getAccessToken();
-      
-      if (!accessToken) {
-        console.error('Token d\'accès non disponible');
         return { success: false };
       }
       
@@ -38,28 +29,23 @@ export class GoogleCalendarEventsService {
         description: `Réservation pour ${reservation.guests} personne(s)\nTél: ${reservation.phone}\nEmail: ${reservation.email}\nNotes: ${reservation.notes || "Aucune"}`,
         start: {
           dateTime: startDateTime,
-          timeZone: 'Europe/Paris',
+          timeZone: 'America/New_York', // GMT-4 (fuseau horaire de l'Est canadien)
         },
         end: {
           dateTime: `${dateString}T${endTime}`,
-          timeZone: 'Europe/Paris',
+          timeZone: 'America/New_York', // GMT-4 (fuseau horaire de l'Est canadien)
         },
       };
       
-      // Appel direct à l'API Google Calendar
-      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(eventData)
-      });
+      // Appel à l'API via le client
+      const data = await GoogleCalendarApiClient.callApi<any>(
+        'calendars/primary/events', 
+        'POST', 
+        eventData
+      );
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Erreur API lors de la création de l\'événement:', data);
+      if (!data || !data.id) {
+        console.error('Erreur lors de la création de l\'événement:', data);
         return { success: false };
       }
       
@@ -77,36 +63,13 @@ export class GoogleCalendarEventsService {
   // Récupère tous les événements du calendrier
   static async getEvents(): Promise<any[]> {
     try {
-      const isConnected = await GoogleCalendarAuthService.isConnected();
+      const events = await GoogleCalendarApiClient.callApi<{items?: any[]}>('calendars/primary/events');
       
-      if (!isConnected) {
-        console.log('Google Calendar non connecté, impossible de récupérer les événements');
+      if (!events) {
         return [];
       }
       
-      // Obtenir le token d'accès actuel
-      const accessToken = await GoogleCalendarAuthService.getAccessToken();
-      
-      if (!accessToken) {
-        console.error('Token d\'accès non disponible pour récupérer les événements');
-        return [];
-      }
-      
-      // Appel direct à l'API Google Calendar
-      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
-        }
-      });
-      
-      const data = await response.json();
-      
-      if (!response.ok) {
-        console.error('Erreur API lors de la récupération des événements:', data);
-        return [];
-      }
-      
-      return data.items || [];
+      return events.items || [];
     } catch (error) {
       console.error('Exception lors de la récupération des événements Google Calendar:', error);
       return [];
