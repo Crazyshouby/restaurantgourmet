@@ -14,7 +14,7 @@ interface ReservationCalendarProps {
   className?: string;
 }
 
-// Fuseau horaire canadien (UTC-4)
+// Fuseau horaire canadien (GMT-4)
 const TIMEZONE = "America/New_York";
 
 const ReservationCalendar: React.FC<ReservationCalendarProps> = ({

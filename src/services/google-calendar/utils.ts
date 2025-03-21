@@ -27,13 +27,13 @@ export async function getAdminSettings(): Promise<GoogleCalendarSettings> {
   }
 }
 
-// Formate une date et heure pour Google Calendar
+// Formate une date et heure pour Google Calendar avec fuseau horaire GMT-4
 export function formatDateTimeForCalendar(date: Date | string, time: string): string {
   const dateString = date instanceof Date 
     ? date.toISOString().split('T')[0] 
     : date;
   
-  return `${dateString}T${time}:00`;
+  return `${dateString}T${time}:00-04:00`;  // Ajout du décalage horaire GMT-4
 }
 
 // Calcule l'heure de fin (2 heures après l'heure de début)
