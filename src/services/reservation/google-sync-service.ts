@@ -22,7 +22,8 @@ export class ReservationGoogleSyncService {
       const { data, error } = await supabase
         .from('reservations')
         .select('*')
-        .is('google_event_id', null);
+        .is('google_event_id', null)
+        .eq('imported_from_google', false); // Ne synchroniser que les réservations qui n'ont pas été importées de Google
       
       if (error) {
         console.error('Erreur lors de la récupération des réservations non synchronisées:', error);
@@ -35,6 +36,8 @@ export class ReservationGoogleSyncService {
         date: new Date(r.date),
         googleEventId: r.google_event_id
       }));
+      
+      console.log(`${reservations.length} réservations à synchroniser avec Google Calendar`);
       
       let syncedCount = 0;
       
@@ -88,6 +91,8 @@ export class ReservationGoogleSyncService {
         return { success: true, importedCount: 0 };
       }
       
+      console.log(`${calendarReservations.length} événements importés depuis Google Calendar`);
+      
       // Récupère toutes les réservations existantes
       const existingReservations = await ReservationBaseService.getReservations();
       
@@ -125,8 +130,14 @@ export class ReservationGoogleSyncService {
             continue;
           }
           
+          // Crée la réservation avec le flag indiquant qu'elle provient de Google Calendar
+          const importedReservation = {
+            ...reservation,
+            importedFromGoogle: true // Marquer comme importée de Google Calendar
+          };
+          
           // Crée la réservation
-          await ReservationCreationService.createReservation(reservation);
+          await ReservationCreationService.createReservation(importedReservation);
           importedCount++;
         } catch (error) {
           console.error('Erreur lors de l\'importation d\'un événement:', error);
