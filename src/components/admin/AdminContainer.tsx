@@ -4,6 +4,7 @@ import { Reservation, AdminSettings } from "@/types";
 import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import CapacitySettings from "@/components/admin/CapacitySettings";
+import ReservationsCalendarView from "@/components/admin/ReservationsCalendarView";
 
 interface AdminContainerProps {
   adminSettings: AdminSettings;
@@ -63,6 +64,15 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
               onReservationUpdated={onRefreshReservations}
             />
           </div>
+        </div>
+        
+        {/* Calendrier des réservations en grand format en bas */}
+        <div className="mt-8">
+          <ReservationsCalendarView 
+            reservations={reservations}
+            onReservationUpdated={onRefreshReservations}
+            onReservationDeleted={onRefreshReservations}
+          />
         </div>
       </div>
     </main>
