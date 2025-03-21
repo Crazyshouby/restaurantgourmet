@@ -32,7 +32,8 @@ export class ReservationBaseService {
       phone: reservation.phone,
       email: reservation.email,
       notes: reservation.notes || '',
-      googleEventId: reservation.google_event_id
+      googleEventId: reservation.google_event_id,
+      importedFromGoogle: reservation.imported_from_google || false
     }));
   }
 
@@ -44,7 +45,7 @@ export class ReservationBaseService {
       // D'abord, récupérer les détails de la réservation pour obtenir l'ID de l'événement Google
       const { data: reservation, error: fetchError } = await supabase
         .from('reservations')
-        .select('google_event_id')
+        .select('google_event_id, imported_from_google')
         .eq('id', id)
         .single();
         
@@ -54,12 +55,13 @@ export class ReservationBaseService {
       }
       
       // Si la réservation a un événement Google associé, le supprimer
+      // que la réservation ait été importée de Google ou créée dans l'application
       if (reservation && reservation.google_event_id) {
         try {
           // Tenter de supprimer l'événement de Google Calendar
           console.log('Suppression de l\'événement Google Calendar:', reservation.google_event_id);
-          await GoogleCalendarService.deleteEvent(reservation.google_event_id);
-          console.log('Événement Google Calendar supprimé avec succès');
+          const deleted = await GoogleCalendarService.deleteEvent(reservation.google_event_id);
+          console.log('Événement Google Calendar supprimé avec succès:', deleted);
         } catch (googleError) {
           // Si la suppression de l'événement Google échoue, on continue quand même
           // avec la suppression de la réservation dans notre système
@@ -139,10 +141,14 @@ export class ReservationBaseService {
    * @param importedFromGoogle Flag indiquant si la réservation a été importée de Google Calendar
    */
   static async createReservationInDatabase(
-    reservation: Omit<Reservation, 'id' | 'googleEventId'>,
+    reservation: Omit<Reservation, 'id' | 'googleEventId'> & { googleEventId?: string, importedFromGoogle?: boolean },
     googleEventId?: string,
     importedFromGoogle: boolean = false
   ): Promise<Reservation> {
+    // Utiliser l'ID de l'événement Google fourni dans la réservation si disponible
+    const finalGoogleEventId = reservation.googleEventId || googleEventId || null;
+    const finalImportedFromGoogle = reservation.importedFromGoogle || importedFromGoogle || false;
+    
     // Convertir la date en format ISO pour Supabase (string)
     const formattedDate = reservation.date instanceof Date 
       ? reservation.date.toISOString().split('T')[0] 
@@ -159,8 +165,8 @@ export class ReservationBaseService {
         phone: reservation.phone,
         email: reservation.email,
         notes: reservation.notes || '',
-        google_event_id: googleEventId || null,
-        imported_from_google: importedFromGoogle
+        google_event_id: finalGoogleEventId,
+        imported_from_google: finalImportedFromGoogle
       })
       .select()
       .single();
@@ -180,7 +186,8 @@ export class ReservationBaseService {
       phone: data.phone,
       email: data.email,
       notes: data.notes,
-      googleEventId: data.google_event_id
+      googleEventId: data.google_event_id,
+      importedFromGoogle: data.imported_from_google
     };
   }
 }

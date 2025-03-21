@@ -133,7 +133,12 @@ export class ReservationGoogleSyncService {
           // Crée la réservation avec le flag indiquant qu'elle provient de Google Calendar
           const importedReservation = {
             ...reservation,
-            importedFromGoogle: true // Marquer comme importée de Google Calendar
+            importedFromGoogle: true, // Marquer comme importée de Google Calendar
+            // Stocker l'ID de l'événement Google pour permettre la suppression plus tard
+            googleEventId: events.find(e => 
+              e.summary === `Réservation: ${reservation.name}` && 
+              new Date(e.start.dateTime).toTimeString().substring(0, 5) === reservation.time
+            )?.id
           };
           
           // Crée la réservation

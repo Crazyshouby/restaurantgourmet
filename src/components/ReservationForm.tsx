@@ -47,7 +47,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
 
   useEffect(() => {
-    // Load time slots from admin settings
     const loadTimeSlots = async () => {
       try {
         const { data, error } = await supabase
@@ -68,7 +67,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
   }, []);
 
   useEffect(() => {
-    // Check availability when date changes
     if (selectedDate) {
       checkDailyAvailability(selectedDate);
     }
@@ -81,7 +79,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
     try {
       const dateStr = format(date, 'yyyy-MM-dd');
       
-      // Get max capacity from settings
       const { data: settingsData, error: settingsError } = await supabase
         .from('admin_settings')
         .select('max_guests_per_day')
@@ -94,7 +91,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       
       const maxCapacity = settingsData?.max_guests_per_day || 20;
       
-      // Get current reservations for the day
       const { data: reservationsData, error: reservationsError } = await supabase
         .from('reservations')
         .select('guests')
@@ -104,7 +100,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
         throw reservationsError;
       }
       
-      // Calculate total guests already booked
       const bookedGuests = reservationsData.reduce((total, reservation) => total + reservation.guests, 0);
       const remainingCapacity = Math.max(0, maxCapacity - bookedGuests);
       
@@ -121,9 +116,26 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
     }
   };
 
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, '');
+    
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'phone') {
+      setFormData(prev => ({ ...prev, [name]: formatPhoneNumber(value) }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -148,7 +160,6 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       return;
     }
     
-    // Check if requested number of guests exceeds available capacity
     const guestsNum = parseInt(formData.guests);
     if (dailyAvailability && guestsNum > dailyAvailability.remainingCapacity) {
       toast.error("Capacité insuffisante", {

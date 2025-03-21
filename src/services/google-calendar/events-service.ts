@@ -1,3 +1,4 @@
+
 import { formatDateTimeForCalendar, calculateEndTime } from './utils';
 import { GoogleCalendarApiClient } from './api-client';
 import { GoogleCalendarAuthService } from './auth-service';
@@ -153,9 +154,9 @@ export class GoogleCalendarEventsService {
           date: new Date(date),
           time,
           guests,
-          phone: phone || '0000000000', // Valeur par défaut si manquante
-          email: email || 'noemail@example.com', // Valeur par défaut si manquante
-          notes: notes
+          phone: phone || 'sans information', // Valeur par défaut améliorée
+          email: email || 'sans information', // Valeur par défaut améliorée
+          notes: notes || ''
         });
       }
       

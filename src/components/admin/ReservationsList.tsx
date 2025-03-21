@@ -92,6 +92,18 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
     return format(date, 'EEEE d MMMM yyyy', { locale: fr });
   };
 
+  // Fonction pour formater l'affichage des coordonnées
+  const formatContactInfo = (email: string, phone: string) => {
+    const displayEmail = email === 'sans information' || email === 'noemail@example.com' ? 'sans information' : email;
+    const displayPhone = phone === 'sans information' || phone === '0000000000' ? 'sans information' : phone;
+    
+    if (displayEmail === 'sans information' && displayPhone === 'sans information') {
+      return 'Aucune information de contact';
+    }
+    
+    return `${displayEmail} • ${displayPhone}`;
+  };
+
   return (
     <>
       <Card className="shadow-card">
@@ -132,7 +144,7 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
                             {' • '}{reservation.guests} {reservation.guests > 1 ? 'personnes' : 'personne'}
                           </div>
                           <div className="text-xs text-muted-foreground mt-1">
-                            {reservation.email} • {reservation.phone}
+                            {formatContactInfo(reservation.email, reservation.phone)}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

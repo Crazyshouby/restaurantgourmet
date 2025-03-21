@@ -30,6 +30,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+// Fonction utilitaire pour formater les numéros de téléphone
+const formatPhoneNumber = (value: string): string => {
+  // Retire tous les caractères non numériques
+  const digits = value.replace(/\D/g, '');
+  
+  // Formate sous la forme (XXX) XXX-XXXX
+  if (digits.length <= 3) {
+    return digits;
+  } else if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  } else {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+};
+
 // Schéma de validation pour le formulaire
 const editReservationSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -84,10 +99,16 @@ const ReservationEditModal: React.FC<ReservationEditModalProps> = ({
   const onSubmit = async (data: EditReservationFormData) => {
     if (!reservation) return;
 
+    // Format the phone number before submitting
+    const formattedData = {
+      ...data,
+      phone: formatPhoneNumber(data.phone)
+    };
+
     try {
       const success = await ReservationService.updateReservation({
         ...reservation,
-        ...data,
+        ...formattedData,
       });
 
       if (success) {
@@ -107,6 +128,12 @@ const ReservationEditModal: React.FC<ReservationEditModalProps> = ({
         description: "Une erreur est survenue lors de la mise à jour.",
       });
     }
+  };
+
+  // Handler pour le champ de téléphone pour appliquer le format en temps réel
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatPhoneNumber(e.target.value);
+    form.setValue('phone', formattedValue);
   };
 
   if (!reservation) return null;
@@ -165,7 +192,7 @@ const ReservationEditModal: React.FC<ReservationEditModalProps> = ({
                   <FormItem>
                     <FormLabel>Téléphone</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} onChange={handlePhoneChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
