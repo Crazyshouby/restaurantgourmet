@@ -1,13 +1,12 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings, Save } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSettings } from "@/types";
 
-// Import our new components
+// Import our components
 import TimeSlotList from "./capacity/TimeSlotList";
 import TimeSlotForm from "./capacity/TimeSlotForm";
 import MaxGuestsInput from "./capacity/MaxGuestsInput";
@@ -76,44 +75,38 @@ const CapacitySettings: React.FC<CapacitySettingsProps> = ({
   };
 
   return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Settings className="h-5 w-5" />
-          Paramètres de capacité
-        </CardTitle>
-        <CardDescription>
-          Définissez les plages horaires et la capacité journalière
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-4">
-          <MaxGuestsInput 
-            maxGuestsPerDay={maxGuestsPerDay} 
-            onMaxGuestsChange={setMaxGuestsPerDay} 
-          />
-          
-          <TimeSlotList 
-            timeSlots={timeSlots} 
-            onRemoveTimeSlot={(slot) => setTimeSlots(timeSlots.filter(s => s !== slot))} 
-          />
-          
-          <TimeSlotForm 
-            timeSlots={timeSlots} 
-            onAddTimeSlot={setTimeSlots} 
-          />
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Settings className="h-4 w-4" />
+        <h3 className="font-medium">Paramètres de capacité</h3>
+      </div>
+      
+      <div className="space-y-4">
+        <MaxGuestsInput 
+          maxGuestsPerDay={maxGuestsPerDay} 
+          onMaxGuestsChange={setMaxGuestsPerDay} 
+        />
         
-        <Button 
-          onClick={handleSaveSettings} 
-          className="w-full"
-          disabled={isSaving || isLoading}
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Enregistrer les paramètres
-        </Button>
-      </CardContent>
-    </Card>
+        <TimeSlotList 
+          timeSlots={timeSlots} 
+          onRemoveTimeSlot={(slot) => setTimeSlots(timeSlots.filter(s => s !== slot))} 
+        />
+        
+        <TimeSlotForm 
+          timeSlots={timeSlots} 
+          onAddTimeSlot={setTimeSlots} 
+        />
+      </div>
+      
+      <Button 
+        onClick={handleSaveSettings} 
+        className="w-full"
+        disabled={isSaving || isLoading}
+      >
+        <Save className="h-4 w-4 mr-2" />
+        Enregistrer les paramètres
+      </Button>
+    </div>
   );
 };
 

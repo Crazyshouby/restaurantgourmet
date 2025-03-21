@@ -11,6 +11,7 @@ import GoogleIcon from "./google/GoogleIcon";
 import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
 import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
 import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
+import CapacitySettings from "./CapacitySettings";
 
 interface GoogleCalendarCardProps {
   adminSettings: AdminSettings;
@@ -18,6 +19,7 @@ interface GoogleCalendarCardProps {
   onRefreshReservations: () => void;
   setIsLoading: (loading: boolean) => void;
   setAdminSettings: (settings: AdminSettings) => void;
+  onSettingsUpdated: () => Promise<void>;
 }
 
 const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
@@ -25,7 +27,8 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
   isLoading,
   onRefreshReservations,
   setIsLoading,
-  setAdminSettings
+  setAdminSettings,
+  onSettingsUpdated
 }) => {
   const handleGoogleConnect = async () => {
     try {
@@ -172,8 +175,17 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
           />
         )}
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground py-2 px-4">
+      <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">
         <GoogleConnectionStatus isConnected={adminSettings.googleConnected} />
+        
+        {/* Paramètres de capacité intégrés dans la même carte */}
+        <div className="w-full pt-3 border-t">
+          <CapacitySettings 
+            adminSettings={adminSettings}
+            onSettingsUpdated={onSettingsUpdated}
+            isLoading={isLoading}
+          />
+        </div>
       </CardFooter>
     </Card>
   );
