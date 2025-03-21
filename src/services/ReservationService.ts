@@ -1,3 +1,4 @@
+
 import { GoogleCalendarService } from './google-calendar';
 import { Reservation } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -157,6 +158,60 @@ export class ReservationService {
     } catch (error) {
       console.error('Erreur lors de la synchronisation avec Google Calendar:', error);
       return { success: false, syncedCount: 0 };
+    }
+  }
+
+  // Importe les événements de Google Calendar
+  static async importFromGoogleCalendar(): Promise<{ success: boolean; importedCount: number }> {
+    try {
+      const isConnected = await GoogleCalendarService.isConnected();
+      
+      if (!isConnected) {
+        return { success: false, importedCount: 0 };
+      }
+      
+      // Récupère les événements Google Calendar
+      const events = await GoogleCalendarService.getEvents();
+      
+      if (!events || events.length === 0) {
+        return { success: true, importedCount: 0 };
+      }
+      
+      // Convertit les événements en réservations
+      const calendarReservations = await GoogleCalendarService.convertEventsToReservations(events);
+      
+      if (calendarReservations.length === 0) {
+        return { success: true, importedCount: 0 };
+      }
+      
+      // Récupère toutes les réservations existantes
+      const existingReservations = await this.getReservations();
+      const existingEventIds = new Set(existingReservations
+        .filter(r => r.googleEventId)
+        .map(r => r.googleEventId));
+      
+      let importedCount = 0;
+      
+      // Pour chaque événement
+      for (const reservation of calendarReservations) {
+        try {
+          // Vérifie si l'événement existe déjà
+          if (existingEventIds.has(reservation.googleEventId)) {
+            continue;
+          }
+          
+          // Crée la réservation
+          await this.createReservation(reservation);
+          importedCount++;
+        } catch (error) {
+          console.error('Erreur lors de l\'importation d\'un événement:', error);
+        }
+      }
+      
+      return { success: true, importedCount };
+    } catch (error) {
+      console.error('Erreur lors de l\'importation depuis Google Calendar:', error);
+      return { success: false, importedCount: 0 };
     }
   }
 }

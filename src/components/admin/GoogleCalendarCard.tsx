@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, Download, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 import { ReservationService } from "@/services/ReservationService";
@@ -131,6 +131,34 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
     }
   };
 
+  const importFromGoogle = async () => {
+    setIsLoading(true);
+    
+    try {
+      console.log("Démarrage de l'importation depuis Google Calendar...");
+      const result = await ReservationService.importFromGoogleCalendar();
+      
+      if (result.success) {
+        toast.success("Importation terminée", {
+          description: `${result.importedCount} réservation(s) importée(s) depuis Google Calendar.`
+        });
+        
+        onRefreshReservations();
+      } else {
+        toast.error("Erreur d'importation", {
+          description: "Impossible d'importer depuis Google Calendar."
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'importation:", error);
+      toast.error("Erreur d'importation", {
+        description: "Une erreur est survenue. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Card className="shadow-card h-full">
       <CardHeader>
@@ -163,16 +191,28 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
           <div className="rounded-md bg-muted p-3 text-sm">
             <div className="font-medium mb-1">Compte connecté :</div>
             <div className="text-muted-foreground mb-2">{adminSettings.googleEmail}</div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full" 
-              onClick={syncNow}
-              disabled={isLoading}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Synchroniser maintenant
-            </Button>
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full" 
+                onClick={syncNow}
+                disabled={isLoading}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Synchroniser vers Google
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full" 
+                onClick={importFromGoogle}
+                disabled={isLoading}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Importer depuis Google
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>
