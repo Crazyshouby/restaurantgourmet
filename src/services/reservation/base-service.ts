@@ -13,7 +13,8 @@ export class ReservationBaseService {
     const { data, error } = await supabase
       .from('reservations')
       .select('*')
-      .order('date', { ascending: true });
+      .order('date', { ascending: true })
+      .order('time', { ascending: true });
 
     if (error) {
       console.error('Erreur lors de la récupération des réservations:', error);
