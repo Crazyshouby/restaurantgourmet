@@ -1,51 +1,117 @@
 
-// Ici, nous devons modifier le fichier base-service.ts pour ajouter le support du flag importedFromGoogle
-// Note: Puisque nous n'avons pas accès au contenu complet du fichier, nous ajoutons juste
-// la méthode createReservationInDatabase avec le nouveau paramètre
+import { supabase } from '@/integrations/supabase/client';
+import { Reservation } from '@/types';
 
 /**
- * Crée une réservation dans la base de données
- * @param reservation Les données de la réservation
- * @param googleEventId L'ID de l'événement Google Calendar optionnel
- * @param importedFromGoogle Flag indiquant si la réservation a été importée de Google Calendar
+ * Service de base pour les opérations CRUD sur les réservations
  */
-static async createReservationInDatabase(
-  reservation: Omit<Reservation, 'id' | 'googleEventId'>,
-  googleEventId?: string,
-  importedFromGoogle: boolean = false
-): Promise<Reservation> {
-  // Prépare les données pour insertion
-  const { data, error } = await supabase
-    .from('reservations')
-    .insert({
+export class ReservationBaseService {
+  /**
+   * Récupère toutes les réservations
+   */
+  static async getReservations(): Promise<Reservation[]> {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.error('Erreur lors de la récupération des réservations:', error);
+      throw error;
+    }
+
+    // Convertit les dates en objets Date
+    return data.map((reservation: any) => ({
+      id: reservation.id,
       name: reservation.name,
-      date: reservation.date,
+      date: new Date(reservation.date),
       time: reservation.time,
       guests: reservation.guests,
       phone: reservation.phone,
       email: reservation.email,
       notes: reservation.notes || '',
-      google_event_id: googleEventId || null,
-      imported_from_google: importedFromGoogle // Nouveau champ
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Erreur lors de la création de la réservation:', error);
-    throw error;
+      googleEventId: reservation.google_event_id
+    }));
   }
 
-  // Convertit et retourne la réservation créée
-  return {
-    id: data.id,
-    name: data.name,
-    date: new Date(data.date),
-    time: data.time,
-    guests: data.guests,
-    phone: data.phone,
-    email: data.email,
-    notes: data.notes,
-    googleEventId: data.google_event_id
-  };
+  /**
+   * Supprime une réservation
+   */
+  static async deleteReservation(id: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('reservations')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erreur lors de la suppression de la réservation:', error);
+      throw error;
+    }
+
+    return true;
+  }
+
+  /**
+   * Met à jour l'ID de l'événement Google Calendar
+   */
+  static async updateGoogleEventId(reservationId: string, googleEventId: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('reservations')
+      .update({ google_event_id: googleEventId })
+      .eq('id', reservationId);
+
+    if (error) {
+      console.error('Erreur lors de la mise à jour de l\'ID d\'événement Google Calendar:', error);
+      throw error;
+    }
+
+    return true;
+  }
+
+  /**
+   * Crée une réservation dans la base de données
+   * @param reservation Les données de la réservation
+   * @param googleEventId L'ID de l'événement Google Calendar optionnel
+   * @param importedFromGoogle Flag indiquant si la réservation a été importée de Google Calendar
+   */
+  static async createReservationInDatabase(
+    reservation: Omit<Reservation, 'id' | 'googleEventId'>,
+    googleEventId?: string,
+    importedFromGoogle: boolean = false
+  ): Promise<Reservation> {
+    // Prépare les données pour insertion
+    const { data, error } = await supabase
+      .from('reservations')
+      .insert({
+        name: reservation.name,
+        date: reservation.date,
+        time: reservation.time,
+        guests: reservation.guests,
+        phone: reservation.phone,
+        email: reservation.email,
+        notes: reservation.notes || '',
+        google_event_id: googleEventId || null,
+        imported_from_google: importedFromGoogle // Nouveau champ
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erreur lors de la création de la réservation:', error);
+      throw error;
+    }
+
+    // Convertit et retourne la réservation créée
+    return {
+      id: data.id,
+      name: data.name,
+      date: new Date(data.date),
+      time: data.time,
+      guests: data.guests,
+      phone: data.phone,
+      email: data.email,
+      notes: data.notes,
+      googleEventId: data.google_event_id
+    };
+  }
 }

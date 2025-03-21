@@ -41,6 +41,7 @@ export type Database = {
           google_event_id: string | null
           guests: number
           id: string
+          imported_from_google: boolean | null
           name: string
           notes: string | null
           phone: string
@@ -53,6 +54,7 @@ export type Database = {
           google_event_id?: string | null
           guests: number
           id?: string
+          imported_from_google?: boolean | null
           name: string
           notes?: string | null
           phone: string
@@ -65,6 +67,7 @@ export type Database = {
           google_event_id?: string | null
           guests?: number
           id?: string
+          imported_from_google?: boolean | null
           name?: string
           notes?: string | null
           phone?: string
