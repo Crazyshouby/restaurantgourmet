@@ -15,6 +15,7 @@ export class GoogleCalendarService {
   static createEvent = GoogleCalendarEventsService.createEvent;
   static getEvents = GoogleCalendarEventsService.getEvents;
   static convertEventsToReservations = GoogleCalendarEventsService.convertEventsToReservations;
+  static deleteEvent = GoogleCalendarEventsService.deleteEvent;
   
   // Méthodes utilitaires
   static getAdminSettings = getAdminSettings;
