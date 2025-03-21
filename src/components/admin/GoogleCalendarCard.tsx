@@ -161,18 +161,18 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
 
   return (
     <Card className="shadow-card h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+      <CardHeader className="py-3 px-4">
+        <CardTitle className="flex items-center gap-2 text-base">
           <GoogleIcon />
           Google Calendar
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs">
           Synchronisez vos réservations avec Google Calendar
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 px-4 py-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="google-sync">Synchronisation</Label>
+          <Label htmlFor="google-sync" className="text-sm">Synchronisation</Label>
           <Switch 
             id="google-sync" 
             checked={adminSettings.googleConnected}
@@ -188,35 +188,35 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
         </div>
         
         {adminSettings.googleConnected && (
-          <div className="rounded-md bg-muted p-3 text-sm">
+          <div className="rounded-md bg-muted p-2 text-xs">
             <div className="font-medium mb-1">Compte connecté :</div>
-            <div className="text-muted-foreground mb-2">{adminSettings.googleEmail}</div>
-            <div className="space-y-2">
+            <div className="text-muted-foreground mb-1">{adminSettings.googleEmail}</div>
+            <div className="space-y-1">
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full" 
+                className="w-full h-8 text-xs" 
                 onClick={syncNow}
                 disabled={isLoading}
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-3 w-3 mr-1" />
                 Synchroniser vers Google
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="w-full" 
+                className="w-full h-8 text-xs" 
                 onClick={importFromGoogle}
                 disabled={isLoading}
               >
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="h-3 w-3 mr-1" />
                 Importer depuis Google
               </Button>
             </div>
           </div>
         )}
       </CardContent>
-      <CardFooter className="text-xs text-muted-foreground">
+      <CardFooter className="text-xs text-muted-foreground py-2 px-4">
         {adminSettings.googleConnected ? (
           <div className="flex items-center gap-1">
             <Check className="h-3 w-3 text-green-600" />
@@ -234,3 +234,4 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
 };
 
 export default GoogleCalendarCard;
+

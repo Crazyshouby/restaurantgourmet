@@ -167,17 +167,17 @@ const Admin = () => {
     <div className="min-h-screen bg-background">
       <AdminHeader />
       
-      <main className="container mx-auto py-8 px-4 animate-fade-in">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-medium">Administration</h2>
-            <p className="text-muted-foreground">
+      <main className="container mx-auto py-6 px-4 animate-fade-in">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-medium">Administration</h2>
+            <p className="text-muted-foreground text-sm">
               Gérez vos réservations et la synchronisation avec Google Calendar.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-1 space-y-4">
               {/* Google Calendar Card placed first (at the top) */}
               <GoogleCalendarCard 
                 adminSettings={adminSettings}
