@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
@@ -9,14 +8,11 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { ReservationService } from "@/services/ReservationService";
-
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleReservationSubmit = async (formData: any) => {
     setIsSubmitting(true);
-    
     try {
       // Appel à Supabase via ReservationService
       await ReservationService.createReservation({
@@ -28,30 +24,29 @@ const Index = () => {
         guests: formData.guests,
         notes: formData.notes
       });
-      
+
       // Créer une date complète avec la date et l'heure sélectionnées
       const reservationDateTime = new Date(formData.date);
       const [hours, minutes] = formData.time.split(':');
       reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      
       toast.success("Réservation confirmée", {
-        description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", { locale: fr })}`,
+        description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", {
+          locale: fr
+        })}`
       });
-      
+
       // Réinitialiser le formulaire
       setSelectedDate(undefined);
     } catch (error) {
       console.error("Erreur lors de la réservation:", error);
       toast.error("Erreur lors de la réservation", {
-        description: "Veuillez réessayer ultérieurement.",
+        description: "Veuillez réessayer ultérieurement."
       });
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <h1 className="text-2xl font-medium">Reserv</h1>
@@ -80,19 +75,11 @@ const Index = () => {
                 <span className="text-sm">Les réservations sont synchronisées automatiquement avec l'agenda du restaurant.</span>
               </div>
               
-              <ReservationForm 
-                selectedDate={selectedDate}
-                onSubmit={handleReservationSubmit}
-                isSubmitting={isSubmitting}
-              />
+              <ReservationForm selectedDate={selectedDate} onSubmit={handleReservationSubmit} isSubmitting={isSubmitting} />
             </div>
             
-            <div className="lg:w-1/2">
-              <ReservationCalendar 
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-                className="sticky top-4"
-              />
+            <div className="lg:w-1/2 my-[240px] py-[15px] mx-[2px] px-[135px]">
+              <ReservationCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} className="sticky top-4" />
             </div>
           </div>
         </div>
@@ -103,8 +90,6 @@ const Index = () => {
           <p>© {new Date().getFullYear()} Restaurant App. Tous droits réservés.</p>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
