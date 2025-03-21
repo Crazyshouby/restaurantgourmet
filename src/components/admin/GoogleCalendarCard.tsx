@@ -1,31 +1,16 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Check, Download, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
 import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 import { ReservationService } from "@/services/ReservationService";
 import { AdminSettings } from "@/types";
 
-const GoogleIcon = () => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="20" 
-    height="20" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round"
-  >
-    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
-    <path d="M17.8 12.2H12v3.186h3.357c-.31 1.636-1.747 2.814-3.357 2.814-1.933 0-3.5-1.568-3.5-3.5s1.567-3.5 3.5-3.5c.884 0 1.69.334 2.304.876l2.234-2.234C15.137 8.557 13.646 8 12 8c-3.314 0-6 2.686-6 6s2.686 6 6 6c3.052 0 5.686-2.184 6.255-5.218.17-.916.1-2.046-.455-2.582z" />
-  </svg>
-);
+// Import our new component files
+import GoogleIcon from "./google/GoogleIcon";
+import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
+import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
+import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
 
 interface GoogleCalendarCardProps {
   adminSettings: AdminSettings;
@@ -171,67 +156,27 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 px-4 py-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="google-sync" className="text-sm">Synchronisation</Label>
-          <Switch 
-            id="google-sync" 
-            checked={adminSettings.googleConnected}
-            disabled={isLoading}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                handleGoogleConnect();
-              } else {
-                handleGoogleDisconnect();
-              }
-            }}
-          />
-        </div>
+        <GoogleConnectionToggle 
+          isConnected={adminSettings.googleConnected}
+          isLoading={isLoading}
+          onConnect={handleGoogleConnect}
+          onDisconnect={handleGoogleDisconnect}
+        />
         
         {adminSettings.googleConnected && (
-          <div className="rounded-md bg-muted p-2 text-xs">
-            <div className="font-medium mb-1">Compte connecté :</div>
-            <div className="text-muted-foreground mb-1">{adminSettings.googleEmail}</div>
-            <div className="space-y-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full h-8 text-xs" 
-                onClick={syncNow}
-                disabled={isLoading}
-              >
-                <RefreshCw className="h-3 w-3 mr-1" />
-                Synchroniser vers Google
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full h-8 text-xs" 
-                onClick={importFromGoogle}
-                disabled={isLoading}
-              >
-                <Download className="h-3 w-3 mr-1" />
-                Importer depuis Google
-              </Button>
-            </div>
-          </div>
+          <GoogleConnectedAccount
+            email={adminSettings.googleEmail}
+            onSyncToGoogle={syncNow}
+            onImportFromGoogle={importFromGoogle}
+            isLoading={isLoading}
+          />
         )}
       </CardContent>
       <CardFooter className="text-xs text-muted-foreground py-2 px-4">
-        {adminSettings.googleConnected ? (
-          <div className="flex items-center gap-1">
-            <Check className="h-3 w-3 text-green-600" />
-            Les réservations sont automatiquement synchronisées
-          </div>
-        ) : (
-          <div className="flex items-center gap-1">
-            <X className="h-3 w-3 text-red-600" />
-            Synchronisation Google Calendar désactivée
-          </div>
-        )}
+        <GoogleConnectionStatus isConnected={adminSettings.googleConnected} />
       </CardFooter>
     </Card>
   );
 };
 
 export default GoogleCalendarCard;
-
