@@ -32,7 +32,9 @@ serve(async (req) => {
       body: JSON.stringify({
         email: to,
         subject: subject,
-        template_data: { html: html }
+        template_data: { 
+          body: html 
+        }
       }),
     });
 

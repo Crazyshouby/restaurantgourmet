@@ -22,12 +22,6 @@ serve(async (req) => {
       throw new Error("Données de réservation incomplètes");
     }
 
-    // Création du client Supabase avec la clé de service pour les tâches administratives
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") || "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
-    );
-
     // Construction du contenu de l'email
     const emailSubject = "Confirmation de votre réservation";
     const emailContent = `
@@ -44,18 +38,30 @@ serve(async (req) => {
       <p>L'équipe du restaurant</p>
     `;
 
-    // Envoi de l'email via la fonction interne de Supabase
-    const { error } = await supabaseAdmin.functions.invoke('resend-email', {
-      body: {
-        to: email,
+    // Appel direct à l'API d'envoi d'email de Supabase
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    
+    const emailResponse = await fetch(`${supabaseUrl}/auth/v1/admin/send-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({
+        email: email,
         subject: emailSubject,
-        html: emailContent,
-      }
+        template_data: { 
+          body: emailContent 
+        }
+      }),
     });
 
-    if (error) {
-      console.error("Erreur lors de l'envoi de l'email:", error);
-      throw error;
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.json();
+      console.error("Erreur de l'API d'envoi d'email:", errorData);
+      throw new Error(`Erreur d'envoi d'email: ${JSON.stringify(errorData)}`);
     }
 
     console.log(`Email de confirmation envoyé à ${email} pour la réservation du ${date} à ${time}`);
