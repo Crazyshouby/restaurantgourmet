@@ -1,0 +1,129 @@
+
+import { GoogleCalendarService } from '../google-calendar';
+import { Reservation } from '@/types';
+import { ReservationBaseService } from './base-service';
+
+/**
+ * Service pour la synchronisation des réservations avec Google Calendar
+ */
+export class ReservationGoogleSyncService {
+  /**
+   * Synchronise les réservations existantes avec Google Calendar
+   */
+  static async syncWithGoogleCalendar(): Promise<{ success: boolean; syncedCount: number }> {
+    try {
+      const isConnected = await GoogleCalendarService.isConnected();
+      
+      if (!isConnected) {
+        return { success: false, syncedCount: 0 };
+      }
+      
+      // Récupère toutes les réservations non synchronisées
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('*')
+        .is('google_event_id', null);
+      
+      if (error) {
+        console.error('Erreur lors de la récupération des réservations non synchronisées:', error);
+        return { success: false, syncedCount: 0 };
+      }
+      
+      // Convertit les dates en objets Date
+      const reservations = data.map((r: any) => ({
+        ...r,
+        date: new Date(r.date),
+        googleEventId: r.google_event_id
+      }));
+      
+      let syncedCount = 0;
+      
+      // Synchronise chaque réservation
+      for (const reservation of reservations) {
+        try {
+          const { success, eventId } = await GoogleCalendarService.createEvent(reservation);
+          
+          if (success && eventId) {
+            // Met à jour la réservation avec l'ID de l'événement Google Calendar
+            const updated = await ReservationBaseService.updateGoogleEventId(reservation.id, eventId);
+            
+            if (updated) {
+              syncedCount++;
+            }
+          }
+        } catch (error) {
+          console.error(`Erreur lors de la synchronisation de la réservation ${reservation.id}:`, error);
+        }
+      }
+      
+      return { success: true, syncedCount };
+    } catch (error) {
+      console.error('Erreur lors de la synchronisation avec Google Calendar:', error);
+      return { success: false, syncedCount: 0 };
+    }
+  }
+
+  /**
+   * Importe les événements de Google Calendar
+   */
+  static async importFromGoogleCalendar(): Promise<{ success: boolean; importedCount: number }> {
+    try {
+      const isConnected = await GoogleCalendarService.isConnected();
+      
+      if (!isConnected) {
+        return { success: false, importedCount: 0 };
+      }
+      
+      // Récupère les événements Google Calendar
+      const events = await GoogleCalendarService.getEvents();
+      
+      if (!events || events.length === 0) {
+        return { success: true, importedCount: 0 };
+      }
+      
+      // Convertit les événements en réservations
+      const calendarReservations = await GoogleCalendarService.convertEventsToReservations(events);
+      
+      if (calendarReservations.length === 0) {
+        return { success: true, importedCount: 0 };
+      }
+      
+      // Récupère toutes les réservations existantes
+      const existingReservations = await ReservationBaseService.getReservations();
+      
+      let importedCount = 0;
+      
+      // Pour chaque événement
+      for (const reservation of calendarReservations) {
+        try {
+          // Vérifie si une réservation similaire existe déjà (même date et heure)
+          const existingSimilar = existingReservations.some(r => 
+            r.date.toISOString().split('T')[0] === reservation.date.toISOString().split('T')[0] && 
+            r.time === reservation.time && 
+            r.name === reservation.name);
+          
+          // Si on a déjà une réservation très similaire, on saute
+          if (existingSimilar) {
+            continue;
+          }
+          
+          // Crée la réservation
+          await ReservationCreationService.createReservation(reservation);
+          importedCount++;
+        } catch (error) {
+          console.error('Erreur lors de l\'importation d\'un événement:', error);
+        }
+      }
+      
+      return { success: true, importedCount };
+    } catch (error) {
+      console.error('Erreur lors de l\'importation depuis Google Calendar:', error);
+      return { success: false, importedCount: 0 };
+    }
+  }
+}
+
+// Importation supabase pour les requêtes spécifiques
+import { supabase } from '@/integrations/supabase/client';
+// Import cyclique résolu en important à la fin
+import { ReservationCreationService } from './creation-service';
