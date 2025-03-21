@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,11 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
               );
             }}
             locale={fr}
-            className="rounded-md pointer-events-auto"
+            className="rounded-md"
+            // Utilisation du bon nom de propriété dans classNames
+            classNames={{
+              day: "rounded-full" // Changed from 'day_button' to 'day'
+            }}
           />
         </div>
       </CardContent>

@@ -70,25 +70,6 @@ export class ReservationService {
         throw error;
       }
       
-      // Envoi d'email de confirmation
-      try {
-        await supabase.functions.invoke('send-reservation-email', {
-          body: {
-            email: reservation.email,
-            name: reservation.name,
-            date: dateString,
-            time: reservation.time, 
-            guests: reservation.guests,
-            phone: reservation.phone,
-            notes: reservation.notes || ""
-          }
-        });
-        console.log('Email de confirmation envoyé');
-      } catch (emailError) {
-        console.error('Erreur lors de l\'envoi de l\'email de confirmation:', emailError);
-        // Ne pas bloquer le processus en cas d'erreur d'envoi d'email
-      }
-      
       // Return the created reservation with proper date format
       return {
         ...data[0],
