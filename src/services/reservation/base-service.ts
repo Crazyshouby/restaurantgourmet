@@ -52,6 +52,36 @@ export class ReservationBaseService {
   }
 
   /**
+   * Met à jour une réservation existante
+   */
+  static async updateReservation(reservation: Reservation): Promise<boolean> {
+    // Convertir la date en format ISO pour Supabase (string)
+    const formattedDate = reservation.date instanceof Date 
+      ? reservation.date.toISOString().split('T')[0] 
+      : reservation.date;
+
+    const { error } = await supabase
+      .from('reservations')
+      .update({
+        name: reservation.name,
+        date: formattedDate,
+        time: reservation.time,
+        guests: reservation.guests,
+        phone: reservation.phone,
+        email: reservation.email,
+        notes: reservation.notes || ''
+      })
+      .eq('id', reservation.id);
+
+    if (error) {
+      console.error('Erreur lors de la mise à jour de la réservation:', error);
+      throw error;
+    }
+
+    return true;
+  }
+
+  /**
    * Met à jour l'ID de l'événement Google Calendar
    */
   static async updateGoogleEventId(reservationId: string, googleEventId: string): Promise<boolean> {

@@ -11,6 +11,7 @@ export class ReservationService {
   // Opérations de base
   static getReservations = ReservationBaseService.getReservations;
   static deleteReservation = ReservationBaseService.deleteReservation;
+  static updateReservation = ReservationBaseService.updateReservation;
   
   // Création de réservation
   static createReservation = ReservationCreationService.createReservation;

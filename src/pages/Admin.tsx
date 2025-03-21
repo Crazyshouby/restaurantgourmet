@@ -183,6 +183,7 @@ const Admin = () => {
               <ReservationsList 
                 reservations={reservations} 
                 onReservationDeleted={loadReservations}
+                onReservationUpdated={loadReservations}
               />
             </div>
           </div>
