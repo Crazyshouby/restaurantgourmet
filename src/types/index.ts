@@ -9,6 +9,7 @@ export interface Reservation {
   guests: number;
   notes?: string;
   googleEventId?: string;
+  importedFromGoogle?: boolean;
 }
 
 export interface AdminSettings {
