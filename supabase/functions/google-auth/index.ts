@@ -8,7 +8,7 @@ import {
   handleRefreshToken, 
   handleCreateEvent, 
   handleGetEvents 
-} from "./handlers.ts";
+} from "./handlers/index.ts";
 
 serve(async (req) => {
   // Handle CORS preflight requests
