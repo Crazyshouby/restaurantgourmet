@@ -186,6 +186,8 @@ export class ReservationService {
       
       // Récupère toutes les réservations existantes
       const existingReservations = await this.getReservations();
+      
+      // On extrait les IDs des événements Google qui sont déjà dans notre base
       const existingEventIds = new Set(existingReservations
         .filter(r => r.googleEventId)
         .map(r => r.googleEventId));
@@ -195,8 +197,14 @@ export class ReservationService {
       // Pour chaque événement
       for (const reservation of calendarReservations) {
         try {
-          // Vérifie si l'événement existe déjà
-          if (existingEventIds.has(reservation.googleEventId)) {
+          // Vérifie si une réservation similaire existe déjà (même date et heure)
+          const existingSimilar = existingReservations.some(r => 
+            r.date.toISOString().split('T')[0] === reservation.date.toISOString().split('T')[0] && 
+            r.time === reservation.time && 
+            r.name === reservation.name);
+          
+          // Si on a déjà une réservation très similaire, on saute
+          if (existingSimilar) {
             continue;
           }
           
