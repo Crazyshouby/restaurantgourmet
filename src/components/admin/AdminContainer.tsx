@@ -36,7 +36,7 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-1 space-y-4">
-            {/* Google Calendar Card placed first (at the top) */}
+            {/* Google Calendar Card placé en premier (en haut) */}
             <GoogleCalendarCard 
               adminSettings={adminSettings}
               isLoading={isLoading}
@@ -44,16 +44,19 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
               setIsLoading={setIsLoading}
               setAdminSettings={setAdminSettings}
             />
-            
-            {/* Capacity Settings placed second (below Google Calendar) */}
-            <CapacitySettings 
-              adminSettings={adminSettings}
-              onSettingsUpdated={onSettingsUpdated}
-              isLoading={isLoading}
-            />
           </div>
           
           <div className="md:col-span-2">
+            {/* CapacitySettings déplacé ici, au-dessus de la liste des réservations */}
+            <div className="mb-4">
+              <CapacitySettings 
+                adminSettings={adminSettings}
+                onSettingsUpdated={onSettingsUpdated}
+                isLoading={isLoading}
+              />
+            </div>
+            
+            {/* Liste des réservations en dessous */}
             <ReservationsList 
               reservations={reservations} 
               onReservationDeleted={onRefreshReservations}
