@@ -32,6 +32,7 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
     
     reservations.forEach(reservation => {
       // Formater la date comme clé pour regrouper (YYYY-MM-DD)
+      // Fix: Utiliser la date telle quelle sans conversion qui pourrait causer un décalage de jour
       const dateKey = reservation.date instanceof Date 
         ? reservation.date.toISOString().split('T')[0]
         : new Date(reservation.date).toISOString().split('T')[0];
@@ -45,7 +46,8 @@ const ReservationsList: React.FC<ReservationsListProps> = ({
     
     // Convertir en tableau pour faciliter le rendu
     return Object.entries(groups).map(([dateStr, items]) => ({
-      date: new Date(dateStr),
+      // Fix: Ajuster la date pour éviter le décalage de fuseau horaire
+      date: new Date(`${dateStr}T12:00:00`), // Utiliser midi pour éviter tout problème de décalage
       items,
     }));
   }, [reservations]);
