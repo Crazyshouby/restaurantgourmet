@@ -6,6 +6,7 @@ import ReservationForm from "@/components/ReservationForm";
 import { Button } from "@/components/ui/button";
 import { InfoIcon } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { ReservationService } from "@/services/ReservationService";
 
@@ -28,8 +29,13 @@ const Index = () => {
         notes: formData.notes
       });
       
+      // Créer une date complète avec la date et l'heure sélectionnées
+      const reservationDateTime = new Date(formData.date);
+      const [hours, minutes] = formData.time.split(':');
+      reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
       toast.success("Réservation confirmée", {
-        description: `Votre table est réservée pour le ${format(formData.date, "d MMMM à HH:mm")}`,
+        description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", { locale: fr })}`,
       });
       
       // Réinitialiser le formulaire
