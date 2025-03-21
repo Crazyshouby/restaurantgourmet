@@ -36,7 +36,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
           })}` : "Sélectionnez une date"}
           </h3>
         </div>
-        <div className="p-3 my-0 py-[8px] mx-[140px]">
+        <div className="p-3 my-0 py-[8px] mx-0">
           <Calendar mode="single" selected={zonedSelectedDate} onSelect={handleDateSelect} disabled={date => {
           // Désactiver les dates passées
           const today = toZonedTime(new Date(), TIMEZONE);
