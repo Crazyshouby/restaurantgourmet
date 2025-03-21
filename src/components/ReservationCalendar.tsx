@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { utcToZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
 
 interface ReservationCalendarProps {
   onDateSelect: (date: Date | undefined) => void;
@@ -25,7 +25,7 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
 }) => {
   // Convertir la date sélectionnée au fuseau horaire canadien si elle existe
   const zonedSelectedDate = selectedDate 
-    ? utcToZonedTime(selectedDate, TIMEZONE)
+    ? toZonedTime(selectedDate, TIMEZONE)
     : undefined;
 
   // Fonction pour convertir une date au fuseau horaire canadien lors de la sélection
@@ -50,10 +50,10 @@ const ReservationCalendar: React.FC<ReservationCalendarProps> = ({
             onSelect={handleDateSelect}
             disabled={(date) => {
               // Désactiver les dates passées
-              const today = utcToZonedTime(new Date(), TIMEZONE);
+              const today = toZonedTime(new Date(), TIMEZONE);
               today.setHours(0, 0, 0, 0);
               return date < today || disabledDates.some(disabledDate => {
-                const zonedDisabledDate = utcToZonedTime(disabledDate, TIMEZONE);
+                const zonedDisabledDate = toZonedTime(disabledDate, TIMEZONE);
                 return (
                   zonedDisabledDate.getDate() === date.getDate() &&
                   zonedDisabledDate.getMonth() === date.getMonth() &&
