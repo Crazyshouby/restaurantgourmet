@@ -27,7 +27,7 @@ export class ReservationService {
     }
   }
 
-  // Crée une nouvelle réservation
+  // Crée une nouvelle réservation sans envoi d'email
   static async createReservation(reservation: Omit<Reservation, 'id' | 'googleEventId'>): Promise<Reservation> {
     try {
       // Vérifie si Google Calendar est connecté
