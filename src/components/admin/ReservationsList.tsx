@@ -2,14 +2,46 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock, Check, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CalendarClock, Check, Trash2 } from "lucide-react";
 import { Reservation } from "@/types";
+import { ReservationService } from "@/services/ReservationService";
+import { toast } from "sonner";
 
 interface ReservationsListProps {
   reservations: Reservation[];
+  onReservationDeleted?: () => void;
 }
 
-const ReservationsList: React.FC<ReservationsListProps> = ({ reservations }) => {
+const ReservationsList: React.FC<ReservationsListProps> = ({ 
+  reservations,
+  onReservationDeleted
+}) => {
+  const handleDelete = async (id: string) => {
+    try {
+      const success = await ReservationService.deleteReservation(id);
+      
+      if (success) {
+        toast.success("Réservation supprimée", {
+          description: "La réservation a été supprimée avec succès."
+        });
+        
+        if (onReservationDeleted) {
+          onReservationDeleted();
+        }
+      } else {
+        toast.error("Erreur de suppression", {
+          description: "Impossible de supprimer la réservation."
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      toast.error("Erreur de suppression", {
+        description: "Une erreur est survenue lors de la suppression."
+      });
+    }
+  };
+
   return (
     <Card className="shadow-card">
       <CardHeader>
@@ -39,18 +71,21 @@ const ReservationsList: React.FC<ReservationsListProps> = ({ reservations }) => 
                     {reservation.email} • {reservation.phone}
                   </div>
                 </div>
-                <div>
-                  {reservation.googleEventId ? (
+                <div className="flex items-center gap-2">
+                  {reservation.googleEventId && (
                     <Badge variant="outline" className="flex items-center gap-1 bg-green-50">
                       <Check className="h-3 w-3" />
                       Synchronisé
                     </Badge>
-                  ) : (
-                    <Badge variant="outline" className="flex items-center gap-1 bg-amber-50">
-                      <RefreshCw className="h-3 w-3" />
-                      En attente
-                    </Badge>
                   )}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => handleDelete(reservation.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}

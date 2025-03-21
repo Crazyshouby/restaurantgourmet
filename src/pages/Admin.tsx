@@ -180,7 +180,10 @@ const Admin = () => {
             </div>
             
             <div className="md:col-span-2">
-              <ReservationsList reservations={reservations} />
+              <ReservationsList 
+                reservations={reservations} 
+                onReservationDeleted={loadReservations}
+              />
             </div>
           </div>
         </div>

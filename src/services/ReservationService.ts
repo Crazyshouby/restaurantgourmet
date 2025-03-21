@@ -1,4 +1,3 @@
-
 import { GoogleCalendarService } from './google-calendar';
 import { Reservation } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
@@ -79,6 +78,26 @@ export class ReservationService {
     } catch (error) {
       console.error('Erreur lors de la création de la réservation:', error);
       throw error;
+    }
+  }
+
+  // Supprime une réservation
+  static async deleteReservation(id: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('reservations')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Erreur lors de la suppression de la réservation:', error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la réservation:', error);
+      return false;
     }
   }
 
