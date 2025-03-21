@@ -96,14 +96,32 @@ export class ReservationGoogleSyncService {
       // Pour chaque événement
       for (const reservation of calendarReservations) {
         try {
-          // Vérifie si une réservation similaire existe déjà (même date et heure)
-          const existingSimilar = existingReservations.some(r => 
-            r.date.toISOString().split('T')[0] === reservation.date.toISOString().split('T')[0] && 
-            r.time === reservation.time && 
-            r.name === reservation.name);
+          // Vérification plus stricte pour éviter les doublons
+          // Vérifie si une réservation similaire existe déjà
+          const existingSimilar = existingReservations.some(r => {
+            // Comparaison de la date formatée, l'heure et le nom
+            return r.date.toISOString().split('T')[0] === reservation.date.toISOString().split('T')[0] && 
+                   r.time === reservation.time && 
+                   r.name === reservation.name;
+          });
           
           // Si on a déjà une réservation très similaire, on saute
           if (existingSimilar) {
+            console.log(`Réservation similaire ignorée pour ${reservation.name} le ${reservation.date.toISOString().split('T')[0]} à ${reservation.time}`);
+            continue;
+          }
+          
+          // Vérifie aussi si nous avons déjà importé cet événement avec une date différente
+          // Cela évite les doublons sur des jours différents mais avec les mêmes informations
+          const similarOnAnyDate = existingReservations.some(r => 
+            r.name === reservation.name && 
+            r.time === reservation.time &&
+            Math.abs((r.date.getTime() - reservation.date.getTime()) / (1000 * 60 * 60 * 24)) <= 1 // Vérification de 1 jour d'écart
+          );
+          
+          // Si nous avons une réservation similaire à un jour près, on l'ignore
+          if (similarOnAnyDate) {
+            console.log(`Réservation similaire (date proche) ignorée pour ${reservation.name} le ${reservation.date.toISOString().split('T')[0]} à ${reservation.time}`);
             continue;
           }
           
