@@ -79,19 +79,24 @@ export class ReservationBaseService {
     googleEventId?: string,
     importedFromGoogle: boolean = false
   ): Promise<Reservation> {
+    // Convertir la date en format ISO pour Supabase (string)
+    const formattedDate = reservation.date instanceof Date 
+      ? reservation.date.toISOString().split('T')[0] 
+      : reservation.date;
+
     // Prépare les données pour insertion
     const { data, error } = await supabase
       .from('reservations')
       .insert({
         name: reservation.name,
-        date: reservation.date,
+        date: formattedDate,
         time: reservation.time,
         guests: reservation.guests,
         phone: reservation.phone,
         email: reservation.email,
         notes: reservation.notes || '',
         google_event_id: googleEventId || null,
-        imported_from_google: importedFromGoogle // Nouveau champ
+        imported_from_google: importedFromGoogle
       })
       .select()
       .single();
