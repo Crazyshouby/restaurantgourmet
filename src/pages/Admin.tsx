@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
@@ -26,7 +25,6 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   
-  // Load reservations function for reuse
   const loadReservations = async () => {
     try {
       const reservationsData = await ReservationService.getReservations();
@@ -120,7 +118,6 @@ const Admin = () => {
           });
         } finally {
           setIsLoading(false);
-          // Nettoyage de l'URL
           window.history.replaceState({}, document.title, location.pathname);
         }
       };
@@ -149,7 +146,6 @@ const Admin = () => {
     
     loadData();
     
-    // Configuration du listener pour les changements d'état d'authentification
     console.log('Configuration du listener pour l\'authentification...');
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -93,7 +92,7 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
         throw settingsError;
       }
       
-      const maxCapacity = settingsData.max_guests_per_day || 20;
+      const maxCapacity = settingsData?.max_guests_per_day || 20;
       
       // Get current reservations for the day
       const { data: reservationsData, error: reservationsError } = await supabase

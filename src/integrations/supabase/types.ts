@@ -15,6 +15,8 @@ export type Database = {
           google_email: string | null
           google_refresh_token: string | null
           id: number
+          max_guests_per_day: number | null
+          time_slots: string[] | null
           updated_at: string
         }
         Insert: {
@@ -22,6 +24,8 @@ export type Database = {
           google_email?: string | null
           google_refresh_token?: string | null
           id?: number
+          max_guests_per_day?: number | null
+          time_slots?: string[] | null
           updated_at?: string
         }
         Update: {
@@ -29,6 +33,8 @@ export type Database = {
           google_email?: string | null
           google_refresh_token?: string | null
           id?: number
+          max_guests_per_day?: number | null
+          time_slots?: string[] | null
           updated_at?: string
         }
         Relationships: []
