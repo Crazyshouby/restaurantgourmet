@@ -5,10 +5,14 @@ export function useLoadingState(initialState = false) {
   const [isLoading, setIsLoading] = useState(initialState);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 
-  const startLoading = useCallback((message?: string) => {
-    setIsLoading(true);
-    if (message) {
-      setLoadingMessage(message);
+  const startLoading = useCallback((messageOrState?: string | boolean) => {
+    if (typeof messageOrState === 'boolean') {
+      setIsLoading(messageOrState);
+    } else {
+      setIsLoading(true);
+      if (messageOrState) {
+        setLoadingMessage(messageOrState);
+      }
     }
   }, []);
 
