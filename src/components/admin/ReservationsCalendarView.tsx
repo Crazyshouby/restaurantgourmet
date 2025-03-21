@@ -121,15 +121,12 @@ const ReservationsCalendarView: React.FC<ReservationsCalendarViewProps> = ({
               className="rounded-md border p-2 pointer-events-auto"
               locale={fr}
               components={{
-                DayContent: (props) => {
-                  const date = props.date;
-                  return (
-                    <div className="relative w-full h-full flex items-center justify-center">
-                      <div>{props.date.getDate()}</div>
-                      {decorationFunction(date)}
-                    </div>
-                  );
-                },
+                DayContent: ({ date, ...props }) => (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <div {...props} />
+                    {decorationFunction(date)}
+                  </div>
+                ),
               }}
             />
           </div>
