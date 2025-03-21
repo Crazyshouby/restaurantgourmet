@@ -9,7 +9,7 @@ export class GoogleCalendarApiClient {
   // Méthode pour envoyer une requête à l'API Google Calendar
   static async callApi<T>(
     endpoint: string, 
-    method: 'GET' | 'POST' = 'GET',
+    method: 'GET' | 'POST' | 'DELETE' = 'GET',
     body?: any
   ): Promise<T | null> {
     try {
@@ -44,6 +44,11 @@ export class GoogleCalendarApiClient {
       
       // Appel à l'API Google Calendar
       const response = await fetch(`https://www.googleapis.com/calendar/v3/${endpoint}`, requestOptions);
+      
+      // Pour les requêtes DELETE, on peut retourner null sans tenter de parser du JSON
+      if (method === 'DELETE' && response.status === 204) {
+        return null;
+      }
       
       if (!response.ok) {
         const errorData = await response.json();
