@@ -12,12 +12,15 @@ import { supabase } from "@/integrations/supabase/client";
 import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import AdminHeader from "@/components/admin/AdminHeader";
+import CapacitySettings from "@/components/admin/CapacitySettings";
 
 const Admin = () => {
   const location = useLocation();
   const [adminSettings, setAdminSettings] = useState<AdminSettings>({
     googleConnected: false,
     googleEmail: undefined,
+    timeSlots: [],
+    maxGuestsPerDay: 20
   });
   
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +33,29 @@ const Admin = () => {
       setReservations(reservationsData);
     } catch (error) {
       console.error("Erreur lors du chargement des réservations:", error);
+    }
+  };
+  
+  const loadAdminSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admin_settings')
+        .select('*')
+        .eq('id', 1)
+        .single();
+      
+      if (!error && data) {
+        console.log('Paramètres admin chargés:', data);
+        setAdminSettings({
+          googleConnected: data.google_connected,
+          googleEmail: data.google_email,
+          googleRefreshToken: data.google_refresh_token,
+          timeSlots: data.time_slots || [],
+          maxGuestsPerDay: data.max_guests_per_day || 20
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des paramètres admin:", error);
     }
   };
   
@@ -62,11 +88,12 @@ const Admin = () => {
               .eq('id', 1);
             
             if (!error) {
-              setAdminSettings({
+              setAdminSettings(prevSettings => ({
+                ...prevSettings,
                 googleConnected: true,
                 googleEmail: session.user.email,
                 googleRefreshToken: session.refresh_token
-              });
+              }));
               
               toast.success("Connexion Google réussie", {
                 description: "Votre compte Google a été connecté avec succès."
@@ -106,26 +133,10 @@ const Admin = () => {
       try {
         console.log('Chargement des données initiales...');
         await loadReservations();
+        await loadAdminSettings();
         
         const isConnected = await GoogleCalendarService.isConnected();
         console.log('État de la connexion Google:', isConnected ? 'Connecté' : 'Déconnecté');
-        
-        if (isConnected) {
-          const { data, error } = await supabase
-            .from('admin_settings')
-            .select('*')
-            .eq('id', 1)
-            .single();
-          
-          if (!error && data) {
-            console.log('Paramètres admin chargés:', data.google_email);
-            setAdminSettings({
-              googleConnected: data.google_connected,
-              googleEmail: data.google_email,
-              googleRefreshToken: data.google_refresh_token
-            });
-          }
-        }
       } catch (error) {
         console.error("Erreur lors du chargement des données:", error);
         toast.error("Erreur de chargement", {
@@ -169,13 +180,19 @@ const Admin = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 space-y-6">
               <GoogleCalendarCard 
                 adminSettings={adminSettings}
                 isLoading={isLoading}
                 onRefreshReservations={loadReservations}
                 setIsLoading={setIsLoading}
                 setAdminSettings={setAdminSettings}
+              />
+              
+              <CapacitySettings 
+                adminSettings={adminSettings}
+                onSettingsUpdated={loadAdminSettings}
+                isLoading={isLoading}
               />
             </div>
             
