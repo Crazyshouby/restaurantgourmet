@@ -16,7 +16,7 @@ serve(async (req) => {
 
   try {
     // Récupération des données de la réservation
-    const { email, name, date, time, guests, notes } = await req.json();
+    const { email, name, date, time, guests, notes, phone } = await req.json();
     
     if (!email || !name || !date || !time) {
       throw new Error("Données de réservation incomplètes");
@@ -37,7 +37,7 @@ serve(async (req) => {
       <p>Détails de la réservation :</p>
       <ul>
         <li>Nombre de personnes : ${guests}</li>
-        <li>Téléphone : ${email}</li>
+        <li>Téléphone : ${phone || email}</li>
         ${notes ? `<li>Notes : ${notes}</li>` : ''}
       </ul>
       <p>Nous nous réjouissons de vous accueillir!</p>
@@ -45,15 +45,13 @@ serve(async (req) => {
     `;
 
     // Envoi de l'email via la fonction interne de Supabase
-    // Note: cette fonction suppose que vous avez déjà configuré les paramètres SMTP dans Supabase
-    const { error } = await supabaseAdmin.auth.admin.sendEmail(
-      email,
-      {
+    const { error } = await supabaseAdmin.functions.invoke('resend-email', {
+      body: {
+        to: email,
         subject: emailSubject,
-        type: "email",
         html: emailContent,
       }
-    );
+    });
 
     if (error) {
       console.error("Erreur lors de l'envoi de l'email:", error);
