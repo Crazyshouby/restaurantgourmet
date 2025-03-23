@@ -78,7 +78,7 @@ const Index = () => {
               <ReservationForm selectedDate={selectedDate} onSubmit={handleReservationSubmit} isSubmitting={isSubmitting} />
             </div>
             
-            <div className="lg:w-1/2 my-[240px] py-[15px] mx-[2px] px-[135px]">
+            <div className="lg:w-1/2 my-0 mx-0 py-0 px-0">
               <ReservationCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} className="sticky top-4" />
             </div>
           </div>
