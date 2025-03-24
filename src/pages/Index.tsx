@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
@@ -8,9 +9,11 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import { ReservationService } from "@/services/ReservationService";
+
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleReservationSubmit = async (formData: any) => {
     setIsSubmitting(true);
     try {
@@ -46,15 +49,25 @@ const Index = () => {
       setIsSubmitting(false);
     }
   };
+
   return <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <h1 className="text-2xl font-medium">Reserv</h1>
-          <Link to="/admin">
-            <Button variant="ghost" size="sm">
-              Administration
-            </Button>
+          <Link to="/">
+            <h1 className="text-2xl font-medium">Restaurant Gourmet</h1>
           </Link>
+          <nav className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="ghost" size="sm">
+                Accueil
+              </Button>
+            </Link>
+            <Link to="/admin">
+              <Button variant="ghost" size="sm">
+                Administration
+              </Button>
+            </Link>
+          </nav>
         </div>
       </header>
       
@@ -87,9 +100,10 @@ const Index = () => {
       
       <footer className="border-t mt-16">
         <div className="container mx-auto py-6 px-4 text-center text-muted-foreground text-sm">
-          <p>© {new Date().getFullYear()} Restaurant App. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} Restaurant Gourmet. Tous droits réservés.</p>
         </div>
       </footer>
     </div>;
 };
+
 export default Index;
