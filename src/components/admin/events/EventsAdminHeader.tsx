@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MenuIcon, CalendarDaysIcon, CalendarIcon } from "lucide-react";
+import { BookOpen, CalendarDaysIcon, CalendarIcon } from "lucide-react";
 
 interface EventsAdminHeaderProps {
   title: string;
@@ -24,7 +24,7 @@ const EventsAdminHeader: React.FC<EventsAdminHeaderProps> = ({
       <div className="flex gap-2">
         <Button asChild variant="outline">
           <Link to="/menu-admin">
-            <MenuIcon className="mr-2 h-4 w-4" /> Menu
+            <BookOpen className="mr-2 h-4 w-4" /> Menu
           </Link>
         </Button>
         <Button asChild variant="outline" className="bg-primary/10 border-primary/20">
