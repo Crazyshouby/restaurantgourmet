@@ -8,9 +8,10 @@ import { Event } from "@/types/events";
 
 interface EventCardProps {
   event: Event;
+  onClick: (event: Event) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => {
   const formatDate = (dateStr: string) => {
     try {
       const date = parseISO(dateStr);
@@ -22,7 +23,10 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-sm transition-shadow">
+    <Card 
+      className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onClick(event)}
+    >
       <div className="relative h-52 overflow-hidden bg-muted">
         <img 
           src={event.image} 

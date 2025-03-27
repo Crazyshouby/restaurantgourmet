@@ -1,12 +1,25 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Layout from "@/components/home/Layout";
 import EventCard from "@/components/events/EventCard";
+import EventDetailsDialog from "@/components/events/EventDetailsDialog";
 import { useEventsQuery } from "@/hooks/events/useEventsQueries";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { Event } from "@/types/events";
 
 const Events = () => {
   const { data: events = [], isLoading, error } = useEventsQuery();
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <Layout>
@@ -34,10 +47,20 @@ const Events = () => {
         {!isLoading && !error && events.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {events.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                onClick={handleEventClick}
+              />
             ))}
           </div>
         )}
+
+        <EventDetailsDialog 
+          event={selectedEvent}
+          isOpen={isDialogOpen}
+          onClose={handleCloseDialog}
+        />
       </div>
     </Layout>
   );
