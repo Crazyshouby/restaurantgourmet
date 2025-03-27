@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,8 +10,7 @@ import {
 } from "@/components/ui/card";
 import { MenuCategory, MenuItem } from "@/types/menu";
 import { menuItems } from "@/data/menu-items";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Euro } from "lucide-react";
 
 const Menu = () => {
@@ -66,37 +64,34 @@ const Menu = () => {
           </div>
 
           <div className="mb-10">
-            <RadioGroup 
+            <ToggleGroup 
+              type="single" 
               className="flex flex-wrap justify-center gap-2 md:gap-4" 
               defaultValue="Tous"
               value={selectedCategory}
-              onValueChange={(value) => setSelectedCategory(value as MenuCategory | "Tous")}
+              onValueChange={(value) => {
+                if (value) setSelectedCategory(value as MenuCategory | "Tous");
+              }}
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Tous" id="tous" />
-                <Label htmlFor="tous">Tous</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Entrées" id="entrees" />
-                <Label htmlFor="entrees">Entrées</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Plats" id="plats" />
-                <Label htmlFor="plats">Plats</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Desserts" id="desserts" />
-                <Label htmlFor="desserts">Desserts</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Boissons" id="boissons" />
-                <Label htmlFor="boissons">Boissons</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="Apéritifs" id="aperitifs" />
-                <Label htmlFor="aperitifs">Apéritifs</Label>
-              </div>
-            </RadioGroup>
+              <ToggleGroupItem value="Tous" className="rounded-full px-4 py-2 text-sm">
+                Tous
+              </ToggleGroupItem>
+              <ToggleGroupItem value="Entrées" className="rounded-full px-4 py-2 text-sm">
+                Entrées
+              </ToggleGroupItem>
+              <ToggleGroupItem value="Plats" className="rounded-full px-4 py-2 text-sm">
+                Plats
+              </ToggleGroupItem>
+              <ToggleGroupItem value="Desserts" className="rounded-full px-4 py-2 text-sm">
+                Desserts
+              </ToggleGroupItem>
+              <ToggleGroupItem value="Boissons" className="rounded-full px-4 py-2 text-sm">
+                Boissons
+              </ToggleGroupItem>
+              <ToggleGroupItem value="Apéritifs" className="rounded-full px-4 py-2 text-sm">
+                Apéritifs
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
