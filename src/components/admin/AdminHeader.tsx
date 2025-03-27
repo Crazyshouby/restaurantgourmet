@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -6,12 +7,15 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import AdminMobileNav from "./AdminMobileNav";
+import { Clock } from "@/components/ui/Clock";
+
 const AdminHeader: React.FC = () => {
   const isMobile = useIsMobile();
   return <header className="border-b">
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <h1 className="text-2xl font-medium">Panneau de Configuration</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <Clock />
           <ThemeToggle />
           {isMobile ? <Sheet>
               <SheetTrigger asChild>
@@ -31,4 +35,5 @@ const AdminHeader: React.FC = () => {
       </div>
     </header>;
 };
+
 export default AdminHeader;
