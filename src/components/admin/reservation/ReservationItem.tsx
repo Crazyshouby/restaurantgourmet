@@ -46,7 +46,7 @@ const ReservationItem: React.FC<ReservationItemProps> = ({
       </div>
       <div className="flex items-center gap-2">
         {reservation.googleEventId && (
-          <Badge variant="outline" className="flex items-center gap-1 bg-green-50">
+          <Badge variant="outline" className="flex items-center gap-1 bg-green-50 dark:bg-green-50 text-green-800 dark:text-green-800 dark:border-green-200">
             <Check className="h-3 w-3" />
             <span className="sr-only">Synchronisé avec</span>
             Synchronisé
