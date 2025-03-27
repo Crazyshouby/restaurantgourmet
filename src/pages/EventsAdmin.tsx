@@ -10,6 +10,9 @@ import ApiErrorAlert from "@/components/common/ApiErrorAlert";
 const EventsAdmin = () => {
   const { events, isLoading, error, addEvent, updateEvent, deleteEvent } = useEventsOperations();
   
+  // Convert error to string if it exists
+  const errorMessage = error ? error.message || "Une erreur s'est produite" : "";
+  
   return (
     <div className="min-h-screen bg-background">
       <ErrorBoundary>
@@ -18,7 +21,7 @@ const EventsAdmin = () => {
           <div className="container mx-auto py-4 px-4">
             <ApiErrorAlert 
               title="Erreur de chargement" 
-              description={error}
+              description={errorMessage}
             />
           </div>
         )}
