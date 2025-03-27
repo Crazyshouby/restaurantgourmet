@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, CalendarDaysIcon, CalendarIcon } from "lucide-react";
+import { BookOpen, Cake, CalendarIcon } from "lucide-react";
 
 interface MenuAdminHeaderProps {
   title: string;
@@ -29,7 +29,7 @@ const MenuAdminHeader: React.FC<MenuAdminHeaderProps> = ({
         </Button>
         <Button asChild variant="outline">
           <Link to="/events-admin">
-            <CalendarDaysIcon className="mr-2 h-4 w-4" /> Événements
+            <Cake className="mr-2 h-4 w-4" /> Événements
           </Link>
         </Button>
         <Button asChild variant="outline">

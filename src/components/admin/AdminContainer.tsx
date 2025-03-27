@@ -3,7 +3,7 @@ import React from "react";
 import { Reservation, AdminSettings } from "@/types";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, CalendarDaysIcon, CalendarIcon } from "lucide-react";
+import { BookOpen, Cake, CalendarIcon } from "lucide-react";
 import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import CapacitySettings from "@/components/admin/CapacitySettings";
@@ -46,7 +46,7 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
             </Button>
             <Button asChild variant="outline">
               <Link to="/events-admin">
-                <CalendarDaysIcon className="mr-2 h-4 w-4" /> Événements
+                <Cake className="mr-2 h-4 w-4" /> Événements
               </Link>
             </Button>
             <Button asChild variant="outline" className="bg-primary/10 border-primary/20">
