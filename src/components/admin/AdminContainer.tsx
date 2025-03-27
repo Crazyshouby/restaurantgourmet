@@ -1,6 +1,9 @@
 
 import React from "react";
 import { Reservation, AdminSettings } from "@/types";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { MenuIcon } from "lucide-react";
 import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import CapacitySettings from "@/components/admin/CapacitySettings";
@@ -28,11 +31,18 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
   return (
     <main className="container mx-auto py-6 px-4 animate-fade-in">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="space-y-1">
-          <h2 className="text-2xl font-medium">Administration</h2>
-          <p className="text-muted-foreground text-sm">
-            Gérez vos réservations et la synchronisation avec Google Calendar.
-          </p>
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-medium">Administration</h2>
+            <p className="text-muted-foreground text-sm">
+              Gérez vos réservations et la synchronisation avec Google Calendar.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/menu-admin">
+              <MenuIcon className="mr-2 h-4 w-4" /> Gérer le menu
+            </Link>
+          </Button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
