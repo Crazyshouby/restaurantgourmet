@@ -14,6 +14,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Euro } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import MenuItemDetailsDialog from "@/components/menu/MenuItemDetailsDialog";
 
 const fetchMenuItems = async (): Promise<MenuItem[]> => {
   const { data, error } = await supabase
@@ -29,6 +30,8 @@ const fetchMenuItems = async (): Promise<MenuItem[]> => {
 
 const Menu = () => {
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | "Tous">("Tous");
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   const { 
     data: menuItems = [],
@@ -42,6 +45,15 @@ const Menu = () => {
   const filteredItems = selectedCategory === "Tous" 
     ? menuItems 
     : menuItems.filter((item) => item.category === selectedCategory);
+
+  const handleItemClick = (item: MenuItem) => {
+    setSelectedItem(item);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -129,7 +141,11 @@ const Menu = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredItems.map((item) => (
-                <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={item.id} 
+                  className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => handleItemClick(item)}
+                >
                   <div className="relative h-48 overflow-hidden bg-muted">
                     <img 
                       src={item.image} 
@@ -161,9 +177,6 @@ const Menu = () => {
                     <span className="font-medium text-primary flex items-center">
                       {parseFloat(item.price.toString()).toFixed(2)} <Euro className="ml-1 h-4 w-4" />
                     </span>
-                    <Button variant="outline" size="sm">
-                      Détails
-                    </Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -171,6 +184,12 @@ const Menu = () => {
           )}
         </div>
       </main>
+
+      <MenuItemDetailsDialog
+        item={selectedItem}
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+      />
 
       <footer className="border-t mt-16">
         <div className="container mx-auto py-6 px-4 text-center text-muted-foreground text-sm">
