@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MenuCategory } from "@/types/menu";
 import { UseFormReturn } from "react-hook-form";
 import { MenuItemFormValues } from "./types";
+import ImageUpload from "@/components/common/ImageUpload";
 
 interface MenuItemFormFieldsProps {
   form: UseFormReturn<MenuItemFormValues>;
@@ -91,12 +92,16 @@ const MenuItemFormFields: React.FC<MenuItemFormFieldsProps> = ({ form, categorie
         name="image"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>URL de l'image</FormLabel>
+            <FormLabel>Image</FormLabel>
             <FormControl>
-              <Input placeholder="https://example.com/image.jpg" {...field} />
+              <ImageUpload 
+                bucketName="menu_images" 
+                onImageUploaded={field.onChange}
+                currentImageUrl={field.value}
+              />
             </FormControl>
             <FormDescription>
-              Entrez l'URL d'une image (idéalement 800x600px)
+              Téléchargez une image pour le plat (recommandé : 800x600px)
             </FormDescription>
             <FormMessage />
           </FormItem>

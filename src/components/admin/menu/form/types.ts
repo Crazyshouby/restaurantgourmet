@@ -7,7 +7,7 @@ export const menuItemFormSchema = z.object({
   description: z.string().min(1, { message: "La description est requise" }),
   price: z.coerce.number().positive({ message: "Le prix doit être positif" }),
   category: z.enum(["Entrées", "Plats", "Desserts", "Boissons", "Apéritifs"]),
-  image: z.string().url({ message: "L'image doit être une URL valide" }),
+  image: z.string().min(1, { message: "L'image est requise" }),
   featured: z.boolean().default(false),
 });
 

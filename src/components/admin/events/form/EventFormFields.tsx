@@ -11,6 +11,7 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormValues } from "./types";
+import ImageUpload from "@/components/common/ImageUpload";
 
 interface EventFormFieldsProps {
   form: UseFormReturn<EventFormValues>;
@@ -52,12 +53,16 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
         name="image"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>URL de l'image</FormLabel>
+            <FormLabel>Image</FormLabel>
             <FormControl>
-              <Input placeholder="https://example.com/image.jpg" {...field} />
+              <ImageUpload 
+                bucketName="event_images" 
+                onImageUploaded={field.onChange}
+                currentImageUrl={field.value}
+              />
             </FormControl>
             <FormDescription>
-              Entrez l'URL d'une image (idéalement 800x600px)
+              Téléchargez une image pour l'événement (recommandé : 800x600px)
             </FormDescription>
             <FormMessage />
           </FormItem>

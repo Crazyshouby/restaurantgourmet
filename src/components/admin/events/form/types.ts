@@ -5,7 +5,7 @@ import { Event } from "@/types/events";
 export const eventFormSchema = z.object({
   title: z.string().min(1, { message: "Le titre est requis" }),
   description: z.string().min(1, { message: "La description est requise" }),
-  image: z.string().url({ message: "L'image doit être une URL valide" }),
+  image: z.string().min(1, { message: "L'image est requise" }),
   date: z.string().min(1, { message: "La date est requise" }),
   time: z.string().min(1, { message: "L'heure est requise" }),
 });
