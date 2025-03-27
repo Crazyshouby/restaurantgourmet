@@ -6,16 +6,12 @@ interface FeatureCardProps {
   icon: LucideIcon;
   title: string;
   description: string;
-  index?: number;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description, index = 0 }) => {
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, description }) => {
   return (
-    <div 
-      className="glass rounded-xl p-6 shadow-card flex flex-col items-center text-center transform transition-all duration-500 hover:translate-y-[-5px] animate-on-scroll"
-      style={{ animationDelay: `${0.1 * (index + 1)}s` }}
-    >
-      <div className="bg-primary/10 p-3 rounded-full mb-4 animate-pulse-subtle">
+    <div className="bg-card rounded-xl p-6 shadow-card flex flex-col items-center text-center">
+      <div className="bg-primary/10 p-3 rounded-full mb-4">
         <Icon className="h-6 w-6 text-primary" />
       </div>
       <h3 className="text-xl font-medium mb-2">{title}</h3>

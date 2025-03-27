@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 195 40% 98%;
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
 
     --card: 0 0% 100%;
@@ -14,70 +14,56 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    --primary: 207 80% 55%;
+    --primary: 240 5.9% 10%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 120 15% 75%;
+    --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 195 15% 92%;
+    --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 340 80% 75%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 207 80% 55%;
+    --ring: 240 5.9% 10%;
 
-    --radius: 1rem;
-    
-    /* Variables pour les couleurs modernes 2025 */
-    --skyblue: #A7D8F0;
-    --sagegreen: #B5C9B7;
-    --powderpink: #F2D5D5;
-    --mustardyellow: #E8C547;
-    --softcoral: #F79489;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 8%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
 
-    --card: 240 10% 12%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 12%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 207 80% 45%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 240 3.7% 25%;
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 3.7% 20%;
+    --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
 
-    --accent: 340 80% 65%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 25%;
-    --input: 240 3.7% 25%;
-    --ring: 207 80% 45%;
-
-    /* Variables pour les couleurs modernes 2025 (mode sombre) */
-    --skyblue: #5A9BC0;
-    --sagegreen: #708973;
-    --powderpink: #C39EA0;
-    --mustardyellow: #BD9F39;
-    --softcoral: #C06B61;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 
   * {
@@ -85,25 +71,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans text-base;
+    @apply bg-background text-foreground;
     -webkit-tap-highlight-color: transparent;
-    font-size: 16px;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading;
-  }
-  
-  h1 {
-    @apply text-3xl md:text-4xl font-bold;
-  }
-  
-  h2 {
-    @apply text-2xl md:text-3xl font-semibold;
-  }
-  
-  h3 {
-    @apply text-xl md:text-2xl font-medium;
   }
   
   /* Améliorer le défilement sur mobile */
@@ -122,109 +91,18 @@
 @layer components {
   /* Glass effect for cards and modals */
   .glass {
-    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/20 dark:border-slate-700/20 shadow-glass;
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/20 dark:border-slate-700/20;
   }
 
-  .neo-btn {
-    @apply bg-white dark:bg-slate-800 shadow-neomorphic hover:shadow-none transition-shadow duration-300;
-  }
-  
   /* Touch-friendly styles */
   .touch-target {
-    @apply min-h-[48px] min-w-[48px] flex items-center justify-center;
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
   }
   
   /* Mobile optimized scrolling areas */
   .scroll-area-mobile {
     @apply overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch;
   }
-  
-  /* Animated elements */
-  .animate-on-scroll {
-    @apply opacity-0;
-  }
-  
-  .animate-on-scroll.visible {
-    @apply animate-slide-in-bottom;
-  }
-  
-  /* Buttons with animation */
-  .btn-animated {
-    @apply relative overflow-hidden transition-all duration-300 hover:shadow-md hover:animate-border-glow;
-  }
-  
-  .btn-animated::before {
-    content: '';
-    @apply absolute inset-0 w-full h-full opacity-0 bg-mustardYellow/20 transition-opacity duration-300;
-  }
-  
-  .btn-animated:hover::before {
-    @apply opacity-100;
-  }
-  
-  /* Animated gradient background */
-  .animated-bg {
-    @apply bg-gradient-animation bg-[length:200%_200%] animate-gradient-background;
-  }
-  
-  /* Animated text */
-  .text-animated {
-    @apply inline-block;
-    animation-delay: calc(0.3s * var(--word-index));
-  }
-  
-  /* Card hover effects */
-  .card-hover {
-    @apply transition-transform duration-300 hover:translate-y-[-5px] hover:shadow-lg;
-  }
-  
-  /* Paragraph styles */
-  .paragraph {
-    @apply text-base md:text-lg leading-relaxed text-foreground/80;
-  }
 }
 
-/* Grain texture overlay */
-.texture-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  opacity: 0.03;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* Theme toggle animation */
-.theme-toggle {
-  @apply relative w-10 h-6 rounded-full bg-background border border-muted flex items-center transition-colors duration-300;
-}
-
-.theme-toggle::after {
-  content: '';
-  @apply absolute w-4 h-4 rounded-full bg-foreground transition-all duration-300;
-  left: 2px;
-}
-
-.theme-toggle.dark::after {
-  left: calc(100% - 18px);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-muted/50;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-primary/50 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-primary/70;
-}
+/* ... keep existing code (Animations, Glass effect, Smooth transitions) */

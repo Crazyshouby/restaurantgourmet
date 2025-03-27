@@ -11,7 +11,6 @@ interface ContactCardProps {
   buttonText?: string;
   buttonLink?: string;
   children?: React.ReactNode;
-  index?: number;
 }
 
 const ContactCard: React.FC<ContactCardProps> = ({ 
@@ -20,23 +19,19 @@ const ContactCard: React.FC<ContactCardProps> = ({
   description, 
   buttonText, 
   buttonLink,
-  children,
-  index = 0
+  children 
 }) => {
   return (
-    <div 
-      className="glass rounded-xl p-8 shadow-card transform transition-all duration-500 hover:translate-y-[-5px] animate-on-scroll"
-      style={{ animationDelay: `${0.2 * (index + 1)}s` }}
-    >
+    <div className="bg-card rounded-xl p-8 shadow-card">
       <h3 className="text-xl font-medium mb-4 flex items-center gap-2">
-        <Icon className="h-5 w-5 text-primary" /> {title}
+        <Icon className="h-5 w-5" /> {title}
       </h3>
       <p className="text-muted-foreground mb-6">
         {description}
       </p>
       {buttonText && buttonLink && (
         <Link to={buttonLink}>
-          <Button className="w-full btn-animated bg-gradient-to-r from-primary to-primary/90">
+          <Button className="w-full">
             {buttonText}
           </Button>
         </Link>
