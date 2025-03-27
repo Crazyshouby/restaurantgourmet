@@ -40,7 +40,7 @@ const formSchema = z.object({
   featured: z.boolean().default(false),
 });
 
-// Make sure this type correctly matches Omit<MenuItem, "id">
+// This type matches the zod schema output
 type MenuItemFormValues = z.infer<typeof formSchema>;
 
 const CATEGORIES: MenuCategory[] = ["Entrées", "Plats", "Desserts", "Boissons", "Apéritifs"];
@@ -63,8 +63,18 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   });
 
   const handleSubmit = (values: MenuItemFormValues) => {
-    // Now we're sure that values contains all required fields
-    onSubmit(values);
+    // Since we're using Zod validation, all the required fields will be present
+    // Convert form values to the exact type expected by onSubmit
+    const menuItem: Omit<MenuItem, "id"> = {
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      category: values.category,
+      image: values.image,
+      featured: values.featured
+    };
+    
+    onSubmit(menuItem);
   };
 
   return (
