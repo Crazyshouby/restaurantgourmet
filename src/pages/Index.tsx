@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { InfoIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Link } from "react-router-dom";
+import Layout from "@/components/home/Layout";
 import { ReservationService } from "@/services/ReservationService";
 
 const Index = () => {
@@ -50,33 +50,9 @@ const Index = () => {
     }
   };
 
-  return <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <Link to="/">
-            <h1 className="text-2xl font-medium">Restaurant Gourmet</h1>
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm">
-                Accueil
-              </Button>
-            </Link>
-            <Link to="/menu">
-              <Button variant="ghost" size="sm">
-                Menu
-              </Button>
-            </Link>
-            <Link to="/admin">
-              <Button variant="ghost" size="sm">
-                Administration
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
-      
-      <main className="container mx-auto py-8 px-4 animate-fade-in">
+  return (
+    <Layout>
+      <div className="container mx-auto py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col-reverse lg:flex-row gap-8">
             <div className="lg:w-1/2 space-y-6">
@@ -101,14 +77,9 @@ const Index = () => {
             </div>
           </div>
         </div>
-      </main>
-      
-      <footer className="border-t mt-16">
-        <div className="container mx-auto py-6 px-4 text-center text-muted-foreground text-sm">
-          <p>© {new Date().getFullYear()} Restaurant Gourmet. Tous droits réservés.</p>
-        </div>
-      </footer>
-    </div>;
+      </div>
+    </Layout>
+  );
 };
 
 export default Index;

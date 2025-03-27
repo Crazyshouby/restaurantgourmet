@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,6 +14,7 @@ import { Euro } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import MenuItemDetailsDialog from "@/components/menu/MenuItemDetailsDialog";
+import Layout from "@/components/home/Layout";
 
 const fetchMenuItems = async (): Promise<MenuItem[]> => {
   const { data, error } = await supabase
@@ -56,33 +56,8 @@ const Menu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <Link to="/">
-            <h1 className="text-2xl font-medium">Restaurant Gourmet</h1>
-          </Link>
-          <nav className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm">
-                Accueil
-              </Button>
-            </Link>
-            <Link to="/reservations">
-              <Button variant="ghost" size="sm">
-                Réservations
-              </Button>
-            </Link>
-            <Link to="/admin">
-              <Button variant="ghost" size="sm">
-                Administration
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="container mx-auto py-8 px-4 animate-fade-in">
+    <Layout>
+      <div className="container mx-auto py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
@@ -183,20 +158,14 @@ const Menu = () => {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       <MenuItemDetailsDialog
         item={selectedItem}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
       />
-
-      <footer className="border-t mt-16">
-        <div className="container mx-auto py-6 px-4 text-center text-muted-foreground text-sm">
-          <p>© {new Date().getFullYear()} Restaurant Gourmet. Tous droits réservés.</p>
-        </div>
-      </footer>
-    </div>
+    </Layout>
   );
 };
 
