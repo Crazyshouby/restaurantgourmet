@@ -93,9 +93,9 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) => {
                       if (date) {
-                        // Create date at noon to avoid timezone issues
-                        const localDate = new Date(date.setHours(12, 0, 0, 0));
-                        field.onChange(format(localDate, "yyyy-MM-dd"));
+                        // Fix timezone issue by using the date directly without adjusting time
+                        const dateString = format(date, "yyyy-MM-dd");
+                        field.onChange(dateString);
                       } else {
                         field.onChange("");
                       }
