@@ -72,6 +72,36 @@
 
   body {
     @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Améliorer le défilement sur mobile */
+  html, body {
+    @apply overflow-x-hidden;
+    scroll-behavior: smooth;
+  }
+  
+  /* Améliorer l'accessibilité des éléments tactiles */
+  button, a, [role="button"] {
+    @apply touch-manipulation;
+  }
+}
+
+/* Animations, Glass effect, Smooth transitions */
+@layer components {
+  /* Glass effect for cards and modals */
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/20 dark:border-slate-700/20;
+  }
+
+  /* Touch-friendly styles */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Mobile optimized scrolling areas */
+  .scroll-area-mobile {
+    @apply overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch;
   }
 }
 

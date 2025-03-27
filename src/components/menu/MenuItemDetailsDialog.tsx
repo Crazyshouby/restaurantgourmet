@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MenuItemDetailsDialogProps {
   item: MenuItem | null;
@@ -21,13 +22,15 @@ const MenuItemDetailsDialog: React.FC<MenuItemDetailsDialogProps> = ({
   isOpen,
   onClose,
 }) => {
+  const isMobile = useIsMobile();
+  
   if (!item) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-xl">{item.name}</DialogTitle>
+      <DialogContent className={`${isMobile ? 'w-[calc(100%-24px)] p-4' : 'sm:max-w-md'} max-h-[90vh] overflow-y-auto`}>
+        <DialogHeader className={isMobile ? 'space-y-1 mb-2' : ''}>
+          <DialogTitle className={`${isMobile ? 'text-lg' : 'text-xl'}`}>{item.name}</DialogTitle>
           <DialogDescription className="flex items-center text-sm text-muted-foreground mb-2">
             <span className="font-medium flex items-center">
               {parseFloat(item.price.toString()).toFixed(2)} <Euro className="ml-1 h-4 w-4" />
@@ -35,11 +38,12 @@ const MenuItemDetailsDialog: React.FC<MenuItemDetailsDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         
-        <div className="relative h-64 overflow-hidden bg-muted rounded-md mb-4">
+        <div className={`relative ${isMobile ? 'h-52' : 'h-64'} overflow-hidden bg-muted rounded-md mb-4`}>
           <img 
             src={item.image} 
             alt={item.name} 
             className="w-full h-full object-cover"
+            loading="lazy"
             onError={(e) => {
               e.currentTarget.src = "/placeholder.svg";
               e.currentTarget.classList.add("p-6");
@@ -57,7 +61,7 @@ const MenuItemDetailsDialog: React.FC<MenuItemDetailsDialogProps> = ({
           </div>
         </div>
         
-        <div className="text-sm text-muted-foreground">
+        <div className={`${isMobile ? 'text-sm' : ''} text-muted-foreground`}>
           <p className="whitespace-pre-line">{item.description}</p>
         </div>
       </DialogContent>

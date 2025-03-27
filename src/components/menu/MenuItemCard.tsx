@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MenuItem } from "@/types/menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -16,16 +17,19 @@ interface MenuItemCardProps {
 }
 
 const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <Card 
-      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+      className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer touch-manipulation"
       onClick={() => onClick(item)}
     >
-      <div className="relative h-48 overflow-hidden bg-muted">
+      <div className={`relative ${isMobile ? 'h-36' : 'h-48'} overflow-hidden bg-muted`}>
         <img 
           src={item.image} 
           alt={item.name} 
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+          loading="lazy"
           onError={(e) => {
             e.currentTarget.src = "/placeholder.svg";
             e.currentTarget.classList.add("p-6");
@@ -42,13 +46,13 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
           </span>
         </div>
       </div>
-      <CardContent className="p-4">
-        <CardTitle className="text-xl mb-2">{item.name}</CardTitle>
-        <CardDescription className="h-20 overflow-hidden">
+      <CardContent className={`p-3 md:p-4`}>
+        <CardTitle className={`${isMobile ? 'text-lg' : 'text-xl'} mb-1 md:mb-2`}>{item.name}</CardTitle>
+        <CardDescription className={`${isMobile ? 'h-16 text-sm' : 'h-20'} overflow-hidden`}>
           {item.description}
         </CardDescription>
       </CardContent>
-      <CardFooter className="flex justify-between p-4 pt-0 items-center">
+      <CardFooter className="flex justify-between p-3 md:p-4 pt-0 items-center">
         <span className="font-medium text-primary flex items-center">
           {parseFloat(item.price.toString()).toFixed(2)} <Euro className="ml-1 h-4 w-4" />
         </span>
