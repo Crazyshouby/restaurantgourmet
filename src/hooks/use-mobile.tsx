@@ -16,20 +16,30 @@ export function useIsMobile() {
     // Optimisation pour éviter des re-rendus inutiles
     if (typeof window === 'undefined') return
 
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    
-    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
-      setIsMobile(e.matches)
-    }
+    const handleResize = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      if (mobile !== isMobile) {
+        setIsMobile(mobile);
+      }
+    };
     
     // Vérification initiale
-    handleChange(mql)
+    handleResize();
     
-    // Utilisation de l'API moderne pour les événements MediaQueryList
-    mql.addEventListener("change", handleChange)
+    // Utiliser un debounce pour éviter trop d'appels pendant le redimensionnement
+    let timeoutId: number;
+    const debouncedResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(handleResize, 100);
+    };
     
-    return () => mql.removeEventListener("change", handleChange)
-  }, [])
+    window.addEventListener("resize", debouncedResize);
+    
+    return () => {
+      window.removeEventListener("resize", debouncedResize);
+      clearTimeout(timeoutId);
+    };
+  }, [isMobile])
 
   return isMobile
 }
