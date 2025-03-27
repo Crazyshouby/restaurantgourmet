@@ -27,13 +27,13 @@ const ContactSection = () => {
           <ContactCard 
             icon={MapPin}
             title="Adresse"
-            description="15 Rue de la Gastronomie\n75008 Paris"
+            description="123 Rue de l'Étoile\nVerdun, QC, H4G 2T7"
           >
             <p className="text-muted-foreground mb-4">
               <strong>Ouvert :</strong> Tous les jours de 12h à 14h30 et de 19h à 22h30
             </p>
             <p className="text-muted-foreground">
-              <strong>Téléphone :</strong> 01 23 45 67 89
+              <strong>Téléphone :</strong> (514) 555-1234
             </p>
           </ContactCard>
         </div>
