@@ -14,6 +14,11 @@ const Header = () => {
               Menu
             </Button>
           </Link>
+          <Link to="/events">
+            <Button variant="ghost" size="sm">
+              Événements
+            </Button>
+          </Link>
           <Link to="/reservations">
             <Button variant="ghost" size="sm">
               Réservations
