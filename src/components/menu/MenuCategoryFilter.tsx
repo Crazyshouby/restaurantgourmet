@@ -12,35 +12,29 @@ const MenuCategoryFilter: React.FC<MenuCategoryFilterProps> = ({
   selectedCategory,
   onCategoryChange,
 }) => {
+  const categories: (MenuCategory | "Tous")[] = [
+    "Tous", "Entrées", "Plats", "Desserts", "Boissons", "Apéritifs"
+  ];
+
   return (
     <div className="mb-10">
       <ToggleGroup 
         type="single" 
         className="flex flex-wrap justify-center gap-2 md:gap-4" 
-        defaultValue="Tous"
         value={selectedCategory}
         onValueChange={(value) => {
           if (value) onCategoryChange(value as MenuCategory | "Tous");
         }}
       >
-        <ToggleGroupItem value="Tous" className="rounded-full px-4 py-2 text-sm">
-          Tous
-        </ToggleGroupItem>
-        <ToggleGroupItem value="Entrées" className="rounded-full px-4 py-2 text-sm">
-          Entrées
-        </ToggleGroupItem>
-        <ToggleGroupItem value="Plats" className="rounded-full px-4 py-2 text-sm">
-          Plats
-        </ToggleGroupItem>
-        <ToggleGroupItem value="Desserts" className="rounded-full px-4 py-2 text-sm">
-          Desserts
-        </ToggleGroupItem>
-        <ToggleGroupItem value="Boissons" className="rounded-full px-4 py-2 text-sm">
-          Boissons
-        </ToggleGroupItem>
-        <ToggleGroupItem value="Apéritifs" className="rounded-full px-4 py-2 text-sm">
-          Apéritifs
-        </ToggleGroupItem>
+        {categories.map((category) => (
+          <ToggleGroupItem 
+            key={category}
+            value={category} 
+            className="rounded-full px-4 py-2 text-sm"
+          >
+            {category}
+          </ToggleGroupItem>
+        ))}
       </ToggleGroup>
     </div>
   );

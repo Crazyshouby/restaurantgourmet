@@ -6,7 +6,6 @@ import { Event } from "@/types/events";
 import EventsList from "./EventsList";
 import EventForm from "./EventForm";
 import EventDialog from "./EventDialog";
-import { toast } from "sonner";
 
 interface EventsAdminContainerProps {
   events: Event[];

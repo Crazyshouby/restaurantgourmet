@@ -44,14 +44,10 @@ const Admin = () => {
     const authStatus = queryParams.get('auth');
     
     if (authStatus === 'success') {
-      console.log('Auth success détecté, mise à jour des paramètres admin...');
-      
       const handleAuthSuccess = async () => {
         try {
           startLoading();
           const session = await AuthService.getSession();
-          
-          console.log('Session récupérée:', session ? 'Valide' : 'Invalide');
           
           if (session) {
             const updated = await updateGoogleSettings(session);
@@ -78,12 +74,9 @@ const Admin = () => {
     const loadData = async () => {
       await withLoading(async () => {
         try {
-          console.log('Chargement des données initiales...');
           await loadReservations();
           await loadAdminSettings();
-          
-          const isConnected = await GoogleCalendarService.isConnected();
-          console.log('État de la connexion Google:', isConnected ? 'Connecté' : 'Déconnecté');
+          await GoogleCalendarService.isConnected();
         } catch (error) {
           console.error("Erreur lors du chargement des données:", error);
           toast.error("Erreur de chargement", {
