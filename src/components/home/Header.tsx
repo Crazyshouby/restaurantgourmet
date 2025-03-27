@@ -9,6 +9,11 @@ const Header = () => {
       <div className="container mx-auto py-4 px-4 flex justify-between items-center">
         <h1 className="text-2xl font-medium">Restaurant Gourmet</h1>
         <nav className="flex items-center gap-4">
+          <Link to="/">
+            <Button variant="ghost" size="sm">
+              Accueil
+            </Button>
+          </Link>
           <Link to="/menu">
             <Button variant="ghost" size="sm">
               Menu
@@ -24,9 +29,9 @@ const Header = () => {
               Réservations
             </Button>
           </Link>
-          <Link to="/admin">
+          <Link to="/contacts">
             <Button variant="ghost" size="sm">
-              Administration
+              Contacts
             </Button>
           </Link>
         </nav>
