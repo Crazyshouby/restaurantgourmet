@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Reservation, AdminSettings } from "@/types";
 import { Link } from "react-router-dom";
@@ -33,7 +32,7 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h2 className="text-2xl font-medium">Administration</h2>
+            <h2 className="text-2xl font-medium">Gestion des Reservations</h2>
             <p className="text-muted-foreground text-sm">
               Gérez vos réservations et la synchronisation avec Google Calendar.
             </p>
@@ -59,7 +58,6 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-1 space-y-4">
-            {/* Google Calendar Card avec les paramètres de capacité intégrés */}
             <GoogleCalendarCard 
               adminSettings={adminSettings}
               isLoading={isLoading}
@@ -71,7 +69,6 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
           </div>
           
           <div className="md:col-span-2">
-            {/* Liste des réservations */}
             <ReservationsList 
               reservations={reservations} 
               onReservationDeleted={onRefreshReservations}
@@ -80,7 +77,6 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
           </div>
         </div>
         
-        {/* Calendrier des réservations en grand format en bas */}
         <div className="mt-8">
           <ReservationsCalendarView 
             reservations={reservations}
