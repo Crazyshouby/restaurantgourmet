@@ -40,6 +40,9 @@ const formSchema = z.object({
   featured: z.boolean().default(false),
 });
 
+// Make sure this type correctly matches Omit<MenuItem, "id">
+type MenuItemFormValues = z.infer<typeof formSchema>;
+
 const CATEGORIES: MenuCategory[] = ["Entrées", "Plats", "Desserts", "Boissons", "Apéritifs"];
 
 const MenuItemForm: React.FC<MenuItemFormProps> = ({
@@ -47,7 +50,7 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<MenuItemFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
       name: "",
@@ -59,7 +62,8 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({
     },
   });
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
+  const handleSubmit = (values: MenuItemFormValues) => {
+    // Now we're sure that values contains all required fields
     onSubmit(values);
   };
 
