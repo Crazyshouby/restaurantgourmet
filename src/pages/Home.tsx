@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,6 +10,11 @@ const Home = () => {
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <h1 className="text-2xl font-medium">Restaurant Gourmet</h1>
           <nav className="flex items-center gap-4">
+            <Link to="/menu">
+              <Button variant="ghost" size="sm">
+                Menu
+              </Button>
+            </Link>
             <Link to="/reservations">
               <Button variant="ghost" size="sm">
                 Réservations
@@ -47,9 +51,11 @@ const Home = () => {
                       Réserver une table <ChevronRight className="w-4 h-4" />
                     </Button>
                   </Link>
-                  <Button variant="outline" size="lg">
-                    Voir le menu
-                  </Button>
+                  <Link to="/menu">
+                    <Button variant="outline" size="lg">
+                      Voir le menu
+                    </Button>
+                  </Link>
                 </div>
               </div>
               

@@ -62,6 +62,11 @@ const Index = () => {
                 Accueil
               </Button>
             </Link>
+            <Link to="/menu">
+              <Button variant="ghost" size="sm">
+                Menu
+              </Button>
+            </Link>
             <Link to="/admin">
               <Button variant="ghost" size="sm">
                 Administration
