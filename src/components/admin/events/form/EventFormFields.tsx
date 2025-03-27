@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { UseFormReturn } from "react-hook-form";
 import { EventFormValues } from "./types";
@@ -79,7 +79,7 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
                       className={`w-full pl-3 text-left font-normal ${!field.value ? "text-muted-foreground" : ""}`}
                     >
                       {field.value ? (
-                        format(new Date(field.value), "d MMMM yyyy", { locale: fr })
+                        format(parseISO(field.value), "d MMMM yyyy", { locale: fr })
                       ) : (
                         <span>Sélectionnez une date</span>
                       )}
@@ -90,19 +90,18 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
+                    selected={field.value ? parseISO(field.value) : undefined}
                     onSelect={(date) => {
                       if (date) {
-                        // Ajuster pour le fuseau horaire de Montréal (Canada)
-                        // Créer la date dans le fuseau local avec les heures à midi
-                        // pour éviter les décalages dus au changement de jour
+                        // Solution: Prendre uniquement les composants de date (année, mois, jour)
+                        // et formatter directement en chaîne de caractères yyyy-MM-dd
+                        // sans manipulation de temps ni de fuseau horaire
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
                         const year = date.getFullYear();
-                        const month = date.getMonth();
-                        const day = date.getDate();
                         
-                        // Créer une nouvelle date avec l'heure à midi pour éviter les problèmes de fuseau
-                        const adjustedDate = new Date(year, month, day, 12, 0, 0);
-                        const formattedDate = format(adjustedDate, "yyyy-MM-dd");
+                        // Format ISO strict pour la date seulement (YYYY-MM-DD)
+                        const formattedDate = `${year}-${month}-${day}`;
                         field.onChange(formattedDate);
                       } else {
                         field.onChange("");
