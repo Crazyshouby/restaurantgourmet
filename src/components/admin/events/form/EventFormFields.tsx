@@ -93,9 +93,17 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
                     selected={field.value ? new Date(field.value) : undefined}
                     onSelect={(date) => {
                       if (date) {
-                        // Fix timezone issue by using the date directly without adjusting time
-                        const dateString = format(date, "yyyy-MM-dd");
-                        field.onChange(dateString);
+                        // Ajuster pour le fuseau horaire de Montréal (Canada)
+                        // Créer la date dans le fuseau local avec les heures à midi
+                        // pour éviter les décalages dus au changement de jour
+                        const year = date.getFullYear();
+                        const month = date.getMonth();
+                        const day = date.getDate();
+                        
+                        // Créer une nouvelle date avec l'heure à midi pour éviter les problèmes de fuseau
+                        const adjustedDate = new Date(year, month, day, 12, 0, 0);
+                        const formattedDate = format(adjustedDate, "yyyy-MM-dd");
+                        field.onChange(formattedDate);
                       } else {
                         field.onChange("");
                       }
