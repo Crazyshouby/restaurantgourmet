@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { menuItems } from "@/data/menu-items";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Cette fonction permet d'importer les éléments du menu depuis les données statiques
@@ -25,24 +26,27 @@ export const seedMenuItems = async () => {
       // avant de continuer
     }
     
+    // Préparer les données avec des UUIDs valides au lieu des ID simplifiés
+    const preparedMenuItems = menuItems.map(item => ({
+      id: uuidv4(), // Générer un UUID valide pour chaque élément
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      category: item.category,
+      image: item.image,
+      featured: item.featured || false
+    }));
+    
     // Importer les données
     const { data, error } = await supabase
       .from('menu_items')
-      .insert(menuItems.map(item => ({
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        category: item.category,
-        image: item.image,
-        featured: item.featured || false
-      })));
+      .insert(preparedMenuItems);
     
     if (error) {
       throw new Error(`Erreur lors de l'importation des données: ${error.message}`);
     }
     
-    console.log(`${menuItems.length} éléments de menu ont été importés avec succès.`);
+    console.log(`${preparedMenuItems.length} éléments de menu ont été importés avec succès.`);
     return true;
   } catch (error) {
     console.error("Erreur lors de l'importation du menu:", error);
