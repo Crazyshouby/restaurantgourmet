@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -97,11 +98,15 @@ const Menu = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item) => (
               <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-48 overflow-hidden bg-muted">
                   <img 
                     src={item.image} 
                     alt={item.name} 
                     className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg";
+                      e.currentTarget.classList.add("p-6");
+                    }}
                   />
                   {item.featured && (
                     <span className="absolute top-2 right-2 bg-primary/90 text-primary-foreground text-xs px-2 py-1 rounded">
