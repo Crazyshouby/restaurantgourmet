@@ -1,30 +1,12 @@
 
 import React, { useState } from "react";
-import { Edit, Trash2, Euro } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 import { MenuItem } from "@/types/menu";
 import MenuItemDialog from "./MenuItemDialog";
 import MenuItemForm from "./MenuItemForm";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import MenuItemCard from "./list/MenuItemCard";
+import DeleteConfirmationDialog from "./list/DeleteConfirmationDialog";
 
 interface MenuItemsListProps {
   items: MenuItem[];
@@ -64,83 +46,24 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
     setDeletingItemId(null);
   };
 
+  const handleDeleteClick = (itemId: string) => {
+    console.log("Setting deletingItemId to:", itemId);
+    setDeletingItemId(itemId);
+  };
+
+  const getDeletingItem = () => {
+    return items.find(item => item.id === deletingItemId);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item) => (
-        <Card key={item.id} className="overflow-hidden hover:shadow-sm transition-shadow">
-          <div className="relative h-40 overflow-hidden bg-muted">
-            <img 
-              src={item.image} 
-              alt={item.name} 
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "/placeholder.svg";
-                e.currentTarget.classList.add("p-6");
-              }}
-            />
-            <div className="absolute bottom-0 left-0 w-full p-2 bg-gradient-to-t from-black/70 to-transparent">
-              <span className="text-xs text-white font-medium px-2 py-1 rounded">
-                {item.category}
-              </span>
-            </div>
-            {item.featured && (
-              <span className="absolute top-2 right-2 bg-primary/90 text-primary-foreground text-xs px-2 py-1 rounded">
-                Spécialité
-              </span>
-            )}
-          </div>
-          
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">{item.name}</CardTitle>
-            <CardDescription className="line-clamp-2">{item.description}</CardDescription>
-          </CardHeader>
-          
-          <CardFooter className="flex justify-between p-4 pt-0 items-center">
-            <span className="font-medium flex items-center">
-              {item.price.toFixed(2)} <Euro className="ml-1 h-4 w-4" />
-            </span>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => setEditingItem(item)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              
-              <AlertDialog open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      console.log("Setting deletingItemId to:", item.id);
-                      setDeletingItemId(item.id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer ce plat ?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Cette action est irréversible. Le plat "{item.name}" sera définitivement supprimé du menu.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction 
-                      onClick={() => handleDeleteConfirm(item.id)}
-                    >
-                      Supprimer
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </CardFooter>
-        </Card>
+        <MenuItemCard 
+          key={item.id}
+          item={item}
+          onEdit={() => setEditingItem(item)}
+          onDeleteClick={handleDeleteClick}
+        />
       ))}
 
       {/* Dialog pour l'édition */}
@@ -161,6 +84,16 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
           />
         )}
       </MenuItemDialog>
+
+      {/* Dialog de confirmation de suppression */}
+      <AlertDialog open={!!deletingItemId} onOpenChange={(open) => !open && setDeletingItemId(null)}>
+        {deletingItemId && getDeletingItem() && (
+          <DeleteConfirmationDialog 
+            itemName={getDeletingItem()?.name || ""}
+            onConfirm={() => handleDeleteConfirm(deletingItemId)}
+          />
+        )}
+      </AlertDialog>
     </div>
   );
 };
