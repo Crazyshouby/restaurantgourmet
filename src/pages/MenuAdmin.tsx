@@ -37,12 +37,14 @@ const MenuAdmin = () => {
   } = useQuery({
     queryKey: ['menuItems'],
     queryFn: fetchMenuItems,
-    onError: (err: Error) => {
-      console.error("Erreur lors du chargement des données:", err);
-      toast.error("Erreur de chargement", {
-        description: "Impossible de charger les données du menu."
-      });
-      setError("Impossible de charger les données du menu. Veuillez réessayer.");
+    meta: {
+      onError: (err: Error) => {
+        console.error("Erreur lors du chargement des données:", err);
+        toast.error("Erreur de chargement", {
+          description: "Impossible de charger les données du menu."
+        });
+        setError("Impossible de charger les données du menu. Veuillez réessayer.");
+      }
     }
   });
 
