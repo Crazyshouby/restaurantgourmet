@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { AlertDialog } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { MenuItem } from "@/types/menu";
 import MenuItemDialog from "./MenuItemDialog";
 import MenuItemForm from "./MenuItemForm";
@@ -86,14 +86,21 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
       </MenuItemDialog>
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog open={!!deletingItemId} onOpenChange={(open) => !open && setDeletingItemId(null)}>
-        {deletingItemId && getDeletingItem() && (
-          <DeleteConfirmationDialog 
-            itemName={getDeletingItem()?.name || ""}
-            onConfirm={() => handleDeleteConfirm(deletingItemId)}
-          />
-        )}
-      </AlertDialog>
+      {items.map(item => (
+        <AlertDialog 
+          key={`delete-dialog-${item.id}`}
+          open={deletingItemId === item.id} 
+          onOpenChange={(open) => !open && setDeletingItemId(null)}
+        >
+          <AlertDialogTrigger className="hidden" />
+          {deletingItemId === item.id && (
+            <DeleteConfirmationDialog 
+              itemName={item.name}
+              onConfirm={() => handleDeleteConfirm(deletingItemId)}
+            />
+          )}
+        </AlertDialog>
+      ))}
     </div>
   );
 };

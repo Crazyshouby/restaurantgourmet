@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MenuItem } from "@/types/menu";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -66,18 +65,16 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             <Edit className="h-4 w-4" />
           </Button>
           
-          <AlertDialogTrigger asChild>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                console.log("Attempting to delete item:", item.id);
-                onDeleteClick(item.id);
-              }}
-            >
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </AlertDialogTrigger>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              console.log("Attempting to delete item:", item.id);
+              onDeleteClick(item.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
         </div>
       </CardFooter>
     </Card>
