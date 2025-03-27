@@ -39,6 +39,42 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          featured: boolean | null
+          id: string
+          image: string
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          featured?: boolean | null
+          id?: string
+          image: string
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          featured?: boolean | null
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           created_at: string
