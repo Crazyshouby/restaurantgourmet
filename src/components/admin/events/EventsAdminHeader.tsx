@@ -2,6 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { MenuIcon, CalendarDaysIcon, CalendarIcon } from "lucide-react";
 
 interface EventsAdminHeaderProps {
   title: string;
@@ -20,12 +21,21 @@ const EventsAdminHeader: React.FC<EventsAdminHeaderProps> = ({
           <p className="text-muted-foreground text-sm">{description}</p>
         )}
       </div>
-      <div className="space-x-2">
-        <Button asChild variant="outline" size="sm">
-          <Link to="/admin">Retour</Link>
+      <div className="flex gap-2">
+        <Button asChild variant="outline">
+          <Link to="/menu-admin">
+            <MenuIcon className="mr-2 h-4 w-4" /> Menu
+          </Link>
         </Button>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/events" target="_blank">Voir les événements</Link>
+        <Button asChild variant="outline" className="bg-primary/10 border-primary/20">
+          <Link to="/events-admin">
+            <CalendarDaysIcon className="mr-2 h-4 w-4" /> Événements
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/admin">
+            <CalendarIcon className="mr-2 h-4 w-4" /> Réservations
+          </Link>
         </Button>
       </div>
     </div>
