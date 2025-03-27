@@ -58,6 +58,12 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
     );
   }
 
+  const handleDeleteConfirm = (itemId: string) => {
+    console.log("Confirming deletion of item:", itemId);
+    onDeleteItem(itemId);
+    setDeletingItemId(null);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item) => (
@@ -101,12 +107,16 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
               >
                 <Edit className="h-4 w-4" />
               </Button>
-              <AlertDialog open={deletingItemId === item.id} onOpenChange={() => setDeletingItemId(null)}>
+              
+              <AlertDialog open={deletingItemId === item.id} onOpenChange={(open) => !open && setDeletingItemId(null)}>
                 <AlertDialogTrigger asChild>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setDeletingItemId(item.id)}
+                    onClick={() => {
+                      console.log("Setting deletingItemId to:", item.id);
+                      setDeletingItemId(item.id);
+                    }}
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
@@ -120,10 +130,9 @@ const MenuItemsList: React.FC<MenuItemsListProps> = ({
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Annuler</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => {
-                      onDeleteItem(item.id);
-                      setDeletingItemId(null);
-                    }}>
+                    <AlertDialogAction 
+                      onClick={() => handleDeleteConfirm(item.id)}
+                    >
                       Supprimer
                     </AlertDialogAction>
                   </AlertDialogFooter>
