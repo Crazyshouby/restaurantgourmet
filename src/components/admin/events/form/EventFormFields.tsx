@@ -91,7 +91,15 @@ const EventFormFields: React.FC<EventFormFieldsProps> = ({ form }) => {
                   <Calendar
                     mode="single"
                     selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                    onSelect={(date) => {
+                      if (date) {
+                        // Create date at noon to avoid timezone issues
+                        const localDate = new Date(date.setHours(12, 0, 0, 0));
+                        field.onChange(format(localDate, "yyyy-MM-dd"));
+                      } else {
+                        field.onChange("");
+                      }
+                    }}
                     initialFocus
                   />
                 </PopoverContent>
