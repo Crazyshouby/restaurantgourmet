@@ -32,7 +32,7 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h2 className="text-2xl font-medium">Gestion des Reservations</h2>
+            <h2 className="text-2xl font-medium">Gestion des Réservations</h2>
             <p className="text-muted-foreground text-sm">
               Gérez vos réservations et la synchronisation avec Google Calendar.
             </p>
