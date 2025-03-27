@@ -19,16 +19,11 @@ export const seedMenuItems = async () => {
       throw new Error(`Erreur lors de la vérification des données: ${countError.message}`);
     }
     
-    // Si la table contient déjà des données, demander confirmation avant de continuer
-    if (count && count > 0) {
-      console.log(`La table menu_items contient déjà ${count} éléments.`);
-      // Dans un contexte d'interface utilisateur, vous pourriez demander une confirmation
-      // avant de continuer
-    }
+    console.log(`La table menu_items contient actuellement ${count || 0} éléments.`);
     
-    // Préparer les données avec des UUIDs valides au lieu des ID simplifiés
+    // Préparer les données avec des UUIDs valides
     const preparedMenuItems = menuItems.map(item => ({
-      id: uuidv4(), // Générer un UUID valide pour chaque élément
+      id: uuidv4(), // Générer un UUID compatible avec Supabase
       name: item.name,
       description: item.description,
       price: item.price,
@@ -37,12 +32,15 @@ export const seedMenuItems = async () => {
       featured: item.featured || false
     }));
     
+    console.log(`Tentative d'importation de ${preparedMenuItems.length} plats...`);
+    
     // Importer les données
     const { data, error } = await supabase
       .from('menu_items')
       .insert(preparedMenuItems);
     
     if (error) {
+      console.error("Erreur détaillée:", error);
       throw new Error(`Erreur lors de l'importation des données: ${error.message}`);
     }
     
