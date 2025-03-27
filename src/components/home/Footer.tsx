@@ -25,9 +25,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-medium mb-4">Contact</h3>
             <p className="text-muted-foreground">
-              15 Rue de la Gastronomie<br />
-              75008 Paris<br />
-              01 23 45 67 89
+              123 Rue de l'Étoile<br />
+              Verdun, QC, H4G 2T7<br />
+              (514) 555-1234
             </p>
           </div>
         </div>
