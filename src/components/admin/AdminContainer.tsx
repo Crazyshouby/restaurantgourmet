@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Reservation, AdminSettings } from "@/types";
 import { Link } from "react-router-dom";
@@ -7,6 +8,7 @@ import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import CapacitySettings from "@/components/admin/CapacitySettings";
 import ReservationsCalendarView from "@/components/admin/ReservationsCalendarView";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AdminContainerProps {
   adminSettings: AdminSettings;
@@ -27,6 +29,8 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
   onRefreshReservations,
   onSettingsUpdated
 }) => {
+  const isMobile = useIsMobile();
+
   return (
     <main className="container mx-auto py-6 px-4 animate-fade-in">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -37,23 +41,25 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
               Gérez vos réservations et la synchronisation avec Google Calendar.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link to="/menu-admin">
-                <BookOpen className="mr-2 h-4 w-4" /> Menu
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/events-admin">
-                <Cake className="mr-2 h-4 w-4" /> Événements
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="bg-primary/10 border-primary/20">
-              <Link to="/admin">
-                <CalendarIcon className="mr-2 h-4 w-4" /> Réservations
-              </Link>
-            </Button>
-          </div>
+          {!isMobile && (
+            <div className="flex gap-2">
+              <Button asChild variant="outline">
+                <Link to="/menu-admin">
+                  <BookOpen className="mr-2 h-4 w-4" /> Menu
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/events-admin">
+                  <Cake className="mr-2 h-4 w-4" /> Événements
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="bg-primary/10 border-primary/20">
+                <Link to="/admin">
+                  <CalendarIcon className="mr-2 h-4 w-4" /> Réservations
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
