@@ -1,12 +1,11 @@
 
 import React, { useState } from "react";
-import { Plus, DatabaseIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -15,7 +14,6 @@ import MenuItemsList from "./MenuItemsList";
 import MenuItemForm from "./MenuItemForm";
 import MenuItemDialog from "./MenuItemDialog";
 import MenuCategoryFilter from "./MenuCategoryFilter";
-import { seedMenuItems } from "@/scripts/seed-menu-items";
 import { toast } from "sonner";
 
 interface MenuAdminContainerProps {
@@ -35,7 +33,6 @@ const MenuAdminContainer: React.FC<MenuAdminContainerProps> = ({
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory | "Tous">("Tous");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
   
   const filteredItems = selectedCategory === "Tous" 
     ? menuItems 
@@ -43,34 +40,6 @@ const MenuAdminContainer: React.FC<MenuAdminContainerProps> = ({
 
   const handleCategoryChange = (category: MenuCategory | "Tous") => {
     setSelectedCategory(category);
-  };
-
-  const handleSeedMenuItems = async () => {
-    if (menuItems.length > 0) {
-      if (!confirm("Des plats existent déjà dans la base de données. Voulez-vous ajouter les plats par défaut ?")) {
-        return;
-      }
-    }
-    
-    setIsSeeding(true);
-    try {
-      const success = await seedMenuItems();
-      if (success) {
-        toast.success("Importation réussie", {
-          description: "Les plats par défaut ont été ajoutés au menu."
-        });
-      } else {
-        toast.error("Erreur d'importation", {
-          description: "L'importation des plats par défaut a échoué."
-        });
-      }
-    } catch (error) {
-      toast.error("Erreur", {
-        description: `Une erreur s'est produite: ${error instanceof Error ? error.message : 'Erreur inconnue'}`
-      });
-    } finally {
-      setIsSeeding(false);
-    }
   };
 
   return (
@@ -90,15 +59,6 @@ const MenuAdminContainer: React.FC<MenuAdminContainerProps> = ({
         </Card>
 
         <div className="flex gap-2 ml-auto">
-          <Button 
-            variant="outline" 
-            onClick={handleSeedMenuItems} 
-            disabled={isSeeding}
-            className="flex items-center"
-          >
-            <DatabaseIcon className="mr-2 h-4 w-4" /> 
-            {isSeeding ? "Importation..." : "Importer les plats par défaut"}
-          </Button>
           <Button onClick={() => setIsAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Ajouter un plat
           </Button>
