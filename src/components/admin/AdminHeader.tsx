@@ -2,7 +2,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
@@ -16,7 +15,6 @@ const AdminHeader: React.FC = () => {
         <h1 className="text-2xl font-medium">Panneau de Configuration</h1>
         <div className="flex items-center gap-3">
           <Clock />
-          <ThemeToggle />
           {isMobile ? <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10" aria-label="Menu d'administration">
