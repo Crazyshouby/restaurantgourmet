@@ -7,49 +7,73 @@ import { GoogleCalendarService } from '@/services/google-calendar';
  */
 export class ReservationDeletionService {
   /**
-   * Supprime une réservation
+   * Récupère les détails d'une réservation par son ID
+   */
+  private static async getReservationDetails(id: string) {
+    const { data, error } = await supabase
+      .from('reservations')
+      .select('google_event_id, imported_from_google')
+      .eq('id', id)
+      .single();
+        
+    if (error) {
+      console.error('Erreur lors de la récupération de la réservation:', error);
+      throw error;
+    }
+    
+    return data;
+  }
+  
+  /**
+   * Supprime l'événement Google Calendar associé si disponible
+   */
+  private static async deleteGoogleEvent(googleEventId: string) {
+    if (!googleEventId) return true;
+    
+    try {
+      console.log('Suppression de l\'événement Google Calendar:', googleEventId);
+      const deleted = await GoogleCalendarService.deleteEvent(googleEventId);
+      console.log('Événement Google Calendar supprimé avec succès:', deleted);
+      return deleted;
+    } catch (error) {
+      // On continue même si la suppression Google échoue
+      console.error('Erreur lors de la suppression de l\'événement Google Calendar:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Supprime la réservation de la base de données
+   */
+  private static async deleteReservationFromDatabase(id: string) {
+    const { error } = await supabase
+      .from('reservations')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Erreur lors de la suppression de la réservation:', error);
+      throw error;
+    }
+    
+    return true;
+  }
+
+  /**
+   * Supprime une réservation et son événement Google Calendar associé si disponible
    */
   static async deleteReservation(id: string): Promise<boolean> {
     try {
-      // D'abord, récupérer les détails de la réservation pour obtenir l'ID de l'événement Google
-      const { data: reservation, error: fetchError } = await supabase
-        .from('reservations')
-        .select('google_event_id, imported_from_google')
-        .eq('id', id)
-        .single();
-        
-      if (fetchError) {
-        console.error('Erreur lors de la récupération de la réservation:', fetchError);
-        throw fetchError;
-      }
+      // 1. Récupérer les détails de la réservation
+      const reservation = await this.getReservationDetails(id);
       
-      // Si la réservation a un événement Google associé, le supprimer
-      // que la réservation ait été importée de Google ou créée dans l'application
+      // 2. Supprimer l'événement Google Calendar si disponible
       if (reservation && reservation.google_event_id) {
-        try {
-          // Tenter de supprimer l'événement de Google Calendar
-          console.log('Suppression de l\'événement Google Calendar:', reservation.google_event_id);
-          const deleted = await GoogleCalendarService.deleteEvent(reservation.google_event_id);
-          console.log('Événement Google Calendar supprimé avec succès:', deleted);
-        } catch (googleError) {
-          // Si la suppression de l'événement Google échoue, on continue quand même
-          // avec la suppression de la réservation dans notre système
-          console.error('Erreur lors de la suppression de l\'événement Google Calendar:', googleError);
-        }
+        await this.deleteGoogleEvent(reservation.google_event_id);
       }
       
-      // Supprimer la réservation de la base de données
-      const { error } = await supabase
-        .from('reservations')
-        .delete()
-        .eq('id', id);
-
-      if (error) {
-        console.error('Erreur lors de la suppression de la réservation:', error);
-        throw error;
-      }
-
-      return true;
+      // 3. Supprimer la réservation de la base de données
+      return await this.deleteReservationFromDatabase(id);
     } catch (error) {
       console.error('Exception lors de la suppression de la réservation:', error);
       throw error;
