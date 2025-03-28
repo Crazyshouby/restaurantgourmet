@@ -13,7 +13,7 @@ SELECT cron.schedule(
   $$
   SELECT net.http_post(
     url:='https://jmgzpeubdaemrxvsmwss.supabase.co/functions/v1/auto-sync',
-    headers:='{"Content-Type": "application/json", "Authorization": "Bearer [VOTRE_ANON_KEY]"}'::jsonb,
+    headers:='{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZ3pwZXViZGFlbXJ4dnNtd3NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0OTczMjMsImV4cCI6MjA1ODA3MzMyM30.NJ9sJ6xhHZeUuAhioVWr0CqDYSH5LSy7aZyGk_HZ5Ng"}'::jsonb,
     body:='{}'::jsonb
   ) as request_id;
   $$

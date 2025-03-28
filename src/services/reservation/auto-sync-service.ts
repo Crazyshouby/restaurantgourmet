@@ -11,11 +11,12 @@ export class ReservationAutoSyncService {
    */
   static async triggerSync(): Promise<{ success: boolean; message?: string; error?: string }> {
     try {
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/auto-sync`, {
+      // Utiliser l'URL complète pour la fonction Edge
+      const response = await fetch(`https://jmgzpeubdaemrxvsmwss.supabase.co/functions/v1/auto-sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabase.supabaseKey}`
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptZ3pwZXViZGFlbXJ4dnNtd3NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI0OTczMjMsImV4cCI6MjA1ODA3MzMyM30.NJ9sJ6xhHZeUuAhioVWr0CqDYSH5LSy7aZyGk_HZ5Ng'}`
         }
       });
       

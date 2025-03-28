@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { ArrowClockwise, CheckCircle, Clock, XCircle } from "lucide-react";
+import { CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ReservationService } from "@/services/ReservationService";
@@ -186,7 +186,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
             onClick={handleTriggerSync}
             disabled={isLoading || isCheckingStatus}
           >
-            <ArrowClockwise className="h-3 w-3 mr-1" />
+            <RefreshCw className="h-3 w-3 mr-1" />
             Synchroniser maintenant
           </Button>
         </div>
