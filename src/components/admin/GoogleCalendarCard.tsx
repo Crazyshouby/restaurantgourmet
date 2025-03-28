@@ -11,6 +11,7 @@ import GoogleIcon from "./google/GoogleIcon";
 import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
 import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
 import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
+import GoogleAutoSyncStatus from "./google/GoogleAutoSyncStatus";
 import CapacitySettings from "./CapacitySettings";
 
 interface GoogleCalendarCardProps {
@@ -68,9 +69,13 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
       
       if (result.success) {
         setAdminSettings({
+          ...adminSettings,
           googleConnected: false,
           googleEmail: undefined,
-          googleRefreshToken: undefined
+          googleRefreshToken: undefined,
+          lastSyncTimestamp: undefined,
+          lastSyncStatus: undefined,
+          syncError: undefined
         });
         
         toast.info("Compte Google déconnecté", {
@@ -104,6 +109,8 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
         });
         
         onRefreshReservations();
+        // Rafraîchir également les paramètres admin pour mettre à jour le statut de synchronisation
+        await onSettingsUpdated();
       } else {
         toast.error("Erreur de synchronisation", {
           description: "Impossible de synchroniser avec Google Calendar."
@@ -167,12 +174,21 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
         />
         
         {adminSettings.googleConnected && (
-          <GoogleConnectedAccount
-            email={adminSettings.googleEmail}
-            onSyncToGoogle={syncNow}
-            onImportFromGoogle={importFromGoogle}
-            isLoading={isLoading}
-          />
+          <>
+            <GoogleConnectedAccount
+              email={adminSettings.googleEmail}
+              onSyncToGoogle={syncNow}
+              onImportFromGoogle={importFromGoogle}
+              isLoading={isLoading}
+            />
+            
+            <GoogleAutoSyncStatus
+              lastSyncTimestamp={adminSettings.lastSyncTimestamp}
+              lastSyncStatus={adminSettings.lastSyncStatus}
+              syncError={adminSettings.syncError}
+              onSync={syncNow}
+            />
+          </>
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">

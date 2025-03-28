@@ -1,4 +1,3 @@
-
 export interface Reservation {
   id: string;
   date: Date;
@@ -14,10 +13,14 @@ export interface Reservation {
 
 export interface AdminSettings {
   googleConnected: boolean;
-  googleRefreshToken?: string;
   googleEmail?: string;
+  googleRefreshToken?: string;
   timeSlots?: string[];
   maxGuestsPerDay?: number;
+  
+  lastSyncTimestamp?: string;
+  lastSyncStatus?: string;
+  syncError?: string;
 }
 
 export interface DailyAvailability {

@@ -29,7 +29,10 @@ export function useAdminSettings() {
           googleEmail: data.google_email,
           googleRefreshToken: data.google_refresh_token,
           timeSlots: data.time_slots || [],
-          maxGuestsPerDay: data.max_guests_per_day || 20
+          maxGuestsPerDay: data.max_guests_per_day || 20,
+          lastSyncTimestamp: data.last_sync_timestamp,
+          lastSyncStatus: data.last_sync_status,
+          syncError: data.sync_error
         });
       }
     } catch (error) {
