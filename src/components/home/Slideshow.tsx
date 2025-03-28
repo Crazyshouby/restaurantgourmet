@@ -200,6 +200,18 @@ const Slideshow: React.FC = () => {
       {nextEvent && (
         <div className="absolute bottom-32 right-6 md:right-12 z-30 max-w-xs md:max-w-sm animate-fade-in">
           <Card className="overflow-hidden border border-gold/30 bg-darkblack/80 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/20 transition-all duration-300">
+            {/* Ajout de l'image de l'événement */}
+            <div className="h-32 overflow-hidden">
+              <img 
+                src={nextEvent.image} 
+                alt={nextEvent.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg";
+                  e.currentTarget.classList.add("p-6");
+                }}
+              />
+            </div>
             <div className="pt-2 px-3">
               <span className="inline-block px-2 py-0.5 bg-gold/20 text-gold text-xs tracking-widest uppercase rounded-sm">
                 Prochain événement
