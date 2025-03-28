@@ -1,13 +1,10 @@
 
-import React, { lazy, Suspense, useEffect } from "react";
+import React, { useEffect } from "react";
 import Layout from "@/components/home/Layout";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-
-// Lazy loading des sections moins critiques
-const HeroSection = lazy(() => import("@/components/home/HeroSection"));
-const FeaturesSection = lazy(() => import("@/components/home/FeaturesSection"));
-const AboutSection = lazy(() => import("@/components/home/AboutSection"));
-const ContactSection = lazy(() => import("@/components/home/ContactSection"));
+import HeroSection from "@/components/home/HeroSection";
+import FeaturesSection from "@/components/home/FeaturesSection";
+import AboutSection from "@/components/home/AboutSection";
+import ContactSection from "@/components/home/ContactSection";
 
 // SEO metadata
 const SEO = {
@@ -15,13 +12,6 @@ const SEO = {
   description: "Découvrez notre restaurant gastronomique avec des plats d'exception préparés par notre chef étoilé. Réservez votre table dès maintenant.",
   keywords: "restaurant gastronomique, chef étoilé, cuisine française, réservation"
 };
-
-// Composant avec fallback pour les sections en lazy loading
-const SectionLoader = () => (
-  <div className="flex justify-center items-center py-20">
-    <LoadingSpinner />
-  </div>
-);
 
 const Home = () => {
   // Mettre à jour le titre de la page pour le SEO
@@ -54,20 +44,11 @@ const Home = () => {
   
   return (
     <Layout>
-      {/* La section Hero est chargée immédiatement car c'est la plus visible */}
+      {/* Charger toutes les sections directement plutôt qu'en lazy loading */}
       <HeroSection />
-      
-      <Suspense fallback={<SectionLoader />}>
-        <FeaturesSection />
-      </Suspense>
-      
-      <Suspense fallback={<SectionLoader />}>
-        <AboutSection />
-      </Suspense>
-      
-      <Suspense fallback={<SectionLoader />}>
-        <ContactSection />
-      </Suspense>
+      <FeaturesSection />
+      <AboutSection />
+      <ContactSection />
     </Layout>
   );
 };

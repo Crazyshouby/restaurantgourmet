@@ -1,5 +1,5 @@
 
-import React, { lazy, Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
@@ -16,6 +16,10 @@ const LazyLoadingFallback = () => (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const errorHandler = (error: any) => {
   console.error('Erreur dans le rendu React:', error);
+  // Afficher des détails supplémentaires pour faciliter le débogage
+  if (error && error.stack) {
+    console.error('Stack trace:', error.stack);
+  }
 };
 
 // Adding a polyfill for older browsers if needed
