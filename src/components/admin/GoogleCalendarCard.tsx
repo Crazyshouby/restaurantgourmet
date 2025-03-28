@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -176,17 +175,16 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
           />
         )}
         
-        {/* Nouveau composant de synchronisation automatique */}
         <GoogleAutoSync 
           isConnected={adminSettings.googleConnected}
           isLoading={isLoading}
           onStatusChanged={onSettingsUpdated}
+          onConnect={handleGoogleConnect}
         />
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">
         <GoogleConnectionStatus isConnected={adminSettings.googleConnected} />
         
-        {/* Paramètres de capacité intégrés dans la même carte */}
         <div className="w-full pt-3 border-t">
           <CapacitySettings 
             adminSettings={adminSettings}

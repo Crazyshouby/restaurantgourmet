@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, Clock, XCircle, RefreshCw, AlertTriangle } from "lucide-react";
+import { CheckCircle, Clock, XCircle, RefreshCw, AlertTriangle, LogIn } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ReservationService } from "@/services/ReservationService";
@@ -15,12 +14,14 @@ interface GoogleAutoSyncProps {
   isConnected: boolean;
   isLoading: boolean;
   onStatusChanged?: () => Promise<void>;
+  onConnect?: () => void;
 }
 
 const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   isConnected,
   isLoading,
-  onStatusChanged
+  onStatusChanged,
+  onConnect
 }) => {
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const [syncInterval, setSyncInterval] = useState(5);
@@ -30,9 +31,9 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [reconnectionNeeded, setReconnectionNeeded] = useState(false);
-  const [localLoading, setLocalLoading] = useState(false); // Add local loading state
+  const [localLoading, setLocalLoading] = useState(false);
+  const [resetComplete, setResetComplete] = useState(false);
 
-  // Charger les paramètres initiaux
   useEffect(() => {
     loadSyncStatus();
   }, [isConnected]);
@@ -90,12 +91,10 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
           description: result.message || `Synchronisation réussie.`
         });
         
-        // Recharger le statut
         if (onStatusChanged) await onStatusChanged();
         loadSyncStatus();
       } else {
         if (result.reconnectionNeeded) {
-          // Afficher un message d'erreur spécifique pour les problèmes de token
           toast.error("Connexion Google expirée", {
             description: "Veuillez vous reconnecter à votre compte Google pour continuer la synchronisation."
           });
@@ -117,22 +116,20 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   const handleResetConnection = async () => {
     if (isLoading) return;
     
-    setLocalLoading(true); // Use local loading state instead of parent's setIsLoading
+    setLocalLoading(true);
     
     try {
-      // D'abord déconnecter Google
       await GoogleCalendarService.disconnect();
       
-      // Réinitialiser les paramètres de connexion
       await ReservationService.resetGoogleConnection();
       
       toast.success("Connexion réinitialisée", {
-        description: "La connexion à Google a été réinitialisée. Vous pouvez maintenant vous reconnecter."
+        description: "La connexion à Google a été réinitialisée. Vous devez maintenant vous connecter à nouveau à votre compte Google."
       });
       
       setReconnectionNeeded(false);
+      setResetComplete(true);
       
-      // Recharger les paramètres
       if (onStatusChanged) await onStatusChanged();
     } catch (error) {
       console.error("Erreur lors de la réinitialisation de la connexion:", error);
@@ -140,12 +137,36 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
         description: "Impossible de réinitialiser la connexion à Google."
       });
     } finally {
-      setLocalLoading(false); // Use local loading state
+      setLocalLoading(false);
     }
   };
 
-  if (!isConnected) {
+  if (!isConnected && !resetComplete) {
     return null;
+  }
+
+  if (resetComplete && !isConnected) {
+    return (
+      <div className="space-y-4 mt-4 border-t pt-3">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-xs text-yellow-800">
+          <div className="flex items-center gap-2 font-medium">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <p>Reconnexion nécessaire</p>
+          </div>
+          <p className="mt-1">La connexion avec Google a été réinitialisée. Veuillez maintenant vous connecter à nouveau à votre compte Google.</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full mt-2 bg-green-50 border-green-300 text-green-800 hover:bg-green-100"
+            onClick={onConnect}
+            disabled={isLoading || localLoading}
+          >
+            <LogIn className="h-3 w-3 mr-1" />
+            Se connecter à Google
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -169,7 +190,12 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <p>Reconnexion nécessaire</p>
           </div>
-          <p className="mt-1">La connexion avec Google a expiré. Veuillez réinitialiser la connexion puis reconnecter votre compte Google.</p>
+          <p className="mt-1">La connexion avec Google a expiré. Veuillez suivre ces étapes :</p>
+          <ol className="mt-1 list-decimal pl-4 space-y-1">
+            <li>Cliquez sur "Réinitialiser la connexion" ci-dessous</li>
+            <li>Déconnectez l'interrupteur de synchronisation Google en haut</li>
+            <li>Reconnectez-vous en activant l'interrupteur</li>
+          </ol>
           <Button 
             variant="outline" 
             size="sm" 
@@ -209,7 +235,6 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
             </Button>
           </div>
           
-          {/* Statut de la dernière synchronisation */}
           <div className="text-xs space-y-1 mt-2">
             <div className="flex items-center gap-1.5">
               <Clock className="h-3 w-3 text-muted-foreground" />

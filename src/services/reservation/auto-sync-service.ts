@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -10,6 +11,24 @@ export class ReservationAutoSyncService {
    */
   static async triggerSync(): Promise<{ success: boolean; message?: string; error?: string; reconnectionNeeded?: boolean }> {
     try {
+      console.log("Déclenchement d'une synchronisation manuelle...");
+      
+      // Vérifier d'abord si la connexion Google est active
+      const { data: settingsData } = await supabase
+        .from('admin_settings')
+        .select('google_connected, google_refresh_token')
+        .eq('id', 1)
+        .single();
+      
+      if (!settingsData?.google_connected || !settingsData?.google_refresh_token) {
+        console.log("Synchronisation impossible: Google non connecté ou token manquant");
+        return { 
+          success: false, 
+          error: 'Connexion Google requise pour la synchronisation',
+          reconnectionNeeded: true
+        };
+      }
+      
       // Utiliser l'URL complète pour la fonction Edge
       const response = await fetch(`https://jmgzpeubdaemrxvsmwss.supabase.co/functions/v1/auto-sync`, {
         method: 'POST',
@@ -20,13 +39,18 @@ export class ReservationAutoSyncService {
       });
       
       const result = await response.json();
+      console.log("Résultat de la synchronisation:", result);
       
       // Vérifier si l'erreur est liée à un refresh token invalide
       if (!result.success && result.error && (
           result.error.includes('invalid_grant') || 
           result.error.includes('refresh token') ||
-          result.error.includes('Échec du rafraîchissement du token')
+          result.error.includes('Échec du rafraîchissement du token') ||
+          result.error.includes('expiré') ||
+          result.error.includes('Token Google expiré')
       )) {
+        console.log("Token expiré détecté, marquage comme nécessitant reconnexion");
+        
         // Indiquer que la connexion Google doit être renouvelée
         await supabase
           .from('admin_settings')
@@ -77,9 +101,6 @@ export class ReservationAutoSyncService {
     }
   }
 
-  /**
-   * Met à jour les paramètres de synchronisation automatique
-   */
   static async updateAutoSyncSettings(enabled: boolean, interval: number): Promise<boolean> {
     try {
       const { error } = await supabase
@@ -123,9 +144,11 @@ export class ReservationAutoSyncService {
     reconnectionNeeded: boolean;
   }> {
     try {
+      console.log("Vérification du statut de synchronisation...");
+      
       const { data, error } = await supabase
         .from('admin_settings')
-        .select('last_sync_timestamp, last_sync_status, sync_error, auto_sync_enabled, auto_sync_interval, google_connected')
+        .select('last_sync_timestamp, last_sync_status, sync_error, auto_sync_enabled, auto_sync_interval, google_connected, google_refresh_token')
         .eq('id', 1)
         .single();
       
@@ -144,12 +167,16 @@ export class ReservationAutoSyncService {
       // Détecter si une reconnexion est nécessaire
       const reconnectionNeeded = (
         !data.google_connected || 
+        !data.google_refresh_token ||
         (data.sync_error !== null && (
           data.sync_error.includes('reconnect') || 
           data.sync_error.includes('expiré') ||
-          data.sync_error.includes('invalid_grant')
+          data.sync_error.includes('invalid_grant') ||
+          data.sync_error.includes('Token Google expiré')
         ))
       );
+      
+      console.log(`Statut de synchronisation: connecté=${data.google_connected}, reconnexion nécessaire=${reconnectionNeeded}`);
       
       return {
         lastSync: data.last_sync_timestamp,
@@ -177,6 +204,8 @@ export class ReservationAutoSyncService {
    */
   static async resetGoogleConnection(): Promise<boolean> {
     try {
+      console.log("Réinitialisation de la connexion Google...");
+      
       const { error } = await supabase
         .from('admin_settings')
         .update({
@@ -193,6 +222,7 @@ export class ReservationAutoSyncService {
         return false;
       }
       
+      console.log("Connexion Google réinitialisée avec succès");
       return true;
     } catch (error) {
       console.error('Exception lors de la réinitialisation de la connexion Google:', error);
