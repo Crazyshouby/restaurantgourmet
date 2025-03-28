@@ -33,8 +33,8 @@ const GoogleSyncStatus: React.FC<GoogleSyncStatusProps> = ({
   const checkCronJob = async () => {
     setLoading(true);
     try {
-      // Use RPC call to check for auto-sync CRON job
-      const { data, error } = await supabase.rpc('check_auto_sync_cron_job') as { 
+      // Use RPC call to check for auto-sync CRON job with proper type casting
+      const { data, error } = await supabase.rpc('check_auto_sync_cron_job', {}) as unknown as { 
         data: CronJobInfo[] | null;
         error: any;
       };
