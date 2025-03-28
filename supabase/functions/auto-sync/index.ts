@@ -46,18 +46,21 @@ interface CalendarEvent {
   };
 }
 
-// Fonction pour enregistrer un log dans la base de données
+// Fonction améliorée pour enregistrer un log dans la base de données
 async function logSyncActivity(message: string, type: "info" | "error" | "success", details?: any) {
   try {
-    console.log(`[${type.toUpperCase()}] ${message}`, details || "");
+    // Formatage du timestamp pour le log console
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [${type.toUpperCase()}] ${message}`, details || "");
 
+    // Enregistrement dans la table sync_logs
     const { error } = await supabase
       .from("sync_logs")
       .insert({
         message,
         log_type: type,
         details: details ? JSON.stringify(details) : null,
-        created_at: new Date().toISOString()
+        created_at: timestamp
       });
 
     if (error) {
@@ -169,10 +172,14 @@ async function createCalendarEvent(reservation: Reservation, accessToken: string
   }
 }
 
-// Point d'entrée principal
+// Point d'entrée principal amélioré avec plus de logging
 async function autoSync(): Promise<{ success: boolean; syncedCount: number; message: string }> {
+  const syncStartTime = new Date();
   try {
-    await logSyncActivity("Démarrage de la synchronisation automatique...", "info");
+    await logSyncActivity(`Démarrage de la synchronisation automatique à ${syncStartTime.toISOString()}`, "info", {
+      source: "CRON",
+      timestamp: syncStartTime.toISOString()
+    });
     
     // Récupération des paramètres admin
     const { data: adminSettings, error: adminError } = await supabase
@@ -267,7 +274,8 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
         })
         .eq("id", 1);
       
-      await logSyncActivity("Aucune nouvelle réservation à synchroniser", "success");
+      const executionTime = (new Date().getTime() - syncStartTime.getTime()) / 1000;
+      await logSyncActivity(`Aucune nouvelle réservation à synchroniser (temps d'exécution: ${executionTime}s)`, "success");
         
       return { 
         success: true, 
@@ -278,36 +286,72 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
     
     // Synchronisation de chaque réservation
     let syncedCount = 0;
+    const syncResults = [];
     
     for (const reservation of reservations) {
       try {
+        await logSyncActivity(`Traitement de la réservation ${reservation.id} pour ${reservation.name}`, "info");
         const eventId = await createCalendarEvent(reservation, accessToken);
         
         if (eventId) {
           // Mise à jour de la réservation avec l'ID de l'événement Google
-          await supabase
+          const { error: updateError } = await supabase
             .from("reservations")
             .update({ google_event_id: eventId })
             .eq("id", reservation.id);
             
-          syncedCount++;
+          if (updateError) {
+            await logSyncActivity(`Erreur lors de la mise à jour de la réservation ${reservation.id}`, "error", updateError);
+            syncResults.push({
+              reservation_id: reservation.id,
+              status: "error",
+              message: `Erreur de mise à jour: ${updateError.message}`
+            });
+          } else {
+            syncedCount++;
+            syncResults.push({
+              reservation_id: reservation.id,
+              status: "success",
+              event_id: eventId
+            });
+            await logSyncActivity(`Réservation ${reservation.id} synchronisée avec succès`, "success");
+          }
+        } else {
+          syncResults.push({
+            reservation_id: reservation.id,
+            status: "error",
+            message: "Échec de création de l'événement Google Calendar"
+          });
         }
       } catch (error) {
         await logSyncActivity(`Erreur lors de la synchronisation de la réservation ${reservation.id}`, "error", error);
+        syncResults.push({
+          reservation_id: reservation.id,
+          status: "error",
+          message: `Exception: ${error}`
+        });
       }
     }
     
     // Mise à jour du timestamp de dernière synchronisation
+    const syncEndTime = new Date();
+    const executionTime = (syncEndTime.getTime() - syncStartTime.getTime()) / 1000;
+    
     await supabase
       .from("admin_settings")
       .update({
-        last_sync_timestamp: new Date().toISOString(),
+        last_sync_timestamp: syncEndTime.toISOString(),
         last_sync_status: "success",
         sync_error: null
       })
       .eq("id", 1);
     
-    await logSyncActivity(`Synchronisation automatique terminée: ${syncedCount} réservation(s) synchronisée(s)`, "success");
+    await logSyncActivity(`Synchronisation automatique terminée: ${syncedCount}/${reservations.length} réservation(s) synchronisée(s) en ${executionTime}s`, "success", {
+      execution_time: executionTime,
+      synced_count: syncedCount,
+      total_count: reservations.length,
+      results: syncResults
+    });
     
     return { 
       success: true, 
@@ -315,7 +359,8 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
       message: `${syncedCount} réservation(s) synchronisée(s) avec succès` 
     };
   } catch (error) {
-    await logSyncActivity("Erreur lors de la synchronisation automatique", "error", error);
+    const executionTime = (new Date().getTime() - syncStartTime.getTime()) / 1000;
+    await logSyncActivity(`Erreur lors de la synchronisation automatique (temps écoulé: ${executionTime}s)`, "error", error);
     
     // Enregistrer l'erreur
     try {
@@ -338,7 +383,7 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
   }
 }
 
-// Handler pour les requêtes HTTP
+// Handler pour les requêtes HTTP avec logging amélioré
 Deno.serve(async (req: Request) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -352,7 +397,20 @@ Deno.serve(async (req: Request) => {
   // Si la requête provient du cron job interne, pas besoin de vérifier l'API key
   const isCronJob = req.headers.get("x-supabase-cron") === "true";
   
+  // Ajout d'un log pour tracer toutes les requêtes entrantes
+  await logSyncActivity(`Requête reçue: ${req.method} ${url.pathname}`, "info", {
+    isCronJob,
+    origin: req.headers.get("origin"),
+    userAgent: req.headers.get("user-agent"),
+    referer: req.headers.get("referer")
+  });
+  
   if (!isCronJob && apiKey !== Deno.env.get("AUTO_SYNC_API_KEY")) {
+    await logSyncActivity("Tentative d'accès non autorisée", "error", {
+      ip: req.headers.get("x-forwarded-for") || "unknown",
+      apiKeyProvided: !!apiKey
+    });
+    
     return new Response(JSON.stringify({ error: "API key invalide" }), { 
       status: 401, 
       headers: { ...corsHeaders, "Content-Type": "application/json" } 
@@ -364,17 +422,23 @@ Deno.serve(async (req: Request) => {
     const executionStartTime = new Date().toISOString();
     await logSyncActivity(`Exécution démarrée à ${executionStartTime}`, "info", {
       isCronJob,
+      trigger: isCronJob ? "CRON automatique" : "Appel manuel API",
       requestHeaders: Object.fromEntries(req.headers.entries()), // Log des headers pour le débogage
     });
     
     const result = await autoSync();
     
     // Ajout d'un log de fin d'exécution
+    const executionEndTime = new Date();
+    const executionTime = (executionEndTime.getTime() - new Date(executionStartTime).getTime()) / 1000;
+    
     await logSyncActivity(`Exécution terminée avec statut: ${result.success ? "Succès" : "Échec"}`, 
       result.success ? "success" : "error", {
         syncedCount: result.syncedCount,
         message: result.message,
-        executionTime: `${(new Date().getTime() - new Date(executionStartTime).getTime()) / 1000}s`
+        executionTime: `${executionTime}s`,
+        startTime: executionStartTime,
+        endTime: executionEndTime.toISOString()
       }
     );
     
