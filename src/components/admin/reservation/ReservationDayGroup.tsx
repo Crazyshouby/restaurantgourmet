@@ -34,21 +34,23 @@ const ReservationDayGroup: React.FC<ReservationDayGroupProps> = ({
     <div>
       {/* Afficher la date avec un séparateur à gauche et une icône pour montrer/cacher */}
       <div 
-        className="flex items-center gap-2 py-3 cursor-pointer" 
+        className="flex items-center gap-2 py-3 cursor-pointer transition-colors hover:bg-accent/5 rounded-md" 
         onClick={toggleExpanded}
       >
         <Separator className="w-12" />
         <span className="text-sm font-medium text-muted-foreground capitalize whitespace-nowrap">
           {formatDate(date)}
         </span>
-        <div className="ml-auto text-muted-foreground">
-          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        <div className="ml-auto text-muted-foreground transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(0deg)' : 'rotate(180deg)' }}>
+          <ChevronUp size={16} />
         </div>
       </div>
       
-      {/* Liste des réservations du jour, conditionnellement affichée */}
-      {isExpanded && (
-        <div className="space-y-3">
+      {/* Liste des réservations du jour, conditionnellement affichée avec animation */}
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
+        <div className="space-y-3 pt-2">
           {reservations.map((reservation) => (
             <ReservationItem
               key={reservation.id}
@@ -58,7 +60,7 @@ const ReservationDayGroup: React.FC<ReservationDayGroupProps> = ({
             />
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
