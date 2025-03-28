@@ -52,7 +52,7 @@ const MenuItemFormFields: React.FC<MenuItemFormFieldsProps> = ({ form, categorie
           name="price"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Prix (€)</FormLabel>
+              <FormLabel>Prix ($)</FormLabel>
               <FormControl>
                 <Input type="number" step="0.01" min="0" {...field} />
               </FormControl>
