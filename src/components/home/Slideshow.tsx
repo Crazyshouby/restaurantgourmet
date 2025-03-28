@@ -147,9 +147,9 @@ const Slideshow: React.FC = () => {
             <div className="absolute inset-0 bg-darkblack/50"></div>
           </div>
           
-          {/* Contenu du slide - Déplacé plus haut */}
+          {/* Contenu du slide - Déplacé encore plus haut (75px de plus) */}
           <div className="relative z-20 h-full flex flex-col justify-center items-center px-4 text-center">
-            <div className="max-w-4xl mx-auto animate-fade-in mt-[-100px] md:mt-[-150px]">
+            <div className="max-w-4xl mx-auto animate-fade-in mt-[-175px] md:mt-[-225px]">
               <span className="inline-block px-4 py-1 border border-gold text-gold text-xs tracking-widest uppercase">
                 Une expérience inoubliable
               </span>
