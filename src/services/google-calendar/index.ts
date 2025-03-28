@@ -1,6 +1,6 @@
 
 import { GoogleCalendarAuthService } from './auth-service';
-import { GoogleCalendarEventsService } from './events-service';
+import { GoogleCalendarEventsService } from './events';
 import { getAdminSettings } from './utils';
 import { GoogleCalendarSettings, GoogleCalendarEvent, GoogleCalendarAuthResponse, GoogleCalendarEventResponse } from './types';
 
