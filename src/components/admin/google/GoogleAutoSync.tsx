@@ -28,6 +28,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [reconnectionNeeded, setReconnectionNeeded] = useState(false);
 
   // Charger les paramètres initiaux
   useEffect(() => {
@@ -45,6 +46,14 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
       setSyncError(status.error);
       setAutoSyncEnabled(status.autoSyncEnabled);
       setSyncInterval(status.autoSyncInterval);
+      
+      // Détecter si une reconnexion est nécessaire
+      setReconnectionNeeded(
+        status.error !== null && 
+        status.error.includes('reconnect') || 
+        status.error?.includes('expiré') ||
+        status.error?.includes('invalid_grant')
+      );
     } catch (error) {
       console.error("Erreur lors du chargement du statut:", error);
     } finally {
@@ -90,9 +99,21 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
         if (onStatusChanged) await onStatusChanged();
         loadSyncStatus();
       } else {
-        toast.error("Erreur de synchronisation", {
-          description: result.error || "Une erreur est survenue lors de la synchronisation."
-        });
+        if (result.error && (
+          result.error.includes('reconnect') || 
+          result.error.includes('expiré') || 
+          result.error.includes('invalid_grant')
+        )) {
+          // Afficher un message d'erreur spécifique pour les problèmes de token
+          toast.error("Connexion Google expirée", {
+            description: "Veuillez vous reconnecter à votre compte Google pour continuer la synchronisation."
+          });
+          setReconnectionNeeded(true);
+        } else {
+          toast.error("Erreur de synchronisation", {
+            description: result.error || "Une erreur est survenue lors de la synchronisation."
+          });
+        }
       }
     } catch (error) {
       console.error("Erreur lors du déclenchement de la synchronisation:", error);
@@ -115,11 +136,18 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
         <Switch
           id="auto-sync"
           checked={autoSyncEnabled}
-          disabled={isLoading || isSaving}
+          disabled={isLoading || isSaving || reconnectionNeeded}
           className={autoSyncEnabled ? "data-[state=checked]:bg-green-500" : ""}
           onCheckedChange={setAutoSyncEnabled}
         />
       </div>
+      
+      {reconnectionNeeded && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs text-yellow-800">
+          <p className="font-medium">Reconnexion nécessaire</p>
+          <p>La connexion avec Google a expiré. Veuillez désactiver puis réactiver la synchronisation Google pour renouveler l'accès.</p>
+        </div>
+      )}
       
       {autoSyncEnabled && (
         <div className="space-y-2">
@@ -135,14 +163,14 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
               className="w-20 h-8"
               value={syncInterval}
               onChange={(e) => setSyncInterval(parseInt(e.target.value) || 5)}
-              disabled={isLoading || isSaving}
+              disabled={isLoading || isSaving || reconnectionNeeded}
             />
             <Button 
               variant="outline" 
               size="sm" 
               className="ml-auto h-8" 
               onClick={handleSaveSettings}
-              disabled={isLoading || isSaving}
+              disabled={isLoading || isSaving || reconnectionNeeded}
             >
               Enregistrer
             </Button>
@@ -184,7 +212,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
             size="sm"
             className="w-full mt-2"
             onClick={handleTriggerSync}
-            disabled={isLoading || isCheckingStatus}
+            disabled={isLoading || isCheckingStatus || reconnectionNeeded}
           >
             <RefreshCw className="h-3 w-3 mr-1" />
             Synchroniser maintenant

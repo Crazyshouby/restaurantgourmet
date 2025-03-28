@@ -22,6 +22,24 @@ export class ReservationAutoSyncService {
       
       const result = await response.json();
       
+      // Vérifier si l'erreur est liée à un refresh token invalide
+      if (!result.success && result.error && (result.error.includes('invalid_grant') || result.error.includes('refresh token'))) {
+        // Indiquer que la connexion Google doit être renouvelée
+        await supabase
+          .from('admin_settings')
+          .update({
+            google_connected: false,
+            last_sync_status: 'error',
+            sync_error: 'Connexion Google expirée. Veuillez vous reconnecter.'
+          })
+          .eq('id', 1);
+        
+        return { 
+          success: false, 
+          error: 'La connexion à Google a expiré. Veuillez vous reconnecter à votre compte Google.' 
+        };
+      }
+      
       return result;
     } catch (error) {
       console.error('Erreur lors du déclenchement de la synchronisation:', error);

@@ -66,6 +66,25 @@ async function refreshAccessToken(refreshToken: string) {
     
     const tokenData = await tokenResponse.json();
     
+    // Si nous avons une erreur liée au token invalide
+    if (tokenData.error === "invalid_grant") {
+      // Mettre à jour le statut dans les paramètres admin
+      const { error: updateError } = await supabase
+        .from('admin_settings')
+        .update({
+          google_connected: false, // Déconnecter automatiquement
+          last_sync_status: 'error',
+          sync_error: 'Token Google expiré. Reconnexion requise.'
+        })
+        .eq('id', 1);
+      
+      if (updateError) {
+        console.error('Erreur lors de la mise à jour du statut de connexion Google:', updateError);
+      }
+      
+      throw new Error(`Échec du rafraîchissement du token: ${JSON.stringify(tokenData)}`);
+    }
+    
     if (!tokenData.access_token) {
       throw new Error(`Échec du rafraîchissement du token: ${JSON.stringify(tokenData)}`);
     }
@@ -232,43 +251,62 @@ async function syncReservations() {
       return { success: false, error: 'Aucun compte Google connecté' };
     }
     
-    // Obtenir un nouveau token d'accès
-    const accessToken = await refreshAccessToken(adminSettings.google_refresh_token);
-    
-    // Récupérer les réservations non synchronisées
-    const reservations = await getUnsyncedReservations(adminSettings.last_sync_timestamp);
-    
-    console.log(`${reservations.length} réservations à synchroniser`);
-    
-    if (reservations.length === 0) {
-      await logSyncResult('success', 0);
-      return { success: true, message: 'Aucune nouvelle réservation à synchroniser' };
-    }
-    
-    let syncedCount = 0;
-    
-    // Synchroniser chaque réservation
-    for (const reservation of reservations) {
-      try {
-        console.log(`Synchronisation de la réservation ${reservation.id} pour ${reservation.name}`);
-        
-        const { success, eventId } = await createCalendarEvent(reservation, accessToken);
-        
-        if (success && eventId) {
-          await updateGoogleEventId(reservation.id, eventId);
-          syncedCount++;
-        }
-      } catch (error) {
-        console.error(`Erreur lors de la synchronisation de la réservation ${reservation.id}:`, error);
+    try {
+      // Obtenir un nouveau token d'accès
+      const accessToken = await refreshAccessToken(adminSettings.google_refresh_token);
+      
+      // Récupérer les réservations non synchronisées
+      const reservations = await getUnsyncedReservations(adminSettings.last_sync_timestamp);
+      
+      console.log(`${reservations.length} réservations à synchroniser`);
+      
+      if (reservations.length === 0) {
+        await logSyncResult('success', 0);
+        return { success: true, message: 'Aucune nouvelle réservation à synchroniser' };
       }
+      
+      let syncedCount = 0;
+      
+      // Synchroniser chaque réservation
+      for (const reservation of reservations) {
+        try {
+          console.log(`Synchronisation de la réservation ${reservation.id} pour ${reservation.name}`);
+          
+          const { success, eventId } = await createCalendarEvent(reservation, accessToken);
+          
+          if (success && eventId) {
+            await updateGoogleEventId(reservation.id, eventId);
+            syncedCount++;
+          }
+        } catch (error) {
+          console.error(`Erreur lors de la synchronisation de la réservation ${reservation.id}:`, error);
+        }
+      }
+      
+      // Enregistrer le résultat de la synchronisation
+      await logSyncResult('success', syncedCount);
+      
+      return { success: true, syncedCount };
+    } catch (error) {
+      // Si l'erreur contient "invalid_grant", cela signifie que le token a expiré
+      if (error.message && error.message.includes('invalid_grant')) {
+        await logSyncResult('error', 0, 'Token Google expiré. Reconnexion requise.');
+        return { 
+          success: false, 
+          error: 'La connexion à Google a expiré. Veuillez vous reconnecter à votre compte Google.' 
+        };
+      }
+      
+      // Autres erreurs
+      console.error('Erreur lors de la synchronisation automatique:', error);
+      
+      // Enregistrer l'erreur dans les logs
+      await logSyncResult('error', 0, error.message);
+      
+      return { success: false, error: error.message };
     }
-    
-    // Enregistrer le résultat de la synchronisation
-    await logSyncResult('success', syncedCount);
-    
-    return { success: true, syncedCount };
   } catch (error) {
-    console.error('Erreur lors de la synchronisation automatique:', error);
+    console.error('Erreur non gérée lors de la synchronisation automatique:', error);
     
     // Enregistrer l'erreur dans les logs
     await logSyncResult('error', 0, error.message);
