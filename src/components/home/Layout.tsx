@@ -36,7 +36,7 @@ const Layout: React.FC<LayoutProps> = ({
   }, [title, description, location.pathname]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-darkblack flex flex-col">
       <Header />
       <main className="animate-fade-in flex-grow">
         {children}

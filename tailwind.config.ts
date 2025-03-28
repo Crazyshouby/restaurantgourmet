@@ -53,6 +53,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        gold: "#D4B062",
+        copper: "#B87333",
+        cream: "#F5F5DC",
+        darkblack: "#121212",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -62,6 +66,11 @@ export default {
       boxShadow: {
         'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
         'card': '0 2px 8px -1px rgba(0, 0, 0, 0.05)',
+        'gold': '0 2px 10px -1px rgba(212, 176, 98, 0.3)',
+      },
+      fontFamily: {
+        'serif': ['Playfair Display', 'serif'],
+        'sans': ['Montserrat', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -80,12 +89,17 @@ export default {
           "0%": { opacity: "1" },
           "100%": { opacity: "0" },
         },
+        "slide-in": {
+          "0%": { transform: "translateY(10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.3s ease-out",
         "fade-out": "fade-out 0.3s ease-out",
+        "slide-in": "slide-in 0.4s ease-out",
       },
     },
   },
