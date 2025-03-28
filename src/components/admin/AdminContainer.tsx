@@ -7,7 +7,6 @@ import { BookOpen, Cake, CalendarIcon } from "lucide-react";
 import GoogleCalendarCard from "@/components/admin/GoogleCalendarCard";
 import ReservationsList from "@/components/admin/ReservationsList";
 import CapacitySettings from "@/components/admin/CapacitySettings";
-import ReservationsCalendarView from "@/components/admin/ReservationsCalendarView";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AdminContainerProps {
@@ -81,14 +80,6 @@ const AdminContainer: React.FC<AdminContainerProps> = ({
               onReservationUpdated={onRefreshReservations}
             />
           </div>
-        </div>
-        
-        <div className="mt-8">
-          <ReservationsCalendarView 
-            reservations={reservations}
-            onReservationUpdated={onRefreshReservations}
-            onReservationDeleted={onRefreshReservations}
-          />
         </div>
       </div>
     </main>
