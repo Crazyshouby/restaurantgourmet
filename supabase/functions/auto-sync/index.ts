@@ -46,10 +46,32 @@ interface CalendarEvent {
   };
 }
 
+// Fonction pour enregistrer un log dans la base de données
+async function logSyncActivity(message: string, type: "info" | "error" | "success", details?: any) {
+  try {
+    console.log(`[${type.toUpperCase()}] ${message}`, details || "");
+
+    const { error } = await supabase
+      .from("sync_logs")
+      .insert({
+        message,
+        log_type: type,
+        details: details ? JSON.stringify(details) : null,
+        created_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error("Erreur lors de l'enregistrement du log:", error);
+    }
+  } catch (err) {
+    console.error("Exception lors de l'enregistrement du log:", err);
+  }
+}
+
 // Fonction pour rafraîchir un token d'accès
 async function refreshAccessToken(refreshToken: string): Promise<string | null> {
   try {
-    console.log("Rafraîchissement du token d'accès...");
+    await logSyncActivity("Rafraîchissement du token d'accès...", "info");
     
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
@@ -65,14 +87,14 @@ async function refreshAccessToken(refreshToken: string): Promise<string | null> 
     const tokenData = await tokenRes.json();
     
     if (!tokenData.access_token) {
-      console.error("Échec du rafraîchissement du token:", tokenData);
+      await logSyncActivity("Échec du rafraîchissement du token", "error", tokenData);
       return null;
     }
     
-    console.log("Token d'accès rafraîchi avec succès");
+    await logSyncActivity("Token d'accès rafraîchi avec succès", "success");
     return tokenData.access_token;
   } catch (error) {
-    console.error("Erreur lors du rafraîchissement du token:", error);
+    await logSyncActivity("Erreur lors du rafraîchissement du token", "error", error);
     return null;
   }
 }
@@ -103,7 +125,7 @@ function calculateEndTime(time: string): string {
 // Fonction pour créer un événement dans Google Calendar
 async function createCalendarEvent(reservation: Reservation, accessToken: string): Promise<string | null> {
   try {
-    console.log(`Création d'un événement pour ${reservation.name} le ${reservation.date} à ${reservation.time}`);
+    await logSyncActivity(`Création d'un événement pour ${reservation.name} le ${reservation.date} à ${reservation.time}`, "info");
     
     // Format des dates pour Google Calendar
     const startDateTime = formatDateTimeForCalendar(reservation.date, reservation.time);
@@ -135,14 +157,14 @@ async function createCalendarEvent(reservation: Reservation, accessToken: string
     const calendarData = await calendarRes.json();
     
     if (!calendarData.id) {
-      console.error("Échec de la création de l'événement:", calendarData);
+      await logSyncActivity("Échec de la création de l'événement", "error", calendarData);
       return null;
     }
     
-    console.log(`Événement créé avec succès, ID: ${calendarData.id}`);
+    await logSyncActivity(`Événement créé avec succès, ID: ${calendarData.id}`, "success");
     return calendarData.id;
   } catch (error) {
-    console.error("Erreur lors de la création de l'événement:", error);
+    await logSyncActivity("Erreur lors de la création de l'événement", "error", error);
     return null;
   }
 }
@@ -150,7 +172,7 @@ async function createCalendarEvent(reservation: Reservation, accessToken: string
 // Point d'entrée principal
 async function autoSync(): Promise<{ success: boolean; syncedCount: number; message: string }> {
   try {
-    console.log("Démarrage de la synchronisation automatique...");
+    await logSyncActivity("Démarrage de la synchronisation automatique...", "info");
     
     // Récupération des paramètres admin
     const { data: adminSettings, error: adminError } = await supabase
@@ -160,17 +182,18 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
       .single();
     
     if (adminError || !adminSettings) {
-      console.error("Erreur lors de la récupération des paramètres admin:", adminError);
+      const errorMessage = `Erreur lors de la récupération des paramètres admin: ${adminError?.message || "données non trouvées"}`;
+      await logSyncActivity(errorMessage, "error");
       return { 
         success: false, 
         syncedCount: 0, 
-        message: `Erreur lors de la récupération des paramètres admin: ${adminError?.message || "données non trouvées"}` 
+        message: errorMessage
       };
     }
     
     // Vérification de la connexion Google
     if (!adminSettings.google_connected || !adminSettings.google_refresh_token) {
-      console.log("Google Calendar n'est pas connecté ou le refresh token est absent");
+      await logSyncActivity("Google Calendar n'est pas connecté ou le refresh token est absent", "error");
       return { 
         success: false, 
         syncedCount: 0, 
@@ -190,6 +213,8 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
           sync_error: "Refresh token invalide ou révoqué"
         })
         .eq("id", 1);
+      
+      await logSyncActivity("Impossible d'obtenir un token d'accès valide, la connexion a été marquée comme invalide", "error");
         
       return { 
         success: false, 
@@ -203,7 +228,7 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
       ? new Date(adminSettings.last_sync_timestamp) 
       : new Date(0); // 1970-01-01 si jamais synchronisé
       
-    console.log(`Dernière synchronisation: ${lastSyncTimestamp.toISOString()}`);
+    await logSyncActivity(`Dernière synchronisation: ${lastSyncTimestamp.toISOString()}`, "info");
     
     // Récupération des réservations non synchronisées
     const query = supabase
@@ -220,15 +245,16 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
     const { data: reservations, error: reservationsError } = await query;
     
     if (reservationsError) {
-      console.error("Erreur lors de la récupération des réservations:", reservationsError);
+      const errorMessage = `Erreur lors de la récupération des réservations: ${reservationsError.message}`;
+      await logSyncActivity(errorMessage, "error");
       return { 
         success: false, 
         syncedCount: 0, 
-        message: `Erreur lors de la récupération des réservations: ${reservationsError.message}` 
+        message: errorMessage
       };
     }
     
-    console.log(`${reservations.length} réservation(s) à synchroniser`);
+    await logSyncActivity(`${reservations.length} réservation(s) à synchroniser`, "info");
     
     if (reservations.length === 0) {
       // Mettre à jour seulement le timestamp de synchronisation
@@ -240,6 +266,8 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
           sync_error: null
         })
         .eq("id", 1);
+      
+      await logSyncActivity("Aucune nouvelle réservation à synchroniser", "success");
         
       return { 
         success: true, 
@@ -265,7 +293,7 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
           syncedCount++;
         }
       } catch (error) {
-        console.error(`Erreur lors de la synchronisation de la réservation ${reservation.id}:`, error);
+        await logSyncActivity(`Erreur lors de la synchronisation de la réservation ${reservation.id}`, "error", error);
       }
     }
     
@@ -279,7 +307,7 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
       })
       .eq("id", 1);
     
-    console.log(`Synchronisation automatique terminée: ${syncedCount} réservation(s) synchronisée(s)`);
+    await logSyncActivity(`Synchronisation automatique terminée: ${syncedCount} réservation(s) synchronisée(s)`, "success");
     
     return { 
       success: true, 
@@ -287,7 +315,7 @@ async function autoSync(): Promise<{ success: boolean; syncedCount: number; mess
       message: `${syncedCount} réservation(s) synchronisée(s) avec succès` 
     };
   } catch (error) {
-    console.error("Erreur lors de la synchronisation automatique:", error);
+    await logSyncActivity("Erreur lors de la synchronisation automatique", "error", error);
     
     // Enregistrer l'erreur
     try {
@@ -332,14 +360,30 @@ Deno.serve(async (req: Request) => {
   }
   
   try {
+    // Ajout d'un log pour tracer les exécutions
+    const executionStartTime = new Date().toISOString();
+    await logSyncActivity(`Exécution démarrée à ${executionStartTime}`, "info", {
+      isCronJob,
+      requestHeaders: Object.fromEntries(req.headers.entries()), // Log des headers pour le débogage
+    });
+    
     const result = await autoSync();
+    
+    // Ajout d'un log de fin d'exécution
+    await logSyncActivity(`Exécution terminée avec statut: ${result.success ? "Succès" : "Échec"}`, 
+      result.success ? "success" : "error", {
+        syncedCount: result.syncedCount,
+        message: result.message,
+        executionTime: `${(new Date().getTime() - new Date(executionStartTime).getTime()) / 1000}s`
+      }
+    );
     
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   } catch (error) {
-    console.error("Erreur non gérée:", error);
+    await logSyncActivity("Erreur non gérée", "error", error);
     
     return new Response(JSON.stringify({ error: `Erreur interne: ${error.message}` }), {
       status: 500,
