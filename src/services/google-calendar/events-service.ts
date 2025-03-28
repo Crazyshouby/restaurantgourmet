@@ -1,3 +1,4 @@
+
 import { formatDateTimeForCalendar, calculateEndTime } from './utils';
 import { GoogleCalendarApiClient } from './api-client';
 import { GoogleCalendarAuthService } from './auth-service';
@@ -99,7 +100,7 @@ export class GoogleCalendarEventsService {
     }
   }
 
-  // Nouvelle méthode pour mettre à jour un événement Google Calendar
+  // Méthode pour mettre à jour un événement Google Calendar
   static async updateEvent(reservation: Reservation): Promise<GoogleCalendarEventResponse> {
     try {
       if (!reservation.googleEventId) {
@@ -135,10 +136,10 @@ export class GoogleCalendarEventsService {
         },
       };
       
-      // Appel à l'API via le client pour mettre à jour l'événement
+      // Correction ici : utiliser PATCH au lieu de POST pour la mise à jour
       const data = await GoogleCalendarApiClient.callApi<any>(
         `calendars/primary/events/${reservation.googleEventId}`, 
-        'POST', // Utilise POST pour la méthode PATCH dans l'API Google
+        'PATCH', // Utiliser PATCH au lieu de POST pour mettre à jour l'événement
         eventData
       );
       
