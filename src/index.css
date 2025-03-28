@@ -71,9 +71,17 @@
     --admin-ring: 217 91% 60%;
   }
 
-  /* Personnalisation de la barre de défilement */
+  /* Nouvelle approche pour la barre de défilement - Superposition sur le contenu */
   html {
+    /* Empêcher le débordement horizontal causé par la barre de défilement */
+    overflow-x: hidden;
+    /* Position relative pour contenir la barre de défilement */
+    position: relative;
+    /* Permettre le défilement vertical */
     overflow-y: auto;
+    /* Assurer que la barre de défilement n'affecte pas la mise en page */
+    scrollbar-gutter: stable;
+    
     /* Firefox */
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
@@ -87,6 +95,9 @@
   /* WebKit browsers (Chrome, Safari) */
   html::-webkit-scrollbar {
     width: 10px;
+    /* Position absolue pour superposer sur le contenu */
+    position: absolute;
+    right: 0;
   }
   
   html::-webkit-scrollbar-track {
@@ -112,6 +123,10 @@
   body {
     @apply bg-darkblack text-cream font-sans;
     -webkit-tap-highlight-color: transparent;
+    /* Ajout de padding-right pour compenser l'espace de la barre de défilement */
+    padding-right: 0 !important; 
+    /* Empêcher également le débordement horizontal du body */
+    overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -120,7 +135,6 @@
   
   /* Améliorer le défilement sur mobile */
   html, body {
-    @apply overflow-x-hidden;
     scroll-behavior: smooth;
   }
   
