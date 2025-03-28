@@ -30,6 +30,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [reconnectionNeeded, setReconnectionNeeded] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false); // Add local loading state
 
   // Charger les paramètres initiaux
   useEffect(() => {
@@ -116,7 +117,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   const handleResetConnection = async () => {
     if (isLoading) return;
     
-    setIsLoading(true);
+    setLocalLoading(true); // Use local loading state instead of parent's setIsLoading
     
     try {
       // D'abord déconnecter Google
@@ -139,7 +140,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
         description: "Impossible de réinitialiser la connexion à Google."
       });
     } finally {
-      setIsLoading(false);
+      setLocalLoading(false); // Use local loading state
     }
   };
 
@@ -174,7 +175,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
             size="sm" 
             className="w-full mt-2 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
             onClick={handleResetConnection}
-            disabled={isLoading}
+            disabled={isLoading || localLoading}
           >
             Réinitialiser la connexion
           </Button>
