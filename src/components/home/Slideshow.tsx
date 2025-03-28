@@ -1,9 +1,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CalendarDays, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
+import { format, isAfter } from "date-fns";
+import { fr } from "date-fns/locale";
+import { useEventsQuery } from "@/hooks/events/useEventsQueries";
+import { Card } from "@/components/ui/card";
 
 // Images de haute qualité pour le diaporama
 const SLIDES = [
@@ -31,6 +35,29 @@ const Slideshow: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const { data: events = [], isLoading } = useEventsQuery();
+
+  // Trouver le prochain événement à venir
+  const getNextEvent = () => {
+    if (events.length === 0) return null;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Filtrer les événements pour ne garder que ceux à venir
+    const upcomingEvents = events.filter(event => {
+      const eventDate = new Date(event.date);
+      return isAfter(eventDate, today) || format(eventDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+    });
+    
+    // Trier par date (du plus proche au plus éloigné)
+    upcomingEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    // Retourner le premier événement (le plus proche)
+    return upcomingEvents.length > 0 ? upcomingEvents[0] : null;
+  };
+  
+  const nextEvent = getNextEvent();
 
   // Configuration des références pour chaque image pour l'effet de parallax
   useEffect(() => {
@@ -83,6 +110,16 @@ const Slideshow: React.FC = () => {
     
     // Reset de l'état d'animation
     setTimeout(() => setIsAnimating(false), 750);
+  };
+
+  // Formater la date de l'événement en français
+  const formatEventDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      return format(date, "d MMMM yyyy", { locale: fr });
+    } catch (error) {
+      return dateStr;
+    }
   };
 
   return (
@@ -139,6 +176,37 @@ const Slideshow: React.FC = () => {
           </div>
         </div>
       ))}
+      
+      {/* Affichage du prochain événement */}
+      {nextEvent && (
+        <div className="absolute bottom-32 right-6 md:right-12 z-30 max-w-xs md:max-w-sm animate-fade-in">
+          <Card className="overflow-hidden border border-gold/30 bg-darkblack/80 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/20 transition-all duration-300">
+            <div className="pt-2 px-3">
+              <span className="inline-block px-2 py-0.5 bg-gold/20 text-gold text-xs tracking-widest uppercase rounded-sm">
+                Prochain événement
+              </span>
+            </div>
+            <Link to="/events" className="block p-3 group">
+              <h3 className="font-serif text-lg text-cream group-hover:text-gold transition-colors line-clamp-2">{nextEvent.title}</h3>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center text-sm text-cream/80">
+                  <CalendarDays className="mr-1.5 h-3.5 w-3.5 text-gold" />
+                  {formatEventDate(nextEvent.date)}
+                </div>
+                <div className="flex items-center text-sm text-cream/80">
+                  <Clock className="mr-1.5 h-3.5 w-3.5 text-gold" />
+                  {nextEvent.time}
+                </div>
+              </div>
+              <div className="mt-1.5 flex justify-end">
+                <span className="text-xs text-gold group-hover:translate-x-0.5 transition-transform">
+                  Voir tous les événements →
+                </span>
+              </div>
+            </Link>
+          </Card>
+        </div>
+      )}
       
       {/* Indicateurs de slide */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-2">
