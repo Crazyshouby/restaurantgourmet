@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -33,19 +32,16 @@ const GoogleSyncStatus: React.FC<GoogleSyncStatusProps> = ({
   const checkCronJob = async () => {
     setLoading(true);
     try {
-      // Use RPC call to check for auto-sync CRON job with proper type casting
-      const { data, error } = await supabase.rpc('check_auto_sync_cron_job', {}) as unknown as { 
-        data: CronJobInfo[] | null;
-        error: any;
-      };
+      // Working with RPC functions that aren't in TypeScript definitions
+      const response = await supabase.functions.invoke('check_auto_sync_cron_job');
       
-      if (error) {
-        console.error("Erreur lors de la vérification de la tâche CRON:", error);
+      if (response.error) {
+        console.error("Erreur lors de la vérification de la tâche CRON:", response.error);
         return;
       }
       
-      if (data && data.length > 0) {
-        setCronJob(data[0]);
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        setCronJob(response.data[0] as CronJobInfo);
       }
     } catch (error) {
       console.error("Exception lors de la vérification de la tâche CRON:", error);

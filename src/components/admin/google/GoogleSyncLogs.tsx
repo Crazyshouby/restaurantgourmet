@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,15 +24,14 @@ const GoogleSyncLogs: React.FC = () => {
   const fetchSyncLogs = async () => {
     setIsLoading(true);
     try {
-      // For tables not in the TypeScript definition, use an RPC call
-      const { data, error } = await supabase.rpc('get_sync_logs', {}) as unknown as { 
-        data: SyncLog[] | null;
-        error: any;
-      };
+      // Working with RPC functions that aren't in TypeScript definitions
+      const response = await supabase.functions.invoke('get_sync_logs');
       
-      if (error) throw error;
+      if (response.error) throw response.error;
       
-      setLogs(data || []);
+      // Safely type the response data as SyncLog[]
+      const syncLogs = response.data as SyncLog[];
+      setLogs(syncLogs || []);
       setLastRefresh(new Date());
     } catch (error) {
       console.error("Erreur lors de la récupération des logs de synchronisation:", error);
