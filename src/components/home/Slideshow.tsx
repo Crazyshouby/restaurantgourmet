@@ -37,7 +37,44 @@ const Slideshow: React.FC = () => {
     parallaxRefs.current = parallaxRefs.current.slice(0, SLIDES.length);
   }, []);
 
-  // Effet de parallax sur le mouvement de la souris
+  // Effet de mouvement autonome et subtil pour les images du diaporama
+  useEffect(() => {
+    const animateBackgrounds = () => {
+      // Animation autonome avec une oscillation douce
+      const animations = parallaxRefs.current.map((ref, index) => {
+        if (!ref) return null;
+        
+        // Animation différente pour chaque slide pour éviter la synchronisation
+        const duration = 25000 + (index * 5000); // Durée différente pour chaque slide
+        const delay = index * 1500; // Délai différent pour chaque slide
+        
+        // Animation fluide avec keyframes
+        return ref.animate([
+          { transform: 'translate(0, 0) scale(1.1)' },
+          { transform: 'translate(-8px, -8px) scale(1.1)' },
+          { transform: 'translate(-5px, 5px) scale(1.1)' },
+          { transform: 'translate(8px, 3px) scale(1.1)' },
+          { transform: 'translate(0, 0) scale(1.1)' }
+        ], {
+          duration,
+          delay,
+          iterations: Infinity,
+          easing: 'ease-in-out',
+          fill: 'forwards'
+        });
+      });
+      
+      return () => {
+        // Nettoyer les animations lors du démontage du composant
+        animations.forEach(animation => animation?.cancel());
+      };
+    };
+    
+    const cleanup = animateBackgrounds();
+    return cleanup;
+  }, []);
+
+  // Effet de parallax sur le mouvement de la souris (conservé pour un effet combiné)
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
@@ -100,7 +137,7 @@ const Slideshow: React.FC = () => {
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <div 
               ref={el => parallaxRefs.current[index] = el}
-              className="w-full h-full transition-transform duration-200 ease-out scale-110"
+              className="w-full h-full transition-transform duration-100 ease-out scale-110"
               style={{ 
                 backgroundImage: `url(${slide.url})`,
                 backgroundSize: 'cover',
