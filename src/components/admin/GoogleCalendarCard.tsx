@@ -6,11 +6,12 @@ import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 import { ReservationService } from "@/services/ReservationService";
 import { AdminSettings } from "@/types";
 
-// Import our new component files
+// Import our component files
 import GoogleIcon from "./google/GoogleIcon";
 import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
 import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
 import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
+import GoogleAutoSync from "./google/GoogleAutoSync";
 import CapacitySettings from "./CapacitySettings";
 
 interface GoogleCalendarCardProps {
@@ -174,6 +175,13 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
             isLoading={isLoading}
           />
         )}
+        
+        {/* Nouveau composant de synchronisation automatique */}
+        <GoogleAutoSync 
+          isConnected={adminSettings.googleConnected}
+          isLoading={isLoading}
+          onStatusChanged={onSettingsUpdated}
+        />
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">
         <GoogleConnectionStatus isConnected={adminSettings.googleConnected} />
