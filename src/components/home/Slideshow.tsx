@@ -8,6 +8,7 @@ import { format, isAfter } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useEventsQuery } from "@/hooks/events/useEventsQueries";
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 // Images de haute qualité pour le diaporama
 const SLIDES = [
@@ -34,8 +35,32 @@ const SLIDES = [
 const Slideshow: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showHeroEvent, setShowHeroEvent] = useState(true);
   const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { data: events = [], isLoading } = useEventsQuery();
+
+  // Fetch the admin setting
+  useEffect(() => {
+    const fetchShowHeroSetting = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('admin_settings')
+          .select('show_hero_event')
+          .single();
+        
+        if (error) throw error;
+        
+        // If the setting exists, use it; otherwise default to true
+        setShowHeroEvent(data?.show_hero_event ?? true);
+      } catch (error) {
+        console.error('Error fetching show_hero_event setting:', error);
+        // On error, default to showing the event
+        setShowHeroEvent(true);
+      }
+    };
+
+    fetchShowHeroSetting();
+  }, []);
 
   // Trouver le prochain événement à venir
   const getNextEvent = () => {
@@ -196,8 +221,8 @@ const Slideshow: React.FC = () => {
         </div>
       ))}
       
-      {/* Affichage du prochain événement */}
-      {nextEvent && (
+      {/* Affichage du prochain événement - conditionnellement basé sur le paramètre showHeroEvent */}
+      {nextEvent && showHeroEvent && (
         <div className="absolute bottom-32 right-6 md:right-12 z-30 max-w-xs md:max-w-sm animate-fade-in">
           <Card className="overflow-hidden border border-gold/30 bg-darkblack/80 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/20 transition-all duration-300">
             {/* Ajout de l'image de l'événement */}
