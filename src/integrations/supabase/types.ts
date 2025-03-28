@@ -11,8 +11,6 @@ export type Database = {
     Tables: {
       admin_settings: {
         Row: {
-          auto_sync_enabled: boolean | null
-          auto_sync_interval: number | null
           google_connected: boolean
           google_email: string | null
           google_refresh_token: string | null
@@ -25,8 +23,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          auto_sync_enabled?: boolean | null
-          auto_sync_interval?: number | null
           google_connected?: boolean
           google_email?: string | null
           google_refresh_token?: string | null
@@ -39,8 +35,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          auto_sync_enabled?: boolean | null
-          auto_sync_interval?: number | null
           google_connected?: boolean
           google_email?: string | null
           google_refresh_token?: string | null
@@ -162,33 +156,6 @@ export type Database = {
           notes?: string | null
           phone?: string
           time?: string
-        }
-        Relationships: []
-      }
-      sync_logs: {
-        Row: {
-          created_at: string | null
-          error_message: string | null
-          id: string
-          reservations_synced: number | null
-          status: string
-          sync_timestamp: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          reservations_synced?: number | null
-          status: string
-          sync_timestamp?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          error_message?: string | null
-          id?: string
-          reservations_synced?: number | null
-          status?: string
-          sync_timestamp?: string | null
         }
         Relationships: []
       }

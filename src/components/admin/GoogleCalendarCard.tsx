@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -5,12 +6,11 @@ import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 import { ReservationService } from "@/services/ReservationService";
 import { AdminSettings } from "@/types";
 
-// Import our component files
+// Import our new component files
 import GoogleIcon from "./google/GoogleIcon";
 import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
 import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
 import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
-import GoogleAutoSync from "./google/GoogleAutoSync";
 import CapacitySettings from "./CapacitySettings";
 
 interface GoogleCalendarCardProps {
@@ -174,17 +174,11 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
             isLoading={isLoading}
           />
         )}
-        
-        <GoogleAutoSync 
-          isConnected={adminSettings.googleConnected}
-          isLoading={isLoading}
-          onStatusChanged={onSettingsUpdated}
-          onConnect={handleGoogleConnect}
-        />
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">
         <GoogleConnectionStatus isConnected={adminSettings.googleConnected} />
         
+        {/* Paramètres de capacité intégrés dans la même carte */}
         <div className="w-full pt-3 border-t">
           <CapacitySettings 
             adminSettings={adminSettings}

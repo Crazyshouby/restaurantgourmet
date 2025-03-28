@@ -2,7 +2,6 @@
 import { ReservationBaseService } from './base-service';
 import { ReservationCreationService } from './creation-service';
 import { ReservationGoogleSyncService } from './google-sync-service';
-import { ReservationAutoSyncService } from './auto-sync-service';
 import { Reservation } from '@/types';
 
 /**
@@ -20,11 +19,4 @@ export class ReservationService {
   // Synchronisation Google Calendar
   static syncWithGoogleCalendar = ReservationGoogleSyncService.syncWithGoogleCalendar;
   static importFromGoogleCalendar = ReservationGoogleSyncService.importFromGoogleCalendar;
-  
-  // Synchronisation automatique
-  static triggerSync = ReservationAutoSyncService.triggerSync;
-  static getSyncLogs = ReservationAutoSyncService.getSyncLogs;
-  static updateAutoSyncSettings = ReservationAutoSyncService.updateAutoSyncSettings;
-  static checkSyncStatus = ReservationAutoSyncService.checkSyncStatus;
-  static resetGoogleConnection = ReservationAutoSyncService.resetGoogleConnection;
 }
