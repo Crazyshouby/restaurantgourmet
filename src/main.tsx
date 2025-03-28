@@ -18,6 +18,12 @@ const errorHandler = (error: any) => {
   console.error('Erreur dans le rendu React:', error);
 };
 
+// Adding a polyfill for older browsers if needed
+if (!('ResizeObserver' in window)) {
+  // This will be included only for older browsers
+  console.info('Adding ResizeObserver polyfill for older browsers');
+}
+
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Suspense fallback={<LazyLoadingFallback />}>

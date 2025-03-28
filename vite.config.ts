@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-components': [
-            '@/components/ui',
+            '@/components/ui/index',
             'lucide-react',
             'sonner'
           ],
@@ -52,5 +52,10 @@ export default defineConfig(({ mode }) => ({
   // Optimisation du cache
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'sonner']
-  }
+  },
+  // Fix for browserslist message
+  // This will tell Vite to use the latest browserslist settings
+  esbuild: {
+    target: 'esnext',
+  },
 }));
