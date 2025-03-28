@@ -30,6 +30,10 @@ export interface GoogleCalendarEventResponse {
 
 export interface GoogleCalendarSettings extends AdminSettings {
   // Types spécifiques pour les paramètres Google Calendar
+  calendarId?: string;
+  syncEnabled?: boolean;
+  autoSync?: boolean;
+  syncFrequency?: number;
 }
 
 export interface SyncResponse {

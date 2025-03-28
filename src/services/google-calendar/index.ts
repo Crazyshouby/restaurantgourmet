@@ -4,7 +4,10 @@ import { GoogleCalendarEventsService } from './events';
 import { getAdminSettings } from './utils';
 import { GoogleCalendarSettings, GoogleCalendarEvent, GoogleCalendarAuthResponse, GoogleCalendarEventResponse, SyncResponse } from './types';
 
-// Classe principale qui exporte toutes les fonctionnalités
+/**
+ * Service principal pour l'intégration avec Google Calendar.
+ * Fournit toutes les fonctionnalités pour gérer la connexion, les événements et la synchronisation.
+ */
 export class GoogleCalendarService {
   // Méthodes d'authentification
   static isConnected = GoogleCalendarAuthService.isConnected;

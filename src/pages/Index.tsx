@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, lazy, Suspense } from "react";
 import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
 import ReservationForm from "@/components/ReservationForm";
@@ -12,9 +12,32 @@ import { ReservationService } from "@/services/reservation";
 import { useLoadingState } from "@/hooks/useLoadingState";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 
+// SEO metadata
+const SEO = {
+  title: "Réservez votre table - Restaurant Reserv",
+  description: "Réservez facilement une table dans notre restaurant. Quelques clics suffisent pour garantir votre place.",
+  keywords: "réservation restaurant, table, dîner, gastronomie"
+};
+
+// Composant optimisé pour les performances
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const { isLoading, withLoading } = useLoadingState();
+
+  // Mettre à jour le titre de la page pour le SEO
+  React.useEffect(() => {
+    document.title = SEO.title;
+    
+    // Ajouter les meta tags pour le SEO
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", SEO.description);
+    }
+    
+    return () => {
+      document.title = "Reserv - Réservation de Restaurant"; // Restaurer le titre par défaut
+    };
+  }, []);
 
   const handleReservationSubmit = useCallback(async (formData: any) => {
     await withLoading(async () => {
