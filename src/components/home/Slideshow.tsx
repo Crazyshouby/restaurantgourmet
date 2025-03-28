@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -59,23 +59,13 @@ const Slideshow: React.FC = () => {
   // Navigation automatique
   useEffect(() => {
     const interval = setInterval(() => {
-      handleNext();
-    }, 6000); // Change d'image toutes les 6 secondes
+      goToNextSlide();
+    }, 5000); // Change d'image toutes les 5 secondes
     
     return () => clearInterval(interval);
   }, [currentSlide]);
 
-  const handlePrev = () => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    setCurrentSlide((prev) => (prev === 0 ? SLIDES.length - 1 : prev - 1));
-    
-    // Reset de l'état d'animation
-    setTimeout(() => setIsAnimating(false), 750);
-  };
-
-  const handleNext = () => {
+  const goToNextSlide = () => {
     if (isAnimating) return;
     
     setIsAnimating(true);
@@ -149,23 +139,6 @@ const Slideshow: React.FC = () => {
           </div>
         </div>
       ))}
-      
-      {/* Navigation buttons */}
-      <button
-        onClick={handlePrev}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-darkblack/30 backdrop-blur-sm border border-gold/30 text-gold hover:bg-gold/20 transition-all duration-300"
-        aria-label="Slide précédent"
-      >
-        <ChevronLeft className="h-6 w-6" />
-      </button>
-      
-      <button
-        onClick={handleNext}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-darkblack/30 backdrop-blur-sm border border-gold/30 text-gold hover:bg-gold/20 transition-all duration-300"
-        aria-label="Slide suivant"
-      >
-        <ChevronRight className="h-6 w-6" />
-      </button>
       
       {/* Indicateurs de slide */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-2">
