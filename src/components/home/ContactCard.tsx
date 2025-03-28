@@ -22,7 +22,7 @@ const ContactCard: React.FC<ContactCardProps> = ({
   children 
 }) => {
   return (
-    <div className="elegant-card p-8 flex flex-col">
+    <div className="elegant-card p-8 flex flex-col hover:shadow-gold shadow-none transition-all duration-300">
       <h3 className="text-xl font-serif mb-6 flex items-center gap-3 text-gold">
         <div className="border border-gold/30 p-2 rounded-full">
           <Icon className="h-5 w-5 text-gold" />
