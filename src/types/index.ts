@@ -1,4 +1,5 @@
 
+
 export interface Reservation {
   id: string;
   date: Date;
@@ -29,3 +30,4 @@ export interface DailyAvailability {
   remainingCapacity: number;
   totalCapacity: number;
 }
+
