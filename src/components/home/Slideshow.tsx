@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronRight, CalendarDays, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { fr } from "date-fns/locale";
 import { useEventsQuery } from "@/hooks/events/useEventsQueries";
 import { Card } from "@/components/ui/card";
 
+// Images de haute qualité pour le diaporama
 const SLIDES = [
   {
     id: 1,
@@ -35,36 +37,43 @@ const Slideshow: React.FC = () => {
   const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { data: events = [], isLoading } = useEventsQuery();
 
+  // Trouver le prochain événement à venir
   const getNextEvent = () => {
     if (events.length === 0) return null;
     
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Filtrer les événements pour ne garder que ceux à venir
     const upcomingEvents = events.filter(event => {
       const eventDate = new Date(event.date);
       return isAfter(eventDate, today) || format(eventDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
     });
     
+    // Trier par date (du plus proche au plus éloigné)
     upcomingEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
+    // Retourner le premier événement (le plus proche)
     return upcomingEvents.length > 0 ? upcomingEvents[0] : null;
   };
   
   const nextEvent = getNextEvent();
 
+  // Configuration des références pour chaque image pour l'effet de parallax
   useEffect(() => {
     parallaxRefs.current = parallaxRefs.current.slice(0, SLIDES.length);
   }, []);
 
+  // Effet de parallax sur le mouvement de la souris
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth - 0.5) * 20;
-      const y = (clientY / window.innerHeight - 0.5) * 20;
+      const x = (clientX / window.innerWidth - 0.5) * 20; // Réduire l'amplitude du mouvement
+      const y = (clientY / window.innerHeight - 0.5) * 20; // Réduire l'amplitude du mouvement
 
       parallaxRefs.current.forEach((ref, index) => {
         if (ref && index === currentSlide) {
+          // Appliquer une transformation plus légère pour un effet subtil
           ref.style.transform = `translate(${-x / 4}px, ${-y / 4}px) scale(1.1)`;
         }
       });
@@ -74,10 +83,11 @@ const Slideshow: React.FC = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [currentSlide]);
 
+  // Navigation automatique
   useEffect(() => {
     const interval = setInterval(() => {
       goToNextSlide();
-    }, 5000);
+    }, 5000); // Change d'image toutes les 5 secondes
     
     return () => clearInterval(interval);
   }, [currentSlide]);
@@ -88,6 +98,7 @@ const Slideshow: React.FC = () => {
     setIsAnimating(true);
     setCurrentSlide((prev) => (prev === SLIDES.length - 1 ? 0 : prev + 1));
     
+    // Reset de l'état d'animation
     setTimeout(() => setIsAnimating(false), 750);
   };
 
@@ -97,9 +108,11 @@ const Slideshow: React.FC = () => {
     setIsAnimating(true);
     setCurrentSlide(index);
     
+    // Reset de l'état d'animation
     setTimeout(() => setIsAnimating(false), 750);
   };
 
+  // Formater la date de l'événement en français
   const formatEventDate = (dateStr: string) => {
     try {
       const date = new Date(dateStr);
@@ -111,6 +124,7 @@ const Slideshow: React.FC = () => {
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-darkblack">
+      {/* Slides */}
       {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
@@ -119,6 +133,7 @@ const Slideshow: React.FC = () => {
             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           )}
         >
+          {/* Image de fond avec overlay et effet parallax */}
           <div className="absolute inset-0 w-full h-full overflow-hidden">
             <div 
               ref={el => parallaxRefs.current[index] = el}
@@ -132,6 +147,7 @@ const Slideshow: React.FC = () => {
             <div className="absolute inset-0 bg-darkblack/50"></div>
           </div>
           
+          {/* Contenu du slide */}
           <div className="relative z-20 h-full flex flex-col justify-center items-center px-4 text-center">
             <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
               <span className="inline-block px-4 py-1 border border-gold text-gold text-xs tracking-widest uppercase">
@@ -161,53 +177,38 @@ const Slideshow: React.FC = () => {
         </div>
       ))}
       
+      {/* Affichage du prochain événement */}
       {nextEvent && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 max-w-md animate-fade-in">
-          <Card className="overflow-hidden border border-gold/10 bg-darkblack/70 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/10 transition-all duration-300">
-            <div className="flex">
-              <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative overflow-hidden">
-                <img 
-                  src={nextEvent.image} 
-                  alt={nextEvent.title}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "/placeholder.svg";
-                    e.currentTarget.classList.add("p-2");
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-darkblack/30 to-transparent"></div>
-              </div>
-              
-              <div className="flex-1 p-3">
-                <div className="mb-1">
-                  <span className="inline-block px-2 py-0.5 bg-gold/10 text-gold/80 text-[10px] tracking-widest uppercase rounded-sm">
-                    Prochain événement
-                  </span>
-                </div>
-                <Link to="/events" className="block group">
-                  <h3 className="font-serif text-base text-cream group-hover:text-gold transition-colors line-clamp-1">{nextEvent.title}</h3>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <div className="flex items-center text-xs text-cream/70">
-                      <CalendarDays className="mr-1 h-3 w-3 text-gold/70" />
-                      {formatEventDate(nextEvent.date)}
-                    </div>
-                    <div className="flex items-center text-xs text-cream/70">
-                      <Clock className="mr-1 h-3 w-3 text-gold/70" />
-                      {nextEvent.time}
-                    </div>
-                  </div>
-                  <div className="mt-1 flex justify-end">
-                    <span className="text-[10px] text-gold/80 group-hover:translate-x-0.5 transition-transform">
-                      En savoir plus →
-                    </span>
-                  </div>
-                </Link>
-              </div>
+        <div className="absolute bottom-32 right-6 md:right-12 z-30 max-w-xs md:max-w-sm animate-fade-in">
+          <Card className="overflow-hidden border border-gold/30 bg-darkblack/80 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/20 transition-all duration-300">
+            <div className="pt-2 px-3">
+              <span className="inline-block px-2 py-0.5 bg-gold/20 text-gold text-xs tracking-widest uppercase rounded-sm">
+                Prochain événement
+              </span>
             </div>
+            <Link to="/events" className="block p-3 group">
+              <h3 className="font-serif text-lg text-cream group-hover:text-gold transition-colors line-clamp-2">{nextEvent.title}</h3>
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center text-sm text-cream/80">
+                  <CalendarDays className="mr-1.5 h-3.5 w-3.5 text-gold" />
+                  {formatEventDate(nextEvent.date)}
+                </div>
+                <div className="flex items-center text-sm text-cream/80">
+                  <Clock className="mr-1.5 h-3.5 w-3.5 text-gold" />
+                  {nextEvent.time}
+                </div>
+              </div>
+              <div className="mt-1.5 flex justify-end">
+                <span className="text-xs text-gold group-hover:translate-x-0.5 transition-transform">
+                  Voir tous les événements →
+                </span>
+              </div>
+            </Link>
           </Card>
         </div>
       )}
       
+      {/* Indicateurs de slide */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-2">
         {SLIDES.map((_, index) => (
           <button
