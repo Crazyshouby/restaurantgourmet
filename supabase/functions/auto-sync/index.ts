@@ -31,7 +31,7 @@ function createJsonResponse(data: any, status = 200) {
 }
 
 function createErrorResponse(message: string, status = 500) {
-  return createJsonResponse({ error: message }, status);
+  return createJsonResponse({ error: message, success: false }, status);
 }
 
 // Récupère les paramètres d'administration
@@ -53,6 +53,12 @@ async function getAdminSettings() {
 // Récupère un nouveau token d'accès en utilisant le refresh token
 async function refreshAccessToken(refreshToken: string) {
   try {
+    if (!refreshToken) {
+      throw new Error('Refresh token manquant');
+    }
+    
+    console.log('Tentative de rafraîchissement du token avec le refresh token...');
+    
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -64,17 +70,27 @@ async function refreshAccessToken(refreshToken: string) {
       }),
     });
     
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error('Réponse de rafraîchissement non OK:', tokenResponse.status, errorText);
+      throw new Error(`Erreur HTTP: ${tokenResponse.status} ${errorText}`);
+    }
+    
     const tokenData = await tokenResponse.json();
     
     // Si nous avons une erreur liée au token invalide
-    if (tokenData.error === "invalid_grant") {
+    if (tokenData.error) {
+      console.error('Erreur de rafraîchissement du token:', tokenData.error, tokenData.error_description);
+      
       // Mettre à jour le statut dans les paramètres admin
       const { error: updateError } = await supabase
         .from('admin_settings')
         .update({
           google_connected: false, // Déconnecter automatiquement
           last_sync_status: 'error',
-          sync_error: 'Token Google expiré. Reconnexion requise.'
+          sync_error: tokenData.error === 'invalid_grant' 
+            ? 'Token Google expiré. Reconnexion requise.' 
+            : `Erreur Google: ${tokenData.error} - ${tokenData.error_description}`
         })
         .eq('id', 1);
       
@@ -86,9 +102,10 @@ async function refreshAccessToken(refreshToken: string) {
     }
     
     if (!tokenData.access_token) {
-      throw new Error(`Échec du rafraîchissement du token: ${JSON.stringify(tokenData)}`);
+      throw new Error(`Échec du rafraîchissement du token: Aucun access_token dans la réponse`);
     }
     
+    console.log('Token rafraîchi avec succès');
     return tokenData.access_token;
   } catch (error) {
     console.error("Erreur lors du rafraîchissement du token:", error);
@@ -253,6 +270,7 @@ async function syncReservations() {
     
     try {
       // Obtenir un nouveau token d'accès
+      console.log('Tentative de rafraîchissement du token...');
       const accessToken = await refreshAccessToken(adminSettings.google_refresh_token);
       
       // Récupérer les réservations non synchronisées
@@ -289,7 +307,12 @@ async function syncReservations() {
       return { success: true, syncedCount };
     } catch (error) {
       // Si l'erreur contient "invalid_grant", cela signifie que le token a expiré
-      if (error.message && error.message.includes('invalid_grant')) {
+      if (error.message && (
+          error.message.includes('invalid_grant') || 
+          error.message.includes('Refresh token expired') ||
+          error.message.includes('Token has been expired or revoked')
+      )) {
+        console.error('Token Google expiré ou révoqué:', error);
         await logSyncResult('error', 0, 'Token Google expiré. Reconnexion requise.');
         return { 
           success: false, 
@@ -327,9 +350,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authentification de la requête (à adapter selon vos besoins)
-    // Cette fonction peut être appelée par le cron ou manuellement par l'administrateur
-
     // Lancer la synchronisation
     const result = await syncReservations();
     

@@ -4,11 +4,12 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, Clock, XCircle, RefreshCw } from "lucide-react";
+import { CheckCircle, Clock, XCircle, RefreshCw, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ReservationService } from "@/services/ReservationService";
 import { toast } from "sonner";
+import { GoogleCalendarService } from "@/services/GoogleCalendarService";
 
 interface GoogleAutoSyncProps {
   isConnected: boolean;
@@ -46,14 +47,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
       setSyncError(status.error);
       setAutoSyncEnabled(status.autoSyncEnabled);
       setSyncInterval(status.autoSyncInterval);
-      
-      // Détecter si une reconnexion est nécessaire
-      setReconnectionNeeded(
-        status.error !== null && 
-        status.error.includes('reconnect') || 
-        status.error?.includes('expiré') ||
-        status.error?.includes('invalid_grant')
-      );
+      setReconnectionNeeded(status.reconnectionNeeded);
     } catch (error) {
       console.error("Erreur lors du chargement du statut:", error);
     } finally {
@@ -81,7 +75,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
   };
 
   const handleTriggerSync = async () => {
-    if (isLoading) return;
+    if (isLoading || reconnectionNeeded) return;
     
     toast.info("Synchronisation en cours", {
       description: "Veuillez patienter pendant la synchronisation..."
@@ -99,11 +93,7 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
         if (onStatusChanged) await onStatusChanged();
         loadSyncStatus();
       } else {
-        if (result.error && (
-          result.error.includes('reconnect') || 
-          result.error.includes('expiré') || 
-          result.error.includes('invalid_grant')
-        )) {
+        if (result.reconnectionNeeded) {
           // Afficher un message d'erreur spécifique pour les problèmes de token
           toast.error("Connexion Google expirée", {
             description: "Veuillez vous reconnecter à votre compte Google pour continuer la synchronisation."
@@ -120,6 +110,36 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
       toast.error("Erreur de synchronisation", {
         description: "Impossible de déclencher la synchronisation."
       });
+    }
+  };
+
+  const handleResetConnection = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    
+    try {
+      // D'abord déconnecter Google
+      await GoogleCalendarService.disconnect();
+      
+      // Réinitialiser les paramètres de connexion
+      await ReservationService.resetGoogleConnection();
+      
+      toast.success("Connexion réinitialisée", {
+        description: "La connexion à Google a été réinitialisée. Vous pouvez maintenant vous reconnecter."
+      });
+      
+      setReconnectionNeeded(false);
+      
+      // Recharger les paramètres
+      if (onStatusChanged) await onStatusChanged();
+    } catch (error) {
+      console.error("Erreur lors de la réinitialisation de la connexion:", error);
+      toast.error("Erreur de réinitialisation", {
+        description: "Impossible de réinitialiser la connexion à Google."
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,9 +163,21 @@ const GoogleAutoSync: React.FC<GoogleAutoSyncProps> = ({
       </div>
       
       {reconnectionNeeded && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2 text-xs text-yellow-800">
-          <p className="font-medium">Reconnexion nécessaire</p>
-          <p>La connexion avec Google a expiré. Veuillez désactiver puis réactiver la synchronisation Google pour renouveler l'accès.</p>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 text-xs text-yellow-800">
+          <div className="flex items-center gap-2 font-medium">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <p>Reconnexion nécessaire</p>
+          </div>
+          <p className="mt-1">La connexion avec Google a expiré. Veuillez réinitialiser la connexion puis reconnecter votre compte Google.</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full mt-2 border-yellow-300 text-yellow-800 hover:bg-yellow-100"
+            onClick={handleResetConnection}
+            disabled={isLoading}
+          >
+            Réinitialiser la connexion
+          </Button>
         </div>
       )}
       

@@ -26,4 +26,5 @@ export class ReservationService {
   static getSyncLogs = ReservationAutoSyncService.getSyncLogs;
   static updateAutoSyncSettings = ReservationAutoSyncService.updateAutoSyncSettings;
   static checkSyncStatus = ReservationAutoSyncService.checkSyncStatus;
+  static resetGoogleConnection = ReservationAutoSyncService.resetGoogleConnection;
 }
