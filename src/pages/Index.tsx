@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
 import ReservationForm from "@/components/ReservationForm";
@@ -8,47 +8,49 @@ import { InfoIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import Layout from "@/components/home/Layout";
-import { ReservationService } from "@/services/ReservationService";
+import { ReservationService } from "@/services/reservation";
+import { useLoadingState } from "@/hooks/useLoadingState";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isLoading, withLoading } = useLoadingState();
 
-  const handleReservationSubmit = async (formData: any) => {
-    setIsSubmitting(true);
-    try {
-      // Appel à Supabase via ReservationService
-      await ReservationService.createReservation({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        date: formData.date,
-        time: formData.time,
-        guests: formData.guests,
-        notes: formData.notes
-      });
+  const handleReservationSubmit = useCallback(async (formData: any) => {
+    await withLoading(async () => {
+      try {
+        // Appel à Supabase via ReservationService
+        await ReservationService.createReservation({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          date: formData.date,
+          time: formData.time,
+          guests: formData.guests,
+          notes: formData.notes
+        });
 
-      // Créer une date complète avec la date et l'heure sélectionnées
-      const reservationDateTime = new Date(formData.date);
-      const [hours, minutes] = formData.time.split(':');
-      reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-      toast.success("Réservation confirmée", {
-        description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", {
-          locale: fr
-        })}`
-      });
+        // Créer une date complète avec la date et l'heure sélectionnées
+        const reservationDateTime = new Date(formData.date);
+        const [hours, minutes] = formData.time.split(':');
+        reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        toast.success("Réservation confirmée", {
+          description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", {
+            locale: fr
+          })}`
+        });
 
-      // Réinitialiser le formulaire
-      setSelectedDate(undefined);
-    } catch (error) {
-      console.error("Erreur lors de la réservation:", error);
-      toast.error("Erreur lors de la réservation", {
-        description: "Veuillez réessayer ultérieurement."
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        // Réinitialiser le formulaire
+        setSelectedDate(undefined);
+      } catch (error) {
+        console.error("Erreur lors de la réservation:", error);
+        toast.error("Erreur lors de la réservation", {
+          description: "Veuillez réessayer ultérieurement."
+        });
+      }
+    });
+  }, [withLoading]);
 
   return (
     <Layout>
@@ -71,7 +73,19 @@ const Index = () => {
               
               <ReservationCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} className="mb-6" />
               
-              <ReservationForm selectedDate={selectedDate} onSubmit={handleReservationSubmit} isSubmitting={isSubmitting} />
+              {isLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <LoadingSpinner size="md" message="Envoi de votre réservation..." />
+                </div>
+              ) : (
+                <ReservationForm 
+                  selectedDate={selectedDate} 
+                  on
+
+Submit={handleReservationSubmit} 
+                  isSubmitting={isLoading} 
+                />
+              )}
             </div>
             
             <div className="lg:w-1/3">
