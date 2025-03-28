@@ -1,5 +1,4 @@
 
-
 export interface Reservation {
   id: string;
   date: Date;
@@ -15,14 +14,10 @@ export interface Reservation {
 
 export interface AdminSettings {
   googleConnected: boolean;
-  googleEmail?: string;
   googleRefreshToken?: string;
+  googleEmail?: string;
   timeSlots?: string[];
   maxGuestsPerDay?: number;
-  
-  lastSyncTimestamp?: string;
-  lastSyncStatus?: string;
-  syncError?: string;
 }
 
 export interface DailyAvailability {
@@ -30,4 +25,3 @@ export interface DailyAvailability {
   remainingCapacity: number;
   totalCapacity: number;
 }
-

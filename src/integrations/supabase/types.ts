@@ -15,10 +15,7 @@ export type Database = {
           google_email: string | null
           google_refresh_token: string | null
           id: number
-          last_sync_status: string | null
-          last_sync_timestamp: string | null
           max_guests_per_day: number | null
-          sync_error: string | null
           time_slots: string[] | null
           updated_at: string
         }
@@ -27,10 +24,7 @@ export type Database = {
           google_email?: string | null
           google_refresh_token?: string | null
           id?: number
-          last_sync_status?: string | null
-          last_sync_timestamp?: string | null
           max_guests_per_day?: number | null
-          sync_error?: string | null
           time_slots?: string[] | null
           updated_at?: string
         }
@@ -39,10 +33,7 @@ export type Database = {
           google_email?: string | null
           google_refresh_token?: string | null
           id?: number
-          last_sync_status?: string | null
-          last_sync_timestamp?: string | null
           max_guests_per_day?: number | null
-          sync_error?: string | null
           time_slots?: string[] | null
           updated_at?: string
         }
