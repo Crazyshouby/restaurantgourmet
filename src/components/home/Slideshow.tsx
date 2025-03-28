@@ -147,32 +147,51 @@ const Slideshow: React.FC = () => {
             <div className="absolute inset-0 bg-darkblack/50"></div>
           </div>
           
-          {/* Contenu du slide */}
+          {/* Contenu du slide - Déplacé plus haut */}
           <div className="relative z-20 h-full flex flex-col justify-center items-center px-4 text-center">
-            <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
+            <div className="max-w-4xl mx-auto animate-fade-in mt-[-100px] md:mt-[-150px]">
               <span className="inline-block px-4 py-1 border border-gold text-gold text-xs tracking-widest uppercase">
                 Une expérience inoubliable
               </span>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif leading-tight text-cream">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-serif leading-tight text-cream mt-3">
                 {slide.title} <span className="text-gold italic">exceptionnelle</span>
               </h2>
-              <p className="text-cream/80 text-lg font-light leading-relaxed max-w-2xl mx-auto">
+              <p className="text-cream/80 text-lg font-light leading-relaxed max-w-2xl mx-auto mt-3">
                 {slide.subtitle}
               </p>
-              <div className="flex flex-wrap justify-center gap-6 pt-4 mt-4">
-                <Link to="/reservations">
-                  <Button size="lg" className="bg-gold hover:bg-gold/90 text-darkblack rounded-none px-8 font-light tracking-wide text-sm group">
-                    Réserver une table 
-                    <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                  </Button>
-                </Link>
-                <Link to="/menu">
-                  <Button variant="outline" size="lg" className="border-gold text-gold hover:bg-gold/10 rounded-none px-8 font-light tracking-wide text-sm">
-                    Voir le menu
-                  </Button>
-                </Link>
-              </div>
             </div>
+          </div>
+          
+          {/* Nouvelle div pour les boutons positionnés à gauche, alignés avec la carte événement */}
+          <div className="absolute bottom-32 left-6 md:left-12 z-30 animate-fade-in hidden md:block">
+            <div className="flex flex-col gap-4">
+              <Link to="/reservations">
+                <Button size="lg" className="bg-gold hover:bg-gold/90 text-darkblack rounded-none px-8 font-light tracking-wide text-sm group w-full">
+                  Réserver une table 
+                  <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link to="/menu">
+                <Button variant="outline" size="lg" className="border-gold text-gold hover:bg-gold/10 rounded-none px-8 font-light tracking-wide text-sm w-full">
+                  Voir le menu
+                </Button>
+              </Link>
+            </div>
+          </div>
+          
+          {/* Boutons pour mobile, centrés en bas */}
+          <div className="flex flex-wrap justify-center gap-4 absolute bottom-32 left-0 right-0 z-30 px-4 md:hidden">
+            <Link to="/reservations">
+              <Button size="lg" className="bg-gold hover:bg-gold/90 text-darkblack rounded-none px-8 font-light tracking-wide text-sm group">
+                Réserver une table 
+                <ChevronRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <Link to="/menu">
+              <Button variant="outline" size="lg" className="border-gold text-gold hover:bg-gold/10 rounded-none px-8 font-light tracking-wide text-sm">
+                Voir le menu
+              </Button>
+            </Link>
           </div>
         </div>
       ))}
