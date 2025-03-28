@@ -33,8 +33,11 @@ const GoogleSyncStatus: React.FC<GoogleSyncStatusProps> = ({
   const checkCronJob = async () => {
     setLoading(true);
     try {
-      // Cette requête doit être exécutée avec des privilèges élevés (rpc ou fonction)
-      const { data, error } = await supabase.rpc('check_auto_sync_cron_job');
+      // Use RPC call to check for auto-sync CRON job
+      const { data, error } = await supabase.rpc('check_auto_sync_cron_job') as { 
+        data: CronJobInfo[] | null;
+        error: any;
+      };
       
       if (error) {
         console.error("Erreur lors de la vérification de la tâche CRON:", error);
