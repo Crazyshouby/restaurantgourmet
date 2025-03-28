@@ -1,7 +1,7 @@
 
 import { Reservation } from '@/types';
 import { GoogleCalendarService } from '../google-calendar';
-import { ReservationBaseService } from './base-service';
+import { ReservationDbService } from './db-service';
 
 /**
  * Service pour la création de réservations
@@ -35,7 +35,7 @@ export class ReservationCreationService {
       }
       
       // Crée la réservation dans la base de données avec le flag importedFromGoogle
-      return await ReservationBaseService.createReservationInDatabase(
+      return await ReservationDbService.createReservationInDatabase(
         reservation, 
         googleEventId,
         importedFromGoogle

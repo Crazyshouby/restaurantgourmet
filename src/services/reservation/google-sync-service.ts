@@ -1,7 +1,8 @@
 
 import { GoogleCalendarService } from '../google-calendar';
 import { Reservation } from '@/types';
-import { ReservationBaseService } from './base-service';
+import { ReservationUpdateService } from './update-service';
+import { ReservationFetchService } from './fetch-service';
 
 /**
  * Service pour la synchronisation des réservations avec Google Calendar
@@ -48,7 +49,7 @@ export class ReservationGoogleSyncService {
           
           if (success && eventId) {
             // Met à jour la réservation avec l'ID de l'événement Google Calendar
-            const updated = await ReservationBaseService.updateGoogleEventId(reservation.id, eventId);
+            const updated = await ReservationUpdateService.updateGoogleEventId(reservation.id, eventId);
             
             if (updated) {
               syncedCount++;
@@ -94,7 +95,7 @@ export class ReservationGoogleSyncService {
       console.log(`${calendarReservations.length} événements importés depuis Google Calendar`);
       
       // Récupère toutes les réservations existantes
-      const existingReservations = await ReservationBaseService.getReservations();
+      const existingReservations = await ReservationFetchService.getReservations();
       
       let importedCount = 0;
       
@@ -159,5 +160,5 @@ export class ReservationGoogleSyncService {
 
 // Importation supabase pour les requêtes spécifiques
 import { supabase } from '@/integrations/supabase/client';
-// Import cyclique résolu en important à la fin
+// Import pour créer des réservations après importation
 import { ReservationCreationService } from './creation-service';
