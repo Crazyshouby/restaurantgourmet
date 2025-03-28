@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Euro } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { MenuItem } from "@/types/menu";
 import {
   Dialog,
@@ -33,7 +33,7 @@ const MenuItemDetailsDialog: React.FC<MenuItemDetailsDialogProps> = ({
           <DialogTitle className={`${isMobile ? 'text-lg' : 'text-xl'}`}>{item.name}</DialogTitle>
           <DialogDescription className="flex items-center text-sm text-muted-foreground mb-2">
             <span className="font-medium flex items-center">
-              {parseFloat(item.price.toString()).toFixed(2)} <Euro className="ml-1 h-4 w-4" />
+              {parseFloat(item.price.toString()).toFixed(2)} <DollarSign className="ml-1 h-4 w-4" />
             </span>
           </DialogDescription>
         </DialogHeader>
