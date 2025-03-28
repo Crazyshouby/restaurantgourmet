@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,6 +30,31 @@ const SLIDES = [
 const Slideshow: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Configuration des références pour chaque image pour l'effet de parallax
+  useEffect(() => {
+    parallaxRefs.current = parallaxRefs.current.slice(0, SLIDES.length);
+  }, []);
+
+  // Effet de parallax sur le mouvement de la souris
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const x = (clientX / window.innerWidth - 0.5) * 20; // Réduire l'amplitude du mouvement
+      const y = (clientY / window.innerHeight - 0.5) * 20; // Réduire l'amplitude du mouvement
+
+      parallaxRefs.current.forEach((ref, index) => {
+        if (ref && index === currentSlide) {
+          // Appliquer une transformation plus légère pour un effet subtil
+          ref.style.transform = `translate(${-x / 4}px, ${-y / 4}px) scale(1.1)`;
+        }
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [currentSlide]);
 
   // Navigation automatique
   useEffect(() => {
@@ -81,13 +106,17 @@ const Slideshow: React.FC = () => {
             index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0"
           )}
         >
-          {/* Image de fond avec overlay */}
-          <div className="absolute inset-0 w-full h-full">
-            <img
-              src={slide.url}
-              alt={slide.title}
-              className="w-full h-full object-cover"
-            />
+          {/* Image de fond avec overlay et effet parallax */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
+            <div 
+              ref={el => parallaxRefs.current[index] = el}
+              className="w-full h-full transition-transform duration-200 ease-out scale-110"
+              style={{ 
+                backgroundImage: `url(${slide.url})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+            ></div>
             <div className="absolute inset-0 bg-darkblack/50"></div>
           </div>
           
