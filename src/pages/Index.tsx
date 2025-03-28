@@ -80,9 +80,7 @@ const Index = () => {
               ) : (
                 <ReservationForm 
                   selectedDate={selectedDate} 
-                  on
-
-Submit={handleReservationSubmit} 
+                  onSubmit={handleReservationSubmit} 
                   isSubmitting={isLoading} 
                 />
               )}

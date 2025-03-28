@@ -6,6 +6,7 @@ import { GoogleCalendarService } from "@/services/google-calendar";
 import { ReservationService } from "@/services/reservation";
 import { AdminSettings } from "@/types";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { SyncResponse } from "@/services/google-calendar/types";
 
 // Import our component files
 import GoogleIcon from "./google/GoogleIcon";

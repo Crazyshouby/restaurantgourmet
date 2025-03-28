@@ -3,6 +3,7 @@ import { GoogleCalendarService } from '../google-calendar';
 import { Reservation } from '@/types';
 import { ReservationUpdateService } from './update-service';
 import { ReservationFetchService } from './fetch-service';
+import { SyncResponse } from '../google-calendar/types';
 
 /**
  * Service pour la synchronisation des réservations avec Google Calendar
@@ -11,12 +12,12 @@ export class ReservationGoogleSyncService {
   /**
    * Synchronise les réservations existantes avec Google Calendar
    */
-  static async syncWithGoogleCalendar(): Promise<{ success: boolean; syncedCount: number }> {
+  static async syncWithGoogleCalendar(): Promise<SyncResponse> {
     try {
       const isConnected = await GoogleCalendarService.isConnected();
       
       if (!isConnected) {
-        return { success: false, syncedCount: 0 };
+        return { success: false, syncedCount: 0, error: "Google Calendar non connecté" };
       }
       
       // Récupère toutes les réservations non synchronisées
@@ -28,7 +29,7 @@ export class ReservationGoogleSyncService {
       
       if (error) {
         console.error('Erreur lors de la récupération des réservations non synchronisées:', error);
-        return { success: false, syncedCount: 0 };
+        return { success: false, syncedCount: 0, error: error.message };
       }
       
       // Convertit les dates en objets Date
@@ -63,19 +64,19 @@ export class ReservationGoogleSyncService {
       return { success: true, syncedCount };
     } catch (error) {
       console.error('Erreur lors de la synchronisation avec Google Calendar:', error);
-      return { success: false, syncedCount: 0 };
+      return { success: false, syncedCount: 0, error: error instanceof Error ? error.message : 'Erreur inconnue' };
     }
   }
 
   /**
    * Importe les événements de Google Calendar
    */
-  static async importFromGoogleCalendar(): Promise<{ success: boolean; importedCount: number }> {
+  static async importFromGoogleCalendar(): Promise<SyncResponse> {
     try {
       const isConnected = await GoogleCalendarService.isConnected();
       
       if (!isConnected) {
-        return { success: false, importedCount: 0 };
+        return { success: false, importedCount: 0, error: "Google Calendar non connecté" };
       }
       
       // Récupère les événements Google Calendar
@@ -153,7 +154,7 @@ export class ReservationGoogleSyncService {
       return { success: true, importedCount };
     } catch (error) {
       console.error('Erreur lors de l\'importation depuis Google Calendar:', error);
-      return { success: false, importedCount: 0 };
+      return { success: false, importedCount: 0, error: error instanceof Error ? error.message : 'Erreur inconnue' };
     }
   }
 }

@@ -19,13 +19,22 @@ export interface GoogleCalendarAuthResponse {
   success: boolean;
   email?: string;
   token?: string;
+  error?: string;
 }
 
 export interface GoogleCalendarEventResponse {
   success: boolean;
   eventId?: string;
+  error?: string;
 }
 
 export interface GoogleCalendarSettings extends AdminSettings {
   // Types spécifiques pour les paramètres Google Calendar
+}
+
+export interface SyncResponse {
+  success: boolean;
+  syncedCount?: number;
+  importedCount?: number;
+  error?: string;
 }
