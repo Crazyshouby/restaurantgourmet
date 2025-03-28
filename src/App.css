@@ -21,3 +21,41 @@
     animation: logo-spin infinite 20s linear;
   }
 }
+
+/* Animations pour le diaporama */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-image {
+  animation: fade-in 1s ease-out;
+}
+
+.slide-content {
+  animation: slide-up 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+/* Optimisations pour améliorer les performances de rendu */
+.slideshow-container {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
