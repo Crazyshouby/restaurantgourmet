@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronRight, CalendarDays, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { fr } from "date-fns/locale";
 import { useEventsQuery } from "@/hooks/events/useEventsQueries";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import GrainEffect from "@/components/ui/grain-effect";
 
 // Images de haute qualité pour le diaporama
 const SLIDES = [
@@ -149,6 +149,11 @@ const Slideshow: React.FC = () => {
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-darkblack">
+      {/* Grain effect overlay */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        <GrainEffect intensity="medium" className="fixed" />
+      </div>
+      
       {/* Slides */}
       {SLIDES.map((slide, index) => (
         <div
