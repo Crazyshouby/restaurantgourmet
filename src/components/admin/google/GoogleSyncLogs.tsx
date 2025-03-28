@@ -25,12 +25,11 @@ const GoogleSyncLogs: React.FC = () => {
   const fetchSyncLogs = async () => {
     setIsLoading(true);
     try {
-      // Use a raw query to fetch sync_logs since it's not in the TypeScript definition
-      const { data, error } = await supabase
-        .from('sync_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50) as { data: SyncLog[] | null, error: any };
+      // For tables not in the TypeScript definition, use a raw SQL query
+      const { data, error } = await supabase.rpc('get_sync_logs') as { 
+        data: SyncLog[] | null;
+        error: any;
+      };
       
       if (error) throw error;
       
