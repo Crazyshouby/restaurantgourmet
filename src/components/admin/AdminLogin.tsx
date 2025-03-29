@@ -12,7 +12,7 @@ import * as z from "zod";
 import { Lock, User } from "lucide-react";
 
 const loginSchema = z.object({
-  username: z.string().min(2, "Le nom d'utilisateur doit contenir au moins 2 caractères"),
+  email: z.string().email("Email invalide"),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
 });
 
@@ -30,7 +30,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -38,7 +38,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
   const onSubmit = async (values: LoginFormValues) => {
     setIsLoading(true);
     try {
-      const result = await AuthService.signIn(values.username, values.password);
+      const result = await AuthService.signIn(values.email, values.password);
       if (result.success) {
         onOpenChange(false);
         navigate("/admin");
@@ -62,15 +62,15 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-cream">Nom d'utilisateur</FormLabel>
+                  <FormLabel className="text-cream">Email</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-cream/50" />
                       <Input 
-                        placeholder="Nom d'utilisateur" 
+                        placeholder="admin@example.com" 
                         className="pl-10 bg-darkblack/50 border-gold/30 text-cream" 
                         {...field} 
                       />
