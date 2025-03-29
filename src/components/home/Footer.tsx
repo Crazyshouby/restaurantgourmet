@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -35,8 +36,15 @@ const Footer = () => {
         
         <Separator className="my-10 bg-gold/20" />
         
-        <div className="text-center text-sm text-cream/50 font-light">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-cream/50 font-light">
           <p>© {new Date().getFullYear()} Restaurant Gourmet. Tous droits réservés.</p>
+          <Link 
+            to="/admin" 
+            className="mt-4 md:mt-0 text-xs text-cream/30 hover:text-cream/50 transition-colors duration-200"
+            aria-label="Accéder à l'interface d'administration"
+          >
+            Administration
+          </Link>
         </div>
       </div>
     </footer>
