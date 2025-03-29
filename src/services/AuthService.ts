@@ -31,25 +31,48 @@ export const AuthService = {
     }
   },
 
-  signIn: async (email: string, password: string) => {
+  signIn: async (username: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        console.error("Erreur d'authentification:", error.message);
-        toast.error("Échec de connexion", {
-          description: "Email ou mot de passe incorrect."
+      // Vérification spécifique pour l'administrateur
+      if (username === 'webllingtonadmin') {
+        // Utilisation de signInWithPassword avec le nom d'utilisateur comme email
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: username,
+          password
         });
-        return { success: false, error };
-      }
 
-      toast.success("Connexion réussie", {
-        description: "Vous êtes maintenant connecté."
-      });
-      return { success: true, data };
+        if (error) {
+          console.error("Erreur d'authentification admin:", error.message);
+          toast.error("Échec de connexion", {
+            description: "Nom d'utilisateur ou mot de passe incorrect."
+          });
+          return { success: false, error };
+        }
+
+        toast.success("Connexion administrateur réussie", {
+          description: "Vous êtes maintenant connecté en tant qu'administrateur."
+        });
+        return { success: true, data };
+      } else {
+        // Pour d'autres utilisateurs, gestion normale par email
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: username,
+          password
+        });
+
+        if (error) {
+          console.error("Erreur d'authentification:", error.message);
+          toast.error("Échec de connexion", {
+            description: "Email ou mot de passe incorrect."
+          });
+          return { success: false, error };
+        }
+
+        toast.success("Connexion réussie", {
+          description: "Vous êtes maintenant connecté."
+        });
+        return { success: true, data };
+      }
     } catch (error) {
       console.error("Exception lors de l'authentification:", error);
       toast.error("Erreur système", {
