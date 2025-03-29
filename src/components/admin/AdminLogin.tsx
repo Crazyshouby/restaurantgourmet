@@ -5,7 +5,7 @@ import { AuthService } from "@/services/AuthService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -65,7 +65,6 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-cream">Nom d'utilisateur</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-cream/50" />
@@ -86,7 +85,6 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-cream">Mot de passe</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-cream/50" />
