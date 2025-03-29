@@ -70,7 +70,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-cream/50" />
                       <Input 
-                        placeholder="webllingtonadmin" 
+                        placeholder="Nom d'utilisateur" 
                         className="pl-10 bg-darkblack/50 border-gold/30 text-cream" 
                         {...field} 
                       />
