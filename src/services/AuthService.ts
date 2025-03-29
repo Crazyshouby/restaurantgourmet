@@ -31,8 +31,12 @@ export const AuthService = {
     }
   },
 
-  signIn: async (email: string, password: string) => {
+  signIn: async (username: string, password: string) => {
     try {
+      // Pour Supabase, nous devons utiliser un email, donc nous transformons le nom d'utilisateur
+      // en ajoutant un domaine fictif pour créer un format d'email
+      const email = `${username}@admin.restaurant`;
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -41,7 +45,7 @@ export const AuthService = {
       if (error) {
         console.error("Erreur d'authentification:", error.message);
         toast.error("Échec de connexion", {
-          description: "Email ou mot de passe incorrect."
+          description: "Nom d'utilisateur ou mot de passe incorrect."
         });
         return { success: false, error };
       }
