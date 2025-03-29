@@ -29,5 +29,57 @@ export const AuthService = {
       });
       return null;
     }
+  },
+
+  signIn: async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error("Erreur d'authentification:", error.message);
+        toast.error("Échec de connexion", {
+          description: "Email ou mot de passe incorrect."
+        });
+        return { success: false, error };
+      }
+
+      toast.success("Connexion réussie", {
+        description: "Vous êtes maintenant connecté."
+      });
+      return { success: true, data };
+    } catch (error) {
+      console.error("Exception lors de l'authentification:", error);
+      toast.error("Erreur système", {
+        description: "Une erreur est survenue lors de la connexion."
+      });
+      return { success: false, error };
+    }
+  },
+
+  signOut: async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Erreur lors de la déconnexion:", error.message);
+        toast.error("Échec de déconnexion", {
+          description: "Une erreur est survenue lors de la déconnexion."
+        });
+        return false;
+      }
+      
+      toast.success("Déconnexion réussie", {
+        description: "Vous êtes maintenant déconnecté."
+      });
+      return true;
+    } catch (error) {
+      console.error("Exception lors de la déconnexion:", error);
+      toast.error("Erreur système", {
+        description: "Une erreur est survenue lors de la déconnexion."
+      });
+      return false;
+    }
   }
 };
