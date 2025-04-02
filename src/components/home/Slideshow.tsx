@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ChevronRight, CalendarDays, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { fr } from "date-fns/locale";
 import { useEventsQuery } from "@/hooks/events/useEventsQueries";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Images de haute qualité pour le diaporama
 const SLIDES = [
@@ -38,6 +38,7 @@ const Slideshow: React.FC = () => {
   const [showHeroEvent, setShowHeroEvent] = useState(true);
   const parallaxRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { data: events = [], isLoading } = useEventsQuery();
+  const isMobile = useIsMobile();
 
   // Fetch the admin setting
   useEffect(() => {
@@ -221,8 +222,8 @@ const Slideshow: React.FC = () => {
         </div>
       ))}
       
-      {/* Affichage du prochain événement - conditionnellement basé sur le paramètre showHeroEvent */}
-      {nextEvent && showHeroEvent && (
+      {/* Affichage du prochain événement - conditionnellement basé sur le paramètre showHeroEvent et non-mobile */}
+      {nextEvent && showHeroEvent && !isMobile && (
         <div className="absolute bottom-32 right-6 md:right-12 z-30 max-w-xs md:max-w-sm animate-fade-in">
           <Card className="overflow-hidden border border-gold/30 bg-darkblack/80 backdrop-blur-sm text-left shadow-lg hover:shadow-gold/20 transition-all duration-300">
             {/* Ajout de l'image de l'événement */}
