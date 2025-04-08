@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Event } from "@/types/events";
 import EventDialog from "../EventDialog";
@@ -41,22 +41,24 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
-  const handleDeleteConfirm = (eventId: string) => {
+  const handleDeleteConfirm = useCallback((eventId: string) => {
     console.log("Confirming deletion of event:", eventId);
     setIsDeleteLoading(true);
+    
+    // Appeler la fonction de suppression
     onDeleteEvent(eventId);
     
-    // Add a small delay before closing the dialog to allow the animation to complete
+    // Fermer la boîte de dialogue après une courte période
     setTimeout(() => {
       setDeletingEventId(null);
       setIsDeleteLoading(false);
-    }, 300);
-  };
+    }, 500); // Augmenté légèrement pour s'assurer que l'animation a le temps de se terminer
+  }, [onDeleteEvent]);
 
-  const handleDeleteClick = (eventId: string) => {
+  const handleDeleteClick = useCallback((eventId: string) => {
     console.log("Setting deletingEventId to:", eventId);
     setDeletingEventId(eventId);
-  };
+  }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
