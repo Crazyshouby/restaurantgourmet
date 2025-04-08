@@ -20,19 +20,6 @@ export const AuthService = {
   
   getSession: async () => {
     try {
-      // Vérifier d'abord s'il y a une session admin dans localStorage
-      const adminSessionStr = localStorage.getItem('admin_session');
-      if (adminSessionStr) {
-        try {
-          const adminSession = JSON.parse(adminSessionStr);
-          return adminSession;
-        } catch (e) {
-          console.error("Erreur lors du parsing de la session admin:", e);
-          localStorage.removeItem('admin_session');
-        }
-      }
-
-      // Ensuite, vérifier la session Supabase
       const { data: sessionData } = await supabase.auth.getSession();
       return sessionData.session;
     } catch (error) {
@@ -46,60 +33,27 @@ export const AuthService = {
 
   signIn: async (username: string, password: string) => {
     try {
-      console.log("Tentative de connexion avec:", username);
+      // Pour Supabase, nous devons utiliser un email, donc nous transformons le nom d'utilisateur
+      // en ajoutant un domaine fictif pour créer un format d'email
+      const email = `${username}@admin.restaurant`;
       
-      // Admin login spécifique
-      if (username === 'webllington') {
-        console.log("Tentative de connexion admin pour:", username);
-        
-        // Vérifier si le mot de passe est correct
-        if (password !== 'admin') {
-          console.log("Mot de passe admin incorrect");
-          toast.error("Échec de connexion", {
-            description: "Mot de passe incorrect pour l'administrateur."
-          });
-          return { success: false, error: { message: "Mot de passe incorrect" } };
-        }
-        
-        console.log("Authentification admin réussie");
-        // Authentification réussie pour l'administrateur
-        toast.success("Connexion administrateur réussie", {
-          description: "Vous êtes maintenant connecté en tant qu'administrateur."
-        });
-        
-        // Créer une session sans utiliser Supabase Auth
-        const adminSession = {
-          user: {
-            id: 'admin',
-            email: username,
-            role: 'admin'
-          }
-        };
-        
-        // Stocker la session dans localStorage
-        localStorage.setItem('admin_session', JSON.stringify(adminSession));
-        
-        return { success: true, data: adminSession };
-      } else {
-        // Pour les utilisateurs non-administrateurs, authentification normale par email
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: username,
-          password
-        });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-        if (error) {
-          console.error("Erreur d'authentification:", error.message);
-          toast.error("Échec de connexion", {
-            description: "Email ou mot de passe incorrect."
-          });
-          return { success: false, error };
-        }
-
-        toast.success("Connexion réussie", {
-          description: "Vous êtes maintenant connecté."
+      if (error) {
+        console.error("Erreur d'authentification:", error.message);
+        toast.error("Échec de connexion", {
+          description: "Nom d'utilisateur ou mot de passe incorrect."
         });
-        return { success: true, data };
+        return { success: false, error };
       }
+
+      toast.success("Connexion réussie", {
+        description: "Vous êtes maintenant connecté."
+      });
+      return { success: true, data };
     } catch (error) {
       console.error("Exception lors de l'authentification:", error);
       toast.error("Erreur système", {
@@ -111,17 +65,6 @@ export const AuthService = {
 
   signOut: async () => {
     try {
-      // Vérifier si c'est une session admin stockée localement
-      const adminSession = localStorage.getItem('admin_session');
-      if (adminSession) {
-        localStorage.removeItem('admin_session');
-        toast.success("Déconnexion réussie", {
-          description: "Vous êtes maintenant déconnecté."
-        });
-        return true;
-      }
-      
-      // Sinon, déconnexion normale via Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Erreur lors de la déconnexion:", error.message);

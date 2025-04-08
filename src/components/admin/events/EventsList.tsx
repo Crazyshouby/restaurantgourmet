@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Event } from "@/types/events";
 import EventDialog from "./EventDialog";
@@ -12,7 +12,7 @@ interface EventsListProps {
   events: Event[];
   isLoading: boolean;
   onUpdateEvent: (updatedEvent: Event) => void;
-  onDeleteEvent: (eventId: string) => Promise<any>;
+  onDeleteEvent: (eventId: string) => void;
 }
 
 const EventsList: React.FC<EventsListProps> = ({
@@ -21,42 +21,9 @@ const EventsList: React.FC<EventsListProps> = ({
   onUpdateEvent,
   onDeleteEvent
 }) => {
-  // Always declare all hooks at the top level
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   
-  const handleDeleteClick = useCallback((eventId: string) => {
-    console.log("EventCard - Clic sur supprimer pour l'événement:", eventId);
-    setDeletingEventId(eventId);
-  }, []);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingEventId || isDeleting) return;
-    
-    setIsDeleting(true);
-    
-    try {
-      console.log("[LIST] Confirmation de suppression pour l'événement:", deletingEventId);
-      console.log("[LIST] Début de la suppression avec ID:", deletingEventId);
-      
-      await onDeleteEvent(deletingEventId);
-      
-      console.log("[LIST] Suppression réussie");
-    } catch (error) {
-      console.error("[LIST] Erreur lors de la suppression:", error);
-    } finally {
-      setIsDeleting(false);
-      // Ne pas fermer la boîte de dialogue ici, laisser le composant DeleteConfirmationDialog s'en charger
-    }
-  }, [deletingEventId, isDeleting, onDeleteEvent]);
-
-  const handleDeleteDialogClose = useCallback(() => {
-    console.log("[LIST] Fermeture de la boîte de dialogue de suppression");
-    setDeletingEventId(null);
-  }, []);
-
-  // Render loading state
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
@@ -65,7 +32,6 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
-  // Render empty state
   if (events.length === 0) {
     return (
       <div className="text-center py-12 border rounded-md bg-muted/20">
@@ -74,7 +40,17 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
-  // Render events list
+  const handleDeleteConfirm = (eventId: string) => {
+    console.log("Confirming deletion of event:", eventId);
+    onDeleteEvent(eventId);
+    setDeletingEventId(null);
+  };
+
+  const handleDeleteClick = (eventId: string) => {
+    console.log("Setting deletingEventId to:", eventId);
+    setDeletingEventId(eventId);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => (
@@ -106,21 +82,21 @@ const EventsList: React.FC<EventsListProps> = ({
       </EventDialog>
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog 
-        open={!!deletingEventId} 
-        onOpenChange={(open) => {
-          if (!open && !isDeleting) handleDeleteDialogClose();
-        }}
-      >
-        <AlertDialogTrigger className="hidden" />
-        {deletingEventId && (
-          <DeleteConfirmationDialog 
-            eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
-            onConfirm={handleDeleteConfirm}
-            onClose={handleDeleteDialogClose}
-          />
-        )}
-      </AlertDialog>
+      {events.map(event => (
+        <AlertDialog 
+          key={`delete-dialog-${event.id}`}
+          open={deletingEventId === event.id} 
+          onOpenChange={(open) => !open && setDeletingEventId(null)}
+        >
+          <AlertDialogTrigger className="hidden" />
+          {deletingEventId === event.id && (
+            <DeleteConfirmationDialog 
+              eventTitle={event.title}
+              onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            />
+          )}
+        </AlertDialog>
+      ))}
     </div>
   );
 };

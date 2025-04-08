@@ -66,55 +66,25 @@ export const useDeleteEventMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (eventId: string): Promise<string> => {
-      console.log("[MUTATION] Début suppression événement ID:", eventId);
-      
+    mutationFn: async (eventId: string) => {
       const { error } = await supabase
         .from("events")
         .delete()
         .eq("id", eventId);
 
       if (error) {
-        console.error("[MUTATION] Erreur lors de la suppression:", error);
-        throw new Error(`Erreur de suppression: ${error.message}`);
+        console.error("Erreur lors de la suppression de l'événement:", error);
+        throw new Error(error.message);
       }
-      
-      console.log("[MUTATION] Suppression réussie de l'événement ID:", eventId);
+
       return eventId;
     },
-    onMutate: async (eventId) => {
-      // Annuler les requêtes en cours pour éviter les collisions
-      await queryClient.cancelQueries({ queryKey: ["events"] });
-      
-      // Sauvegarder les données précédentes pour les restaurer en cas d'erreur
-      const previousEvents = queryClient.getQueryData<Event[]>(["events"]);
-      
-      // Mettre à jour le cache de manière optimiste
-      queryClient.setQueryData<Event[]>(["events"], (old = []) => {
-        return old.filter(event => event.id !== eventId);
-      });
-      
-      return { previousEvents };
-    },
-    onSuccess: (deletedEventId, _, context) => {
-      console.log("[MUTATION] onSuccess pour l'événement ID:", deletedEventId);
-      
-      // Forcer une invalidation et un refetch complet
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Événement supprimé avec succès");
     },
-    onError: (error, eventId, context) => {
-      console.error("[MUTATION] onError:", error);
-      toast.error(`Échec de la suppression: ${error.message}`);
-      
-      // Restaurer l'état précédent si nous avons une sauvegarde
-      if (context?.previousEvents) {
-        queryClient.setQueryData(["events"], context.previousEvents);
-      }
+    onError: (error) => {
+      toast.error(`Erreur: ${error.message}`);
     },
-    onSettled: () => {
-      // Toujours refetch pour être sûr
-      queryClient.invalidateQueries({ queryKey: ["events"] });
-    }
   });
 };

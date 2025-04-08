@@ -5,15 +5,15 @@ import { AuthService } from "@/services/AuthService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Lock, User } from "lucide-react";
 
 const loginSchema = z.object({
-  username: z.string().min(1, "Nom d'utilisateur requis"),
-  password: z.string().min(1, "Mot de passe requis"),
+  username: z.string().min(2, "Le nom d'utilisateur doit contenir au moins 2 caractères"),
+  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -65,6 +65,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
               name="username"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-cream">Nom d'utilisateur</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-cream/50" />
@@ -85,6 +86,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ open, onOpenChange }) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel className="text-cream">Mot de passe</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-cream/50" />

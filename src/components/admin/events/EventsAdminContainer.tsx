@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -16,7 +16,7 @@ interface EventsAdminContainerProps {
   isLoading: boolean;
   onAddEvent: (newEvent: Omit<Event, "id">) => void;
   onUpdateEvent: (updatedEvent: Event) => void;
-  onDeleteEvent: (eventId: string) => Promise<any>;
+  onDeleteEvent: (eventId: string) => void;
 }
 
 const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
@@ -30,6 +30,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   const [showHeroEvent, setShowHeroEvent] = useState(true);
   const [isToggleLoading, setIsToggleLoading] = useState(false);
 
+  // Fetch the current setting on component mount
   useEffect(() => {
     const fetchSetting = async () => {
       try {
@@ -40,6 +41,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
         
         if (error) throw error;
         
+        // If the setting exists, use it; otherwise default to true
         setShowHeroEvent(data?.show_hero_event ?? true);
       } catch (error) {
         console.error('Error fetching show_hero_event setting:', error);
@@ -49,6 +51,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     fetchSetting();
   }, []);
 
+  // Handle toggle change
   const handleToggleChange = async (checked: boolean) => {
     setIsToggleLoading(true);
     try {
@@ -71,20 +74,6 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
       setIsToggleLoading(false);
     }
   };
-
-  const handleDeleteEvent = useCallback(async (eventId: string) => {
-    console.log("[CONTAINER] Suppression de l'événement:", eventId);
-    
-    try {
-      console.log("[CONTAINER] Appel de onDeleteEvent");
-      const result = await onDeleteEvent(eventId);
-      console.log("[CONTAINER] Suppression réussie, résultat:", result);
-      return result;
-    } catch (error) {
-      console.error("[CONTAINER] Erreur lors de la suppression:", error);
-      throw error; // Propager l'erreur pour que DeleteConfirmationDialog puisse la gérer
-    }
-  }, [onDeleteEvent]);
 
   return (
     <div className="space-y-6">
@@ -109,7 +98,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
         events={events} 
         isLoading={isLoading}
         onUpdateEvent={onUpdateEvent}
-        onDeleteEvent={handleDeleteEvent}
+        onDeleteEvent={onDeleteEvent}
       />
 
       <EventDialog 
