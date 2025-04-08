@@ -23,7 +23,8 @@ export const useEventsOperations = () => {
 
   const deleteEvent = (eventId: string) => {
     console.log("useEventsOperations - Appel de deleteEventMutation.mutate avec ID:", eventId);
-    return deleteEventMutation.mutate(eventId);
+    // Use mutateAsync instead of mutate to properly handle the Promise
+    return deleteEventMutation.mutateAsync(eventId);
   };
 
   return {

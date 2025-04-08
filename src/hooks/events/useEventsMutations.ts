@@ -69,25 +69,37 @@ export const useDeleteEventMutation = () => {
     mutationFn: async (eventId: string) => {
       console.log("Mutation - Début de suppression de l'événement avec ID:", eventId);
       
-      const { error } = await supabase
-        .from("events")
-        .delete()
-        .eq("id", eventId);
-
-      if (error) {
-        console.error("Erreur lors de la suppression de l'événement:", error);
-        throw new Error(error.message);
+      if (!eventId) {
+        console.error("Erreur: ID d'événement manquant");
+        throw new Error("ID d'événement manquant");
       }
       
-      console.log("Mutation - Événement supprimé avec succès de la base de données");
-      return eventId;
+      try {
+        const { error } = await supabase
+          .from("events")
+          .delete()
+          .eq("id", eventId);
+
+        if (error) {
+          console.error("Erreur lors de la suppression de l'événement:", error);
+          throw new Error(error.message);
+        }
+        
+        console.log("Mutation - Événement supprimé avec succès de la base de données");
+        return eventId;
+      } catch (error: any) {
+        console.error("Exception lors de la suppression de l'événement:", error);
+        throw error;
+      }
     },
     onSuccess: (deletedEventId) => {
       console.log("Mutation - Callback onSuccess appelé avec ID:", deletedEventId);
+      // Force a complete refetch rather than just invalidating
+      queryClient.removeQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Événement supprimé avec succès");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Mutation - Erreur dans la mutation de suppression:", error);
       toast.error(`Erreur: ${error.message}`);
     },

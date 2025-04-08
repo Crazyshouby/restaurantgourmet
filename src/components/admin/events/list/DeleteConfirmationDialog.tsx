@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import {
   AlertDialogContent,
   AlertDialogHeader,
@@ -19,6 +19,15 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
   eventTitle, 
   onConfirm 
 }) => {
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirm = () => {
+    if (!isDeleting) {
+      setIsDeleting(true);
+      onConfirm();
+    }
+  };
+
   return (
     <AlertDialogContent>
       <AlertDialogHeader>
@@ -29,8 +38,11 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Annuler</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm}>
-          Supprimer
+        <AlertDialogAction 
+          onClick={handleConfirm}
+          disabled={isDeleting}
+        >
+          {isDeleting ? "Suppression..." : "Supprimer"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

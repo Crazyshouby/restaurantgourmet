@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +29,6 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   const [showHeroEvent, setShowHeroEvent] = useState(true);
   const [isToggleLoading, setIsToggleLoading] = useState(false);
 
-  // Fetch the current setting on component mount
   useEffect(() => {
     const fetchSetting = async () => {
       try {
@@ -41,7 +39,6 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
         
         if (error) throw error;
         
-        // If the setting exists, use it; otherwise default to true
         setShowHeroEvent(data?.show_hero_event ?? true);
       } catch (error) {
         console.error('Error fetching show_hero_event setting:', error);
@@ -51,7 +48,6 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     fetchSetting();
   }, []);
 
-  // Handle toggle change
   const handleToggleChange = async (checked: boolean) => {
     setIsToggleLoading(true);
     try {
@@ -75,9 +71,14 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     }
   };
 
-  const handleDeleteEvent = (eventId: string) => {
+  const handleDeleteEvent = async (eventId: string) => {
     console.log("EventsAdminContainer - Appel de onDeleteEvent avec ID:", eventId);
-    onDeleteEvent(eventId);
+    try {
+      await onDeleteEvent(eventId);
+      console.log("EventsAdminContainer - Suppression réussie pour l'ID:", eventId);
+    } catch (error) {
+      console.error("EventsAdminContainer - Erreur lors de la suppression:", error);
+    }
   };
 
   return (
