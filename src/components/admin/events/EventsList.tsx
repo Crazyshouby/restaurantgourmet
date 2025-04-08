@@ -23,6 +23,7 @@ const EventsList: React.FC<EventsListProps> = ({
 }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   
   if (isLoading) {
     return (
@@ -42,8 +43,14 @@ const EventsList: React.FC<EventsListProps> = ({
 
   const handleDeleteConfirm = (eventId: string) => {
     console.log("Confirming deletion of event:", eventId);
+    setIsDeleteLoading(true);
     onDeleteEvent(eventId);
-    setDeletingEventId(null);
+    
+    // Add a small delay before closing the dialog to allow the animation to complete
+    setTimeout(() => {
+      setDeletingEventId(null);
+      setIsDeleteLoading(false);
+    }, 300);
   };
 
   const handleDeleteClick = (eventId: string) => {
@@ -91,6 +98,7 @@ const EventsList: React.FC<EventsListProps> = ({
           <DeleteConfirmationDialog 
             eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
             onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            isLoading={isDeleteLoading}
           />
         )}
       </AlertDialog>
