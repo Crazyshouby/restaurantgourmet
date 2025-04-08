@@ -1,12 +1,12 @@
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Event } from "@/types/events";
-import EventDialog from "./EventDialog";
-import EventForm from "./EventForm";
+import EventDialog from "../EventDialog";
+import EventForm from "../EventForm";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
-import EventCard from "./list/EventCard";
-import DeleteConfirmationDialog from "./list/DeleteConfirmationDialog";
+import EventCard from "./EventCard";
+import DeleteConfirmationDialog from "./DeleteConfirmationDialog";
 
 interface EventsListProps {
   events: Event[];
@@ -23,37 +23,7 @@ const EventsList: React.FC<EventsListProps> = ({
 }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
-  const [isDeletingEvent, setIsDeletingEvent] = useState(false);
-  
-  // Handlers avec useCallback pour éviter des re-rendus inutiles
-  const handleEditClick = useCallback((event: Event) => {
-    setEditingEvent(event);
-  }, []);
-  
-  const handleDeleteClick = useCallback((eventId: string) => {
-    console.log("Setting deletingEventId to:", eventId);
-    setDeletingEventId(eventId);
-  }, []);
-
-  const handleDeleteConfirm = useCallback((eventId: string) => {
-    if (!eventId) return;
-    
-    console.log("Confirming deletion of event:", eventId);
-    setIsDeletingEvent(true);
-    
-    try {
-      onDeleteEvent(eventId);
-      
-      // Fermer la boîte de dialogue après une courte période
-      setTimeout(() => {
-        setDeletingEventId(null);
-        setIsDeletingEvent(false);
-      }, 300);
-    } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      setIsDeletingEvent(false);
-    }
-  }, [onDeleteEvent]);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   
   if (isLoading) {
     return (
@@ -71,13 +41,30 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
+  const handleDeleteConfirm = (eventId: string) => {
+    console.log("Confirming deletion of event:", eventId);
+    setIsDeleteLoading(true);
+    onDeleteEvent(eventId);
+    
+    // Add a small delay before closing the dialog to allow the animation to complete
+    setTimeout(() => {
+      setDeletingEventId(null);
+      setIsDeleteLoading(false);
+    }, 300);
+  };
+
+  const handleDeleteClick = (eventId: string) => {
+    console.log("Setting deletingEventId to:", eventId);
+    setDeletingEventId(eventId);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => (
         <EventCard 
           key={event.id}
           event={event}
-          onEdit={() => handleEditClick(event)}
+          onEdit={() => setEditingEvent(event)}
           onDeleteClick={handleDeleteClick}
         />
       ))}
@@ -111,7 +98,7 @@ const EventsList: React.FC<EventsListProps> = ({
           <DeleteConfirmationDialog 
             eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
             onConfirm={() => handleDeleteConfirm(deletingEventId)}
-            isLoading={isDeletingEvent}
+            isLoading={isDeleteLoading}
           />
         )}
       </AlertDialog>
