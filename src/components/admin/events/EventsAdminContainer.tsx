@@ -75,6 +75,11 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     }
   };
 
+  const handleDeleteEvent = (eventId: string) => {
+    console.log("EventsAdminContainer - Appel de onDeleteEvent avec ID:", eventId);
+    onDeleteEvent(eventId);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between gap-4">
@@ -98,7 +103,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
         events={events} 
         isLoading={isLoading}
         onUpdateEvent={onUpdateEvent}
-        onDeleteEvent={onDeleteEvent}
+        onDeleteEvent={handleDeleteEvent}
       />
 
       <EventDialog 

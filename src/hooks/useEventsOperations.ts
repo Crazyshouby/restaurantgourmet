@@ -22,6 +22,7 @@ export const useEventsOperations = () => {
   };
 
   const deleteEvent = (eventId: string) => {
+    console.log("useEventsOperations - Appel de deleteEventMutation.mutate avec ID:", eventId);
     return deleteEventMutation.mutate(eventId);
   };
 

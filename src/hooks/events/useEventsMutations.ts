@@ -67,7 +67,7 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      console.log("Deleting event with ID:", eventId);
+      console.log("Mutation - Début de suppression de l'événement avec ID:", eventId);
       
       const { error } = await supabase
         .from("events")
@@ -78,16 +78,17 @@ export const useDeleteEventMutation = () => {
         console.error("Erreur lors de la suppression de l'événement:", error);
         throw new Error(error.message);
       }
-
+      
+      console.log("Mutation - Événement supprimé avec succès de la base de données");
       return eventId;
     },
     onSuccess: (deletedEventId) => {
-      console.log("Event successfully deleted:", deletedEventId);
+      console.log("Mutation - Callback onSuccess appelé avec ID:", deletedEventId);
       queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
-      console.error("Error in delete mutation:", error);
+      console.error("Mutation - Erreur dans la mutation de suppression:", error);
       toast.error(`Erreur: ${error.message}`);
     },
   });

@@ -81,7 +81,7 @@ const EventCard: React.FC<EventCardProps> = ({
             variant="outline" 
             size="sm"
             onClick={() => {
-              console.log("Attempting to delete event:", event.id);
+              console.log("EventCard - Clic sur supprimer pour l'événement:", event.id);
               onDeleteClick(event.id);
             }}
           >

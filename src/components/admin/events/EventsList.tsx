@@ -40,17 +40,18 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
+  const handleDeleteClick = (eventId: string) => {
+    console.log("EventsList - Début du processus de suppression pour l'événement:", eventId);
+    setDeletingEventId(eventId);
+  };
+
   const handleDeleteConfirm = () => {
-    console.log("Confirming deletion of event:", deletingEventId);
+    console.log("EventsList - Confirmation de suppression pour l'événement:", deletingEventId);
     if (deletingEventId) {
+      console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
       onDeleteEvent(deletingEventId);
       setDeletingEventId(null);
     }
-  };
-
-  const handleDeleteClick = (eventId: string) => {
-    console.log("Setting deletingEventId to:", eventId);
-    setDeletingEventId(eventId);
   };
 
   return (
