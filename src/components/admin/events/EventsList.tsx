@@ -23,7 +23,6 @@ const EventsList: React.FC<EventsListProps> = ({
 }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
   
   if (isLoading) {
     return (
@@ -48,19 +47,14 @@ const EventsList: React.FC<EventsListProps> = ({
 
   const handleDeleteConfirm = async () => {
     console.log("EventsList - Confirmation de suppression pour l'événement:", deletingEventId);
-    if (deletingEventId && !isDeleting) {
-      try {
-        setIsDeleting(true);
-        console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
-        await onDeleteEvent(deletingEventId);
-        console.log("EventsList - Suppression réussie, réinitialisation de l'état");
-      } catch (error) {
-        console.error("EventsList - Erreur lors de la suppression:", error);
-      } finally {
-        setDeletingEventId(null);
-        setIsDeleting(false);
-      }
+    if (deletingEventId) {
+      console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
+      await onDeleteEvent(deletingEventId);
     }
+  };
+
+  const handleDeleteDialogClose = () => {
+    setDeletingEventId(null);
   };
 
   return (
@@ -103,6 +97,7 @@ const EventsList: React.FC<EventsListProps> = ({
           <DeleteConfirmationDialog 
             eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
             onConfirm={handleDeleteConfirm}
+            onClose={handleDeleteDialogClose}
           />
         )}
       </AlertDialog>

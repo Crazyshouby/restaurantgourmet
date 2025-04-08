@@ -9,7 +9,7 @@ import { Event } from "@/types/events";
 import { toast } from "sonner";
 
 export const useEventsOperations = () => {
-  const { data: events = [], isLoading, error } = useEventsQuery();
+  const { data: events = [], isLoading, error, refetch } = useEventsQuery();
   const addEventMutation = useAddEventMutation();
   const updateEventMutation = useUpdateEventMutation();
   const deleteEventMutation = useDeleteEventMutation();
@@ -32,14 +32,17 @@ export const useEventsOperations = () => {
     }
     
     try {
-      // Utilisation directe de la mutation asynchrone et retour de la promesse
       const result = await deleteEventMutation.mutateAsync(eventId);
       console.log("useEventsOperations - Suppression réussie, résultat:", result);
+      
+      // Force refresh explicite après suppression
+      await refetch();
+      
       return result;
     } catch (error: any) {
       console.error("useEventsOperations - Erreur lors de la suppression:", error);
       toast.error(`Erreur lors de la suppression: ${error.message || "Erreur inconnue"}`);
-      throw error; // Propagation de l'erreur pour traitement ultérieur
+      throw error;
     }
   };
 
@@ -50,5 +53,6 @@ export const useEventsOperations = () => {
     addEvent,
     updateEvent,
     deleteEvent,
+    refetch, // Exporter refetch pour permettre des rafraîchissements manuels
   };
 };
