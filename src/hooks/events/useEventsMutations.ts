@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/events";
@@ -66,6 +67,8 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
+      console.log("Deleting event with ID:", eventId);
+      
       const { error } = await supabase
         .from("events")
         .delete()
@@ -78,11 +81,13 @@ export const useDeleteEventMutation = () => {
 
       return eventId;
     },
-    onSuccess: () => {
+    onSuccess: (deletedEventId) => {
+      console.log("Event successfully deleted:", deletedEventId);
       queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
+      console.error("Error in delete mutation:", error);
       toast.error(`Erreur: ${error.message}`);
     },
   });

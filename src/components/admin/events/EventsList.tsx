@@ -40,10 +40,10 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
-  const handleDeleteConfirm = (eventId: string) => {
-    console.log("Confirming deletion of event:", eventId);
-    if (eventId) {
-      onDeleteEvent(eventId);
+  const handleDeleteConfirm = () => {
+    console.log("Confirming deletion of event:", deletingEventId);
+    if (deletingEventId) {
+      onDeleteEvent(deletingEventId);
       setDeletingEventId(null);
     }
   };
@@ -92,7 +92,7 @@ const EventsList: React.FC<EventsListProps> = ({
         {deletingEventId && (
           <DeleteConfirmationDialog 
             eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
-            onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            onConfirm={handleDeleteConfirm}
           />
         )}
       </AlertDialog>
