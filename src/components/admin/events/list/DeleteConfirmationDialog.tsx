@@ -32,12 +32,11 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
     try {
       await onConfirm();
       console.log("DeleteConfirmationDialog - Suppression terminée avec succès");
-      // Fermer explicitement le dialogue après succès
-      onClose();
+      onClose(); // Fermer explicitement la boîte de dialogue
     } catch (error) {
       console.error("DeleteConfirmationDialog - Erreur lors de la suppression:", error);
     } finally {
-      setIsDeleting(false); // Réinitialiser l'état même en cas de succès
+      setIsDeleting(false);
     }
   };
 

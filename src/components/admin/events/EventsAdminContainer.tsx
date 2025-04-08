@@ -29,7 +29,6 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showHeroEvent, setShowHeroEvent] = useState(true);
   const [isToggleLoading, setIsToggleLoading] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchSetting = async () => {
@@ -74,21 +73,15 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    console.log("EventsAdminContainer - Début de suppression pour ID:", eventId);
-    
-    if (isDeleting) {
-      console.log("EventsAdminContainer - Suppression déjà en cours, ignore");
-      return;
-    }
+    console.log("EventsAdminContainer - Suppression de l'événement:", eventId);
     
     try {
-      setIsDeleting(true);
       await onDeleteEvent(eventId);
-      console.log("EventsAdminContainer - Suppression réussie pour ID:", eventId);
+      console.log("EventsAdminContainer - Suppression réussie");
+      return true;
     } catch (error) {
       console.error("EventsAdminContainer - Erreur lors de la suppression:", error);
-    } finally {
-      setIsDeleting(false);
+      return false;
     }
   };
 

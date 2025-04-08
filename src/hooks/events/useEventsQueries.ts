@@ -19,5 +19,7 @@ export const useEventsQuery = () => {
 
       return data || [];
     },
+    refetchOnMount: true, // Force le rafraîchissement lors du montage
+    refetchOnWindowFocus: true, // Force le rafraîchissement lors de la reprise de focus
   });
 };

@@ -12,7 +12,7 @@ interface EventsListProps {
   events: Event[];
   isLoading: boolean;
   onUpdateEvent: (updatedEvent: Event) => void;
-  onDeleteEvent: (eventId: string) => void;
+  onDeleteEvent: (eventId: string) => Promise<any>;
 }
 
 const EventsList: React.FC<EventsListProps> = ({
@@ -41,19 +41,25 @@ const EventsList: React.FC<EventsListProps> = ({
   }
 
   const handleDeleteClick = (eventId: string) => {
-    console.log("EventsList - Début du processus de suppression pour l'événement:", eventId);
+    console.log("EventsList - Clic sur supprimer pour l'événement:", eventId);
     setDeletingEventId(eventId);
   };
 
   const handleDeleteConfirm = async () => {
     console.log("EventsList - Confirmation de suppression pour l'événement:", deletingEventId);
     if (deletingEventId) {
-      console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
-      await onDeleteEvent(deletingEventId);
+      try {
+        console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
+        await onDeleteEvent(deletingEventId);
+        console.log("EventsList - Suppression réussie");
+      } catch (error) {
+        console.error("EventsList - Erreur lors de la suppression:", error);
+      }
     }
   };
 
   const handleDeleteDialogClose = () => {
+    console.log("EventsList - Fermeture de la boîte de dialogue de suppression");
     setDeletingEventId(null);
   };
 
@@ -90,7 +96,9 @@ const EventsList: React.FC<EventsListProps> = ({
       {/* Dialog de confirmation de suppression */}
       <AlertDialog 
         open={!!deletingEventId} 
-        onOpenChange={(open) => !open && setDeletingEventId(null)}
+        onOpenChange={(open) => {
+          if (!open) handleDeleteDialogClose();
+        }}
       >
         <AlertDialogTrigger className="hidden" />
         {deletingEventId && (

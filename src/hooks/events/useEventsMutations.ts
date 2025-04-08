@@ -67,40 +67,38 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string): Promise<string> => {
-      console.log("Mutation - Début de suppression avec ID:", eventId);
+      console.log("Mutation - Suppression de l'événement:", eventId);
       
-      // Suppression dans Supabase avec le retour d'erreur complet
+      // Supprimer complètement de Supabase
       const { error } = await supabase
         .from("events")
         .delete()
         .eq("id", eventId);
 
       if (error) {
-        console.error("Erreur Supabase lors de la suppression:", error);
-        throw new Error(error.message);
+        console.error("Erreur lors de la suppression:", error);
+        throw new Error(`Erreur de suppression: ${error.message}`);
       }
       
-      console.log("Mutation - Suppression réussie dans Supabase pour ID:", eventId);
       return eventId;
     },
     onSuccess: (deletedEventId) => {
-      console.log("Mutation - onSuccess avec ID:", deletedEventId);
+      console.log("Mutation - Suppression réussie pour ID:", deletedEventId);
       
-      // Optimistically remove the deleted event from the cache
+      // Mettre à jour le cache immédiatement (optimistic update)
       queryClient.setQueryData(["events"], (oldEvents: Event[] | undefined) => {
         if (!oldEvents) return [];
-        console.log("Filtering out event:", deletedEventId, "from events:", oldEvents.length);
         return oldEvents.filter(event => event.id !== deletedEventId);
       });
       
-      // Force a complete refresh
+      // Forcer une invalidation complète du cache pour un rafraîchissement
       queryClient.invalidateQueries({ queryKey: ["events"] });
       
       toast.success("Événement supprimé avec succès");
     },
-    onError: (error: Error) => {
-      console.error("Mutation - Erreur dans onError:", error);
-      toast.error(`Erreur de suppression: ${error.message}`);
+    onError: (error) => {
+      console.error("Erreur dans onError:", error);
+      toast.error(`Échec de la suppression: ${error.message}`);
     },
   });
 };
