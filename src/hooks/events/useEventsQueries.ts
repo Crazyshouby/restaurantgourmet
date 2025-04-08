@@ -23,8 +23,9 @@ export const useEventsQuery = () => {
       return data || [];
     },
     staleTime: 0, // Considérer les données comme immédiatement périmées
-    refetchOnMount: true,
+    refetchOnMount: "always", // Toujours rafraîchir au montage
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+    retry: 2, // Réessayer 2 fois en cas d'échec
   });
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AlertDialogContent,
   AlertDialogHeader,
@@ -22,6 +22,20 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
   onClose
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  // Assurer la fermeture automatique après une suppression réussie
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (isSuccess) {
+      timeoutId = setTimeout(() => {
+        onClose();
+      }, 300);
+    }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [isSuccess, onClose]);
 
   const handleConfirm = async () => {
     if (isDeleting) return;
@@ -32,15 +46,19 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
     try {
       await onConfirm();
       console.log("[DIALOG] Suppression terminée avec succès");
+      setIsSuccess(true);
     } catch (error) {
       console.error("[DIALOG] Erreur lors de la suppression:", error);
+      setIsSuccess(false);
+      // Ne pas fermer automatiquement en cas d'erreur
     } finally {
       setIsDeleting(false);
-      onClose(); // Fermer la boîte de dialogue dans tous les cas
+      // Ne pas fermer ici, attendre l'effet pour la fermeture automatique
     }
   };
 
   const handleCancel = () => {
+    if (isDeleting) return; // Empêcher l'annulation pendant la suppression
     console.log("[DIALOG] Annulation de la suppression");
     onClose();
   };

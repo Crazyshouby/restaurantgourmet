@@ -82,23 +82,39 @@ export const useDeleteEventMutation = () => {
       console.log("[MUTATION] Suppression réussie de l'événement ID:", eventId);
       return eventId;
     },
-    onSuccess: (deletedEventId) => {
-      console.log("[MUTATION] onSuccess pour l'événement ID:", deletedEventId);
+    onMutate: async (eventId) => {
+      // Annuler les requêtes en cours pour éviter les collisions
+      await queryClient.cancelQueries({ queryKey: ["events"] });
       
-      // Mise à jour optimiste du cache
-      queryClient.setQueryData(["events"], (oldEvents: Event[] | undefined) => {
-        if (!oldEvents) return [];
-        return oldEvents.filter(event => event.id !== deletedEventId);
+      // Sauvegarder les données précédentes pour les restaurer en cas d'erreur
+      const previousEvents = queryClient.getQueryData<Event[]>(["events"]);
+      
+      // Mettre à jour le cache de manière optimiste
+      queryClient.setQueryData<Event[]>(["events"], (old = []) => {
+        return old.filter(event => event.id !== eventId);
       });
       
-      // Invalidation complète pour forcer le rafraîchissement
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+      return { previousEvents };
+    },
+    onSuccess: (deletedEventId, _, context) => {
+      console.log("[MUTATION] onSuccess pour l'événement ID:", deletedEventId);
       
+      // Forcer une invalidation et un refetch complet
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       toast.success("Événement supprimé avec succès");
     },
-    onError: (error) => {
+    onError: (error, eventId, context) => {
       console.error("[MUTATION] onError:", error);
       toast.error(`Échec de la suppression: ${error.message}`);
+      
+      // Restaurer l'état précédent si nous avons une sauvegarde
+      if (context?.previousEvents) {
+        queryClient.setQueryData(["events"], context.previousEvents);
+      }
     },
+    onSettled: () => {
+      // Toujours refetch pour être sûr
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+    }
   });
 };

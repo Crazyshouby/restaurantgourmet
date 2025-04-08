@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -72,19 +72,19 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     }
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
+  const handleDeleteEvent = useCallback(async (eventId: string) => {
     console.log("[CONTAINER] Suppression de l'événement:", eventId);
     
     try {
       console.log("[CONTAINER] Appel de onDeleteEvent");
       const result = await onDeleteEvent(eventId);
       console.log("[CONTAINER] Suppression réussie, résultat:", result);
-      return true;
+      return result;
     } catch (error) {
       console.error("[CONTAINER] Erreur lors de la suppression:", error);
-      return false;
+      throw error; // Propager l'erreur pour que DeleteConfirmationDialog puisse la gérer
     }
-  };
+  }, [onDeleteEvent]);
 
   return (
     <div className="space-y-6">

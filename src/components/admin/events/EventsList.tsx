@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Event } from "@/types/events";
 import EventDialog from "./EventDialog";
@@ -41,36 +41,35 @@ const EventsList: React.FC<EventsListProps> = ({
     );
   }
 
-  const handleDeleteClick = (eventId: string) => {
-    console.log("[LIST] Clic sur supprimer pour l'événement:", eventId);
+  const handleDeleteClick = useCallback((eventId: string) => {
+    console.log("EventCard - Clic sur supprimer pour l'événement:", eventId);
     setDeletingEventId(eventId);
-  };
+  }, []);
 
   const handleDeleteConfirm = async () => {
-    console.log("[LIST] Confirmation de suppression pour l'événement:", deletingEventId);
-    
-    if (!deletingEventId || isDeleting) {
-      console.log("[LIST] Annulé: Pas d'ID ou suppression déjà en cours");
-      return;
-    }
+    if (!deletingEventId || isDeleting) return;
     
     setIsDeleting(true);
     
     try {
+      console.log("[LIST] Confirmation de suppression pour l'événement:", deletingEventId);
       console.log("[LIST] Début de la suppression avec ID:", deletingEventId);
+      
       await onDeleteEvent(deletingEventId);
+      
       console.log("[LIST] Suppression réussie");
     } catch (error) {
       console.error("[LIST] Erreur lors de la suppression:", error);
     } finally {
       setIsDeleting(false);
+      // Ne pas fermer la boîte de dialogue ici, laisser le composant DeleteConfirmationDialog s'en charger
     }
   };
 
-  const handleDeleteDialogClose = () => {
+  const handleDeleteDialogClose = useCallback(() => {
     console.log("[LIST] Fermeture de la boîte de dialogue de suppression");
     setDeletingEventId(null);
-  };
+  }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -106,7 +105,7 @@ const EventsList: React.FC<EventsListProps> = ({
       <AlertDialog 
         open={!!deletingEventId} 
         onOpenChange={(open) => {
-          if (!open) handleDeleteDialogClose();
+          if (!open && !isDeleting) handleDeleteDialogClose();
         }}
       >
         <AlertDialogTrigger className="hidden" />
