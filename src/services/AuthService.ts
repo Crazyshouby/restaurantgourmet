@@ -33,28 +33,50 @@ export const AuthService = {
 
   signIn: async (username: string, password: string) => {
     try {
-      // Vérification des identifiants pour l'administrateur
-      if (username === 'webllingtonadmin' || username === 'webllingtonpass') {
-        // Utilisation de signInWithPassword avec le nom d'utilisateur comme email
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: username,
-          password
-        });
+      // Vérifier si l'utilisateur est un administrateur dans la table admin_users
+      const { data: adminUser, error: adminError } = await supabase
+        .from('admin_users')
+        .select('username')
+        .eq('username', username)
+        .single();
 
-        if (error) {
-          console.error("Erreur d'authentification admin:", error.message);
+      if (adminError && adminError.code !== 'PGRST116') {
+        console.error("Erreur lors de la vérification de l'administrateur:", adminError.message);
+        toast.error("Erreur d'authentification", {
+          description: "Une erreur est survenue lors de la vérification des identifiants."
+        });
+        return { success: false, error: adminError };
+      }
+
+      // Si l'utilisateur est un administrateur, procéder à l'authentification
+      if (adminUser) {
+        if (password !== 'admin') {
           toast.error("Échec de connexion", {
-            description: "Nom d'utilisateur ou mot de passe incorrect."
+            description: "Mot de passe incorrect pour l'administrateur."
           });
-          return { success: false, error };
+          return { success: false, error: { message: "Mot de passe incorrect" } };
         }
 
+        // Authentification réussie pour l'administrateur
         toast.success("Connexion administrateur réussie", {
           description: "Vous êtes maintenant connecté en tant qu'administrateur."
         });
-        return { success: true, data };
+        
+        // Créer une session sans utiliser Supabase Auth
+        const adminSession = {
+          user: {
+            id: 'admin',
+            email: username,
+            role: 'admin'
+          }
+        };
+        
+        // Stocker la session dans localStorage
+        localStorage.setItem('admin_session', JSON.stringify(adminSession));
+        
+        return { success: true, data: adminSession };
       } else {
-        // Pour d'autres utilisateurs, gestion normale par email
+        // Pour les utilisateurs non-administrateurs, authentification normale par email
         const { data, error } = await supabase.auth.signInWithPassword({
           email: username,
           password
@@ -84,6 +106,17 @@ export const AuthService = {
 
   signOut: async () => {
     try {
+      // Vérifier si c'est une session admin stockée localement
+      const adminSession = localStorage.getItem('admin_session');
+      if (adminSession) {
+        localStorage.removeItem('admin_session');
+        toast.success("Déconnexion réussie", {
+          description: "Vous êtes maintenant déconnecté."
+        });
+        return true;
+      }
+      
+      // Sinon, déconnexion normale via Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Erreur lors de la déconnexion:", error.message);
