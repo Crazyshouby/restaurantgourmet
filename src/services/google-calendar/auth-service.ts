@@ -30,19 +30,19 @@ export class GoogleCalendarAuthService {
       
       if (error) {
         console.error('Erreur lors de la connexion à Google OAuth:', error);
-        return { success: false, error: error.message };
+        return { success: false };
       }
       
       console.log('Redirection OAuth initiée avec succès');
       return { success: true };
     } catch (error) {
       console.error('Exception lors de la connexion à Google:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Erreur inconnue' };
+      return { success: false };
     }
   }
 
   // Déconnecte l'utilisateur de Google Calendar
-  static async disconnect(): Promise<{ success: boolean; error?: string }> {
+  static async disconnect(): Promise<{ success: boolean }> {
     try {
       // D'abord, signOut uniquement pour les sessions Google
       await supabase.auth.signOut();
@@ -59,13 +59,13 @@ export class GoogleCalendarAuthService {
       
       if (error) {
         console.error('Erreur lors de la déconnexion de Google:', error);
-        return { success: false, error: error.message };
+        return { success: false };
       }
       
       return { success: true };
     } catch (error) {
       console.error('Erreur lors de la déconnexion de Google:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Erreur inconnue' };
+      return { success: false };
     }
   }
 

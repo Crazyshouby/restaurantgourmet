@@ -24,7 +24,6 @@ const GoogleConnectionToggle: React.FC<GoogleConnectionToggleProps> = ({
         id="google-sync" 
         checked={isConnected}
         disabled={isLoading}
-        className={isConnected ? "data-[state=checked]:bg-green-500" : ""}
         onCheckedChange={(checked) => {
           if (checked) {
             onConnect();

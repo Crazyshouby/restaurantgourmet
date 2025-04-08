@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Edit, Trash2, DollarSign } from "lucide-react";
+import { Edit, Trash2, Euro } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -54,7 +54,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
       
       <CardFooter className="flex justify-between p-4 pt-0 items-center">
         <span className="font-medium flex items-center">
-          {item.price.toFixed(2)} <DollarSign className="ml-1 h-4 w-4" />
+          {item.price.toFixed(2)} <Euro className="ml-1 h-4 w-4" />
         </span>
         <div className="flex gap-2">
           <Button 

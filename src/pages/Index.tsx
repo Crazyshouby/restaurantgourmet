@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, lazy, Suspense } from "react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import ReservationCalendar from "@/components/ReservationCalendar";
 import ReservationForm from "@/components/ReservationForm";
@@ -8,79 +8,54 @@ import { InfoIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import Layout from "@/components/home/Layout";
-import { ReservationService } from "@/services/reservation";
-import { useLoadingState } from "@/hooks/useLoadingState";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { ReservationService } from "@/services/ReservationService";
 
-// SEO metadata
-const SEO = {
-  title: "Réservez votre table - Restaurant Reserv",
-  description: "Réservez facilement une table dans notre restaurant. Quelques clics suffisent pour garantir votre place.",
-  keywords: "réservation restaurant, table, dîner, gastronomie"
-};
-
-// Composant optimisé pour les performances
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const { isLoading, withLoading } = useLoadingState();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Mettre à jour le titre de la page pour le SEO
-  React.useEffect(() => {
-    document.title = SEO.title;
-    
-    // Ajouter les meta tags pour le SEO
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", SEO.description);
+  const handleReservationSubmit = async (formData: any) => {
+    setIsSubmitting(true);
+    try {
+      // Appel à Supabase via ReservationService
+      await ReservationService.createReservation({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        date: formData.date,
+        time: formData.time,
+        guests: formData.guests,
+        notes: formData.notes
+      });
+
+      // Créer une date complète avec la date et l'heure sélectionnées
+      const reservationDateTime = new Date(formData.date);
+      const [hours, minutes] = formData.time.split(':');
+      reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      toast.success("Réservation confirmée", {
+        description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", {
+          locale: fr
+        })}`
+      });
+
+      // Réinitialiser le formulaire
+      setSelectedDate(undefined);
+    } catch (error) {
+      console.error("Erreur lors de la réservation:", error);
+      toast.error("Erreur lors de la réservation", {
+        description: "Veuillez réessayer ultérieurement."
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    return () => {
-      document.title = "Reserv - Réservation de Restaurant"; // Restaurer le titre par défaut
-    };
-  }, []);
-
-  const handleReservationSubmit = useCallback(async (formData: any) => {
-    await withLoading(async () => {
-      try {
-        // Appel à Supabase via ReservationService
-        await ReservationService.createReservation({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          date: formData.date,
-          time: formData.time,
-          guests: formData.guests,
-          notes: formData.notes
-        });
-
-        // Créer une date complète avec la date et l'heure sélectionnées
-        const reservationDateTime = new Date(formData.date);
-        const [hours, minutes] = formData.time.split(':');
-        reservationDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-        
-        toast.success("Réservation confirmée", {
-          description: `Votre table est réservée pour le ${format(reservationDateTime, "d MMMM à HH:mm", {
-            locale: fr
-          })}`
-        });
-
-        // Réinitialiser le formulaire
-        setSelectedDate(undefined);
-      } catch (error) {
-        console.error("Erreur lors de la réservation:", error);
-        toast.error("Erreur lors de la réservation", {
-          description: "Veuillez réessayer ultérieurement."
-        });
-      }
-    });
-  }, [withLoading]);
+  };
 
   return (
     <Layout>
       <div className="container mx-auto py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="lg:w-2/3 space-y-6">
+          <div className="flex flex-col-reverse lg:flex-row gap-8">
+            <div className="lg:w-1/2 space-y-6">
               <div className="space-y-3">
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">Réservation simple</span>
                 <h2 className="text-3xl font-medium">Réservez votre table en quelques clics</h2>
@@ -94,30 +69,11 @@ const Index = () => {
                 <span className="text-sm">Les réservations sont synchronisées automatiquement avec l'agenda du restaurant.</span>
               </div>
               
-              <ReservationCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} className="mb-6" />
-              
-              {isLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <LoadingSpinner size="md" message="Envoi de votre réservation..." />
-                </div>
-              ) : (
-                <ReservationForm 
-                  selectedDate={selectedDate} 
-                  onSubmit={handleReservationSubmit} 
-                  isSubmitting={isLoading} 
-                />
-              )}
+              <ReservationForm selectedDate={selectedDate} onSubmit={handleReservationSubmit} isSubmitting={isSubmitting} />
             </div>
             
-            <div className="lg:w-1/3">
-              <div className="sticky top-4 rounded-xl bg-secondary/50 p-6 space-y-4">
-                <h3 className="text-xl font-medium">Informations importantes</h3>
-                <div className="space-y-2 text-sm">
-                  <p>• Les réservations sont disponibles jusqu'à 2 heures avant le service.</p>
-                  <p>• Pour les groupes de plus de 8 personnes, veuillez nous contacter par téléphone.</p>
-                  <p>• Une confirmation vous sera envoyée par email.</p>
-                </div>
-              </div>
+            <div className="lg:w-1/2 my-0 mx-0 py-0 px-0">
+              <ReservationCalendar selectedDate={selectedDate} onDateSelect={setSelectedDate} className="sticky top-4" />
             </div>
           </div>
         </div>

@@ -1,12 +1,23 @@
-
-/* Nettoyage des styles par défaut qui pourraient interférer avec notre nouveau design */
 #root {
-  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
+  padding: 2rem;
   text-align: center;
 }
 
-/* Styles spécifiques à l'application qui sont nécessaires */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);
@@ -22,52 +33,10 @@
   }
 }
 
-/* Animations pour le diaporama */
-@keyframes fade-in {
-  0% {
-    opacity: 0;
-    transform: scale(1.03);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+.card {
+  padding: 2em;
 }
 
-@keyframes slide-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes parallax-float {
-  0% {
-    transform: translate(0, 0) scale(1.1);
-  }
-  50% {
-    transform: translate(-5px, -5px) scale(1.1);
-  }
-  100% {
-    transform: translate(0, 0) scale(1.1);
-  }
-}
-
-.slide-image {
-  animation: fade-in 1s ease-out;
-}
-
-.slide-content {
-  animation: slide-up 0.8s ease-out 0.3s forwards;
-  opacity: 0;
-}
-
-/* Optimisations pour améliorer les performances de rendu */
-.slideshow-container {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
+.read-the-docs {
+  color: #888;
 }

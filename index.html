@@ -3,31 +3,11 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reserv - Réservation de Restaurant</title>
     <meta name="description" content="Application de réservation de restaurant avec synchronisation Google Calendar" />
     <meta name="author" content="Reserv" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Reserv - Réservation de Restaurant" />
-    <meta property="og:description" content="Application de réservation de restaurant avec synchronisation Google Calendar" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    <meta property="og:url" content="https://reserv.lovable.app" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#ffffff" />
-    
-    <!-- Préchargement des ressources critiques -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="/placeholder.svg" as="image" />
-    <link rel="modulepreload" href="/src/main.tsx" />
-    
-    <!-- Cache control -->
-    <meta http-equiv="Cache-Control" content="max-age=3600" />
-    
-    <!-- SEO supplémentaire -->
-    <meta name="keywords" content="réservation restaurant, table, dîner, gastronomie, calendrier" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://reserv.lovable.app" />
   </head>
 
   <body>
@@ -35,18 +15,5 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Script pour améliorer le FID (First Input Delay) -->
-    <script>
-      // Amélioration des métriques Web Vitals
-      document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(function() {
-          const statsElement = document.createElement('div');
-          statsElement.style.display = 'none';
-          statsElement.setAttribute('id', 'performance-stats');
-          document.body.appendChild(statsElement);
-        }, 100);
-      });
-    </script>
   </body>
 </html>

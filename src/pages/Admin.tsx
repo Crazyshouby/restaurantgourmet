@@ -14,7 +14,6 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import AdminContainer from "@/components/admin/AdminContainer";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import ApiErrorAlert from "@/components/common/ApiErrorAlert";
-import { AdminThemeProvider } from "@/context/AdminThemeContext";
 
 const Admin = () => {
   const location = useLocation();
@@ -98,30 +97,28 @@ const Admin = () => {
   }, [location]);
   
   return (
-    <AdminThemeProvider>
-      <div id="admin-container" className="min-h-screen bg-background">
-        <ErrorBoundary>
-          <AdminHeader />
-          {error && (
-            <div className="container mx-auto py-4 px-4">
-              <ApiErrorAlert 
-                title="Erreur de chargement" 
-                description={error}
-              />
-            </div>
-          )}
-          <AdminContainer 
-            adminSettings={adminSettings}
-            reservations={reservations}
-            isLoading={isLoading}
-            setIsLoading={startLoading}
-            setAdminSettings={setAdminSettings}
-            onRefreshReservations={loadReservations}
-            onSettingsUpdated={loadAdminSettings}
-          />
-        </ErrorBoundary>
-      </div>
-    </AdminThemeProvider>
+    <div className="min-h-screen bg-background">
+      <ErrorBoundary>
+        <AdminHeader />
+        {error && (
+          <div className="container mx-auto py-4 px-4">
+            <ApiErrorAlert 
+              title="Erreur de chargement" 
+              description={error}
+            />
+          </div>
+        )}
+        <AdminContainer 
+          adminSettings={adminSettings}
+          reservations={reservations}
+          isLoading={isLoading}
+          setIsLoading={startLoading}
+          setAdminSettings={setAdminSettings}
+          onRefreshReservations={loadReservations}
+          onSettingsUpdated={loadAdminSettings}
+        />
+      </ErrorBoundary>
+    </div>
   );
 };
 
