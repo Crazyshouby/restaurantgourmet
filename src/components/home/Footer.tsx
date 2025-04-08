@@ -1,12 +1,9 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
-import AdminLogin from "@/components/admin/AdminLogin";
 
 const Footer = () => {
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
-
   return (
     <footer className="border-t border-gold/30 bg-darkblack">
       <div className="container mx-auto py-16 px-4">
@@ -41,17 +38,15 @@ const Footer = () => {
         
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-cream/50 font-light">
           <p>© {new Date().getFullYear()} Restaurant Gourmet. Tous droits réservés.</p>
-          <button 
-            onClick={() => setShowLoginDialog(true)} 
+          <Link 
+            to="/admin" 
             className="mt-4 md:mt-0 text-xs text-cream/30 hover:text-cream/50 transition-colors duration-200"
             aria-label="Accéder à l'interface d'administration"
           >
             Administration
-          </button>
+          </Link>
         </div>
       </div>
-
-      <AdminLogin open={showLoginDialog} onOpenChange={setShowLoginDialog} />
     </footer>
   );
 };
