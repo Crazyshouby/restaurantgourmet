@@ -73,14 +73,15 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    console.log("EventsAdminContainer - Suppression de l'événement:", eventId);
+    console.log("[CONTAINER] Suppression de l'événement:", eventId);
     
     try {
-      await onDeleteEvent(eventId);
-      console.log("EventsAdminContainer - Suppression réussie");
+      console.log("[CONTAINER] Appel de onDeleteEvent");
+      const result = await onDeleteEvent(eventId);
+      console.log("[CONTAINER] Suppression réussie, résultat:", result);
       return true;
     } catch (error) {
-      console.error("EventsAdminContainer - Erreur lors de la suppression:", error);
+      console.error("[CONTAINER] Erreur lors de la suppression:", error);
       return false;
     }
   };

@@ -67,37 +67,37 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string): Promise<string> => {
-      console.log("Mutation - Suppression de l'événement:", eventId);
+      console.log("[MUTATION] Début suppression événement ID:", eventId);
       
-      // Supprimer complètement de Supabase
       const { error } = await supabase
         .from("events")
         .delete()
         .eq("id", eventId);
 
       if (error) {
-        console.error("Erreur lors de la suppression:", error);
+        console.error("[MUTATION] Erreur lors de la suppression:", error);
         throw new Error(`Erreur de suppression: ${error.message}`);
       }
       
+      console.log("[MUTATION] Suppression réussie de l'événement ID:", eventId);
       return eventId;
     },
     onSuccess: (deletedEventId) => {
-      console.log("Mutation - Suppression réussie pour ID:", deletedEventId);
+      console.log("[MUTATION] onSuccess pour l'événement ID:", deletedEventId);
       
-      // Mettre à jour le cache immédiatement (optimistic update)
+      // Mise à jour optimiste du cache
       queryClient.setQueryData(["events"], (oldEvents: Event[] | undefined) => {
         if (!oldEvents) return [];
         return oldEvents.filter(event => event.id !== deletedEventId);
       });
       
-      // Forcer une invalidation complète du cache pour un rafraîchissement
+      // Invalidation complète pour forcer le rafraîchissement
       queryClient.invalidateQueries({ queryKey: ["events"] });
       
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
-      console.error("Erreur dans onError:", error);
+      console.error("[MUTATION] onError:", error);
       toast.error(`Échec de la suppression: ${error.message}`);
     },
   });

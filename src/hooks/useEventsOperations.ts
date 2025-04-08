@@ -23,7 +23,7 @@ export const useEventsOperations = () => {
   };
 
   const deleteEvent = async (eventId: string) => {
-    console.log("useEventsOperations - Suppression de l'événement:", eventId);
+    console.log("[OPERATIONS] Suppression de l'événement:", eventId);
     
     if (!eventId) {
       toast.error("ID d'événement invalide");
@@ -31,16 +31,19 @@ export const useEventsOperations = () => {
     }
     
     try {
-      // Effectuer la suppression via la mutation
+      // Exécuter la suppression et attendre le résultat
       const result = await deleteEventMutation.mutateAsync(eventId);
+      console.log("[OPERATIONS] Suppression réussie, résultat:", result);
       
       // Forcer un rafraîchissement des données
+      console.log("[OPERATIONS] Début du rafraîchissement des données");
       await refetch();
+      console.log("[OPERATIONS] Fin du rafraîchissement des données");
       
       return result;
     } catch (error: any) {
-      console.error("Erreur lors de la suppression:", error);
-      throw error; // Propager l'erreur pour être gérée par le composant
+      console.error("[OPERATIONS] Erreur lors de la suppression:", error);
+      throw error; // Propager l'erreur
     }
   };
 

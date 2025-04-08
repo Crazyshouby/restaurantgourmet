@@ -27,17 +27,22 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
     if (isDeleting) return;
     
     setIsDeleting(true);
-    console.log("DeleteConfirmationDialog - Début de la suppression");
+    console.log("[DIALOG] Début de la suppression pour:", eventTitle);
     
     try {
       await onConfirm();
-      console.log("DeleteConfirmationDialog - Suppression terminée avec succès");
-      onClose(); // Fermer explicitement la boîte de dialogue
+      console.log("[DIALOG] Suppression terminée avec succès");
     } catch (error) {
-      console.error("DeleteConfirmationDialog - Erreur lors de la suppression:", error);
+      console.error("[DIALOG] Erreur lors de la suppression:", error);
     } finally {
       setIsDeleting(false);
+      onClose(); // Fermer la boîte de dialogue dans tous les cas
     }
+  };
+
+  const handleCancel = () => {
+    console.log("[DIALOG] Annulation de la suppression");
+    onClose();
   };
 
   return (
@@ -49,7 +54,7 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel onClick={onClose} disabled={isDeleting}>Annuler</AlertDialogCancel>
+        <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>Annuler</AlertDialogCancel>
         <AlertDialogAction 
           onClick={handleConfirm}
           disabled={isDeleting}

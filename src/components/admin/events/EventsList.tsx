@@ -23,6 +23,7 @@ const EventsList: React.FC<EventsListProps> = ({
 }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   if (isLoading) {
     return (
@@ -41,25 +42,33 @@ const EventsList: React.FC<EventsListProps> = ({
   }
 
   const handleDeleteClick = (eventId: string) => {
-    console.log("EventsList - Clic sur supprimer pour l'événement:", eventId);
+    console.log("[LIST] Clic sur supprimer pour l'événement:", eventId);
     setDeletingEventId(eventId);
   };
 
   const handleDeleteConfirm = async () => {
-    console.log("EventsList - Confirmation de suppression pour l'événement:", deletingEventId);
-    if (deletingEventId) {
-      try {
-        console.log("EventsList - Appel de onDeleteEvent avec ID:", deletingEventId);
-        await onDeleteEvent(deletingEventId);
-        console.log("EventsList - Suppression réussie");
-      } catch (error) {
-        console.error("EventsList - Erreur lors de la suppression:", error);
-      }
+    console.log("[LIST] Confirmation de suppression pour l'événement:", deletingEventId);
+    
+    if (!deletingEventId || isDeleting) {
+      console.log("[LIST] Annulé: Pas d'ID ou suppression déjà en cours");
+      return;
+    }
+    
+    setIsDeleting(true);
+    
+    try {
+      console.log("[LIST] Début de la suppression avec ID:", deletingEventId);
+      await onDeleteEvent(deletingEventId);
+      console.log("[LIST] Suppression réussie");
+    } catch (error) {
+      console.error("[LIST] Erreur lors de la suppression:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleDeleteDialogClose = () => {
-    console.log("EventsList - Fermeture de la boîte de dialogue de suppression");
+    console.log("[LIST] Fermeture de la boîte de dialogue de suppression");
     setDeletingEventId(null);
   };
 

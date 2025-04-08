@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useEventsOperations } from "@/hooks/useEventsOperations";
 import AdminHeader from "@/components/admin/AdminHeader";
 import EventsAdminHeader from "@/components/admin/events/EventsAdminHeader";
@@ -9,7 +9,13 @@ import ApiErrorAlert from "@/components/common/ApiErrorAlert";
 import { AdminThemeProvider } from "@/context/AdminThemeContext";
 
 const EventsAdmin = () => {
-  const { events, isLoading, error, addEvent, updateEvent, deleteEvent } = useEventsOperations();
+  const { events, isLoading, error, addEvent, updateEvent, deleteEvent, refetch } = useEventsOperations();
+  
+  // Force le rafraîchissement des données au montage du composant
+  useEffect(() => {
+    console.log("[PAGE] Rafraîchissement initial des données");
+    refetch();
+  }, [refetch]);
   
   // Convert error to string if it exists
   const errorMessage = error ? error.message || "Une erreur s'est produite" : "";

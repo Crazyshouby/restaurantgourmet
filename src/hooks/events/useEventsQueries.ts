@@ -7,19 +7,24 @@ export const useEventsQuery = () => {
   return useQuery({
     queryKey: ["events"],
     queryFn: async (): Promise<Event[]> => {
+      console.log("[QUERY] Chargement des événements...");
+      
       const { data, error } = await supabase
         .from("events")
         .select("*")
         .order("date", { ascending: true });
 
       if (error) {
-        console.error("Erreur lors du chargement des événements:", error);
+        console.error("[QUERY] Erreur lors du chargement des événements:", error);
         throw new Error(error.message);
       }
 
+      console.log("[QUERY] Événements chargés:", data?.length || 0);
       return data || [];
     },
-    refetchOnMount: true, // Force le rafraîchissement lors du montage
-    refetchOnWindowFocus: true, // Force le rafraîchissement lors de la reprise de focus
+    staleTime: 0, // Considérer les données comme immédiatement périmées
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 };
