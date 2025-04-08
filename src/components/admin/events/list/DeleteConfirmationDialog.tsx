@@ -9,18 +9,15 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
 
 interface DeleteConfirmationDialogProps {
   eventTitle: string;
   onConfirm: () => void;
-  isLoading?: boolean;
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({ 
   eventTitle, 
-  onConfirm,
-  isLoading = false
+  onConfirm 
 }) => {
   return (
     <AlertDialogContent>
@@ -31,15 +28,8 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
-        <AlertDialogAction 
-          onClick={onConfirm}
-          disabled={isLoading}
-          className="relative"
-        >
-          {isLoading && (
-            <Loader2 className="h-4 w-4 animate-spin absolute left-2" />
-          )}
+        <AlertDialogCancel>Annuler</AlertDialogCancel>
+        <AlertDialogAction onClick={onConfirm}>
           Supprimer
         </AlertDialogAction>
       </AlertDialogFooter>

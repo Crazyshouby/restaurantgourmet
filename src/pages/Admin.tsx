@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Reservation } from "@/types";
 import { GoogleCalendarService } from "@/services/GoogleCalendarService";
@@ -18,6 +18,7 @@ import { AdminThemeProvider } from "@/context/AdminThemeContext";
 
 const Admin = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { 
     adminSettings, 
     setAdminSettings, 
@@ -28,6 +29,23 @@ const Admin = () => {
   const { isLoading, startLoading, stopLoading, withLoading } = useLoadingState();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
+  
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      const session = await AuthService.getSession();
+      if (!session) {
+        toast.error("Accès non autorisé", {
+          description: "Veuillez vous connecter pour accéder à cette page."
+        });
+        navigate("/");
+        return;
+      }
+      setAuthenticated(true);
+    };
+    
+    checkAuthentication();
+  }, [navigate]);
   
   const loadReservations = async () => {
     setError(null);
@@ -41,6 +59,9 @@ const Admin = () => {
   };
   
   useEffect(() => {
+    // Only proceed if the user is authenticated
+    if (authenticated !== true) return;
+    
     const queryParams = new URLSearchParams(location.search);
     const authStatus = queryParams.get('auth');
     
@@ -95,7 +116,12 @@ const Admin = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [location]);
+  }, [location, authenticated]);
+  
+  // Show loading state until authentication check is complete
+  if (authenticated === null) {
+    return <div className="min-h-screen bg-background flex items-center justify-center">Chargement...</div>;
+  }
   
   return (
     <AdminThemeProvider>

@@ -23,7 +23,6 @@ const EventsList: React.FC<EventsListProps> = ({
 }) => {
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   
   if (isLoading) {
     return (
@@ -43,14 +42,8 @@ const EventsList: React.FC<EventsListProps> = ({
 
   const handleDeleteConfirm = (eventId: string) => {
     console.log("Confirming deletion of event:", eventId);
-    setIsDeleteLoading(true);
     onDeleteEvent(eventId);
-    
-    // Add a small delay before closing the dialog to allow the animation to complete
-    setTimeout(() => {
-      setDeletingEventId(null);
-      setIsDeleteLoading(false);
-    }, 300);
+    setDeletingEventId(null);
   };
 
   const handleDeleteClick = (eventId: string) => {
@@ -89,19 +82,21 @@ const EventsList: React.FC<EventsListProps> = ({
       </EventDialog>
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog 
-        open={deletingEventId !== null} 
-        onOpenChange={(open) => !open && setDeletingEventId(null)}
-      >
-        <AlertDialogTrigger className="hidden" />
-        {deletingEventId && (
-          <DeleteConfirmationDialog 
-            eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
-            onConfirm={() => handleDeleteConfirm(deletingEventId)}
-            isLoading={isDeleteLoading}
-          />
-        )}
-      </AlertDialog>
+      {events.map(event => (
+        <AlertDialog 
+          key={`delete-dialog-${event.id}`}
+          open={deletingEventId === event.id} 
+          onOpenChange={(open) => !open && setDeletingEventId(null)}
+        >
+          <AlertDialogTrigger className="hidden" />
+          {deletingEventId === event.id && (
+            <DeleteConfirmationDialog 
+              eventTitle={event.title}
+              onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            />
+          )}
+        </AlertDialog>
+      ))}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -51,8 +51,8 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     fetchSetting();
   }, []);
 
-  // Handle toggle change avec useCallback
-  const handleToggleChange = useCallback(async (checked: boolean) => {
+  // Handle toggle change
+  const handleToggleChange = async (checked: boolean) => {
     setIsToggleLoading(true);
     try {
       const { error } = await supabase
@@ -73,19 +73,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
     } finally {
       setIsToggleLoading(false);
     }
-  }, []);
-
-  // Handler sécurisé pour la suppression d'événements
-  const handleDeleteEvent = useCallback((eventId: string) => {
-    console.log("Demande de suppression pour l'événement:", eventId);
-    if (!eventId) {
-      console.error("ID d'événement invalide pour la suppression");
-      toast.error("Impossible de supprimer l'événement: ID invalide");
-      return;
-    }
-    
-    onDeleteEvent(eventId);
-  }, [onDeleteEvent]);
+  };
 
   return (
     <div className="space-y-6">
@@ -110,7 +98,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
         events={events} 
         isLoading={isLoading}
         onUpdateEvent={onUpdateEvent}
-        onDeleteEvent={handleDeleteEvent}
+        onDeleteEvent={onDeleteEvent}
       />
 
       <EventDialog 
