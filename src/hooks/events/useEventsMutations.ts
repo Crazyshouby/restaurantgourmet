@@ -1,9 +1,7 @@
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Event } from "@/types/events";
 import { toast } from "sonner";
-import { GoogleCalendarService } from "@/services/google-calendar";
 
 export const useAddEventMutation = () => {
   const queryClient = useQueryClient();
@@ -68,32 +66,6 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      // 1. Récupérer les détails de l'événement pour vérifier s'il a un lien Google Calendar
-      const { data: event, error: fetchError } = await supabase
-        .from("events")
-        .select("id, google_event_id")
-        .eq("id", eventId)
-        .single();
-
-      if (fetchError) {
-        console.error("Erreur lors de la récupération de l'événement:", fetchError);
-        // Continuer malgré l'erreur, car nous voulons essayer de supprimer l'événement de toute façon
-      }
-
-      // 2. Si l'événement a un ID Google Calendar, essayer de le supprimer
-      if (event?.google_event_id) {
-        try {
-          const isConnected = await GoogleCalendarService.isConnected();
-          if (isConnected) {
-            await GoogleCalendarService.deleteEvent(event.google_event_id);
-          }
-        } catch (googleError) {
-          console.error("Erreur lors de la suppression de l'événement Google Calendar:", googleError);
-          // Continuer malgré l'erreur de Google Calendar
-        }
-      }
-
-      // 3. Supprimer l'événement de la base de données
       const { error } = await supabase
         .from("events")
         .delete()

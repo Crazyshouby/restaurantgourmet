@@ -3,7 +3,9 @@ import { GoogleCalendarApiClient } from '../api-client';
 import { GoogleCalendarAuthService } from '../auth-service';
 
 export class EventDeletionService {
-  // Supprime un événement de Google Calendar
+  // Service pour supprimer un événement de Google Calendar
+  // Cette classe n'est pas utilisée dans le flux de suppression d'événements normal
+  // mais est maintenue pour des utilisations futures potentielles
   static async deleteEvent(eventId: string): Promise<boolean> {
     try {
       if (!(await GoogleCalendarAuthService.isConnected())) {
