@@ -20,6 +20,19 @@ export const AuthService = {
   
   getSession: async () => {
     try {
+      // Vérifier d'abord s'il y a une session admin dans localStorage
+      const adminSessionStr = localStorage.getItem('admin_session');
+      if (adminSessionStr) {
+        try {
+          const adminSession = JSON.parse(adminSessionStr);
+          return adminSession;
+        } catch (e) {
+          console.error("Erreur lors du parsing de la session admin:", e);
+          localStorage.removeItem('admin_session');
+        }
+      }
+
+      // Ensuite, vérifier la session Supabase
       const { data: sessionData } = await supabase.auth.getSession();
       return sessionData.session;
     } catch (error) {
@@ -33,30 +46,22 @@ export const AuthService = {
 
   signIn: async (username: string, password: string) => {
     try {
-      // Vérifier si l'utilisateur est un administrateur dans la table admin_users
-      const { data: adminUser, error: adminError } = await supabase
-        .from('admin_users')
-        .select('username')
-        .eq('username', username)
-        .single();
-
-      if (adminError && adminError.code !== 'PGRST116') {
-        console.error("Erreur lors de la vérification de l'administrateur:", adminError.message);
-        toast.error("Erreur d'authentification", {
-          description: "Une erreur est survenue lors de la vérification des identifiants."
-        });
-        return { success: false, error: adminError };
-      }
-
-      // Si l'utilisateur est un administrateur, procéder à l'authentification
-      if (adminUser) {
+      console.log("Tentative de connexion avec:", username);
+      
+      // Admin login spécifique
+      if (username === 'webllington') {
+        console.log("Tentative de connexion admin pour:", username);
+        
+        // Vérifier si le mot de passe est correct
         if (password !== 'admin') {
+          console.log("Mot de passe admin incorrect");
           toast.error("Échec de connexion", {
             description: "Mot de passe incorrect pour l'administrateur."
           });
           return { success: false, error: { message: "Mot de passe incorrect" } };
         }
-
+        
+        console.log("Authentification admin réussie");
         // Authentification réussie pour l'administrateur
         toast.success("Connexion administrateur réussie", {
           description: "Vous êtes maintenant connecté en tant qu'administrateur."
