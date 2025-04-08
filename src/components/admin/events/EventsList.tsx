@@ -82,18 +82,21 @@ const EventsList: React.FC<EventsListProps> = ({
       </EventDialog>
 
       {/* Dialog de confirmation de suppression */}
-      <AlertDialog 
-        open={deletingEventId !== null} 
-        onOpenChange={(open) => !open && setDeletingEventId(null)}
-      >
-        <AlertDialogTrigger className="hidden" />
-        {deletingEventId && (
-          <DeleteConfirmationDialog 
-            eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
-            onConfirm={() => handleDeleteConfirm(deletingEventId)}
-          />
-        )}
-      </AlertDialog>
+      {events.map(event => (
+        <AlertDialog 
+          key={`delete-dialog-${event.id}`}
+          open={deletingEventId === event.id} 
+          onOpenChange={(open) => !open && setDeletingEventId(null)}
+        >
+          <AlertDialogTrigger className="hidden" />
+          {deletingEventId === event.id && (
+            <DeleteConfirmationDialog 
+              eventTitle={event.title}
+              onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            />
+          )}
+        </AlertDialog>
+      ))}
     </div>
   );
 };

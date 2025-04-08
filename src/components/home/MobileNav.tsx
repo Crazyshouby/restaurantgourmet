@@ -12,7 +12,7 @@ const MobileNav = () => {
     { path: "/menu", label: "Menu" },
     { path: "/events", label: "Événements" },
     { path: "/reservations", label: "Réservations" },
-    { path: "/contact", label: "Contact" }
+    { path: "/contacts", label: "Contacts" }
   ];
 
   return (
