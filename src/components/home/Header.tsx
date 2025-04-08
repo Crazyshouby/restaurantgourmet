@@ -48,9 +48,9 @@ const Header = () => {
                 Réservations
               </Button>
             </Link>
-            <Link to="/contact">
+            <Link to="/contacts">
               <Button variant="ghost" size="sm" className="text-cream hover:text-gold hover:bg-transparent font-light tracking-wide uppercase text-xs link-hover">
-                Contact
+                Contacts
               </Button>
             </Link>
           </nav>

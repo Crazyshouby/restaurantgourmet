@@ -65,15 +65,15 @@ export class ReservationDeletionService {
   static async deleteReservation(id: string): Promise<boolean> {
     try {
       // 1. Récupérer les détails de la réservation
-      const reservation = await ReservationDeletionService.getReservationDetails(id);
+      const reservation = await this.getReservationDetails(id);
       
       // 2. Supprimer l'événement Google Calendar si disponible
       if (reservation && reservation.google_event_id) {
-        await ReservationDeletionService.deleteGoogleEvent(reservation.google_event_id);
+        await this.deleteGoogleEvent(reservation.google_event_id);
       }
       
       // 3. Supprimer la réservation de la base de données
-      return await ReservationDeletionService.deleteReservationFromDatabase(id);
+      return await this.deleteReservationFromDatabase(id);
     } catch (error) {
       console.error('Exception lors de la suppression de la réservation:', error);
       throw error;
