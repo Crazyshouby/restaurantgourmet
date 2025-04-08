@@ -39,8 +39,6 @@ export const useUpdateEventMutation = () => {
     mutationFn: async (updatedEvent: Event) => {
       const { id, ...eventData } = updatedEvent;
       
-      // Modification: Utiliser maybeSingle() au lieu de single()
-      // et gérer correctement le cas où aucune ligne n'est retournée
       const { data, error } = await supabase
         .from("events")
         .update(eventData)
@@ -71,20 +69,37 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
+      console.log("Suppression de l'événement avec ID:", eventId);
+      
+      // Optimistic update - on sauvegarde les événements actuels
+      const previousEvents = queryClient.getQueryData<Event[]>(["events"]) || [];
+      
+      // Mise à jour optimiste du cache (on retire l'événement)
+      queryClient.setQueryData<Event[]>(["events"], old => 
+        old ? old.filter(event => event.id !== eventId) : []
+      );
+      
       const { error } = await supabase
         .from("events")
         .delete()
         .eq("id", eventId);
 
       if (error) {
+        // En cas d'erreur, on remet les événements précédents
+        queryClient.setQueryData(["events"], previousEvents);
         console.error("Erreur lors de la suppression de l'événement:", error);
         throw new Error(error.message);
       }
 
+      console.log("Événement supprimé avec succès:", eventId);
       return eventId;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+    onSuccess: (eventId) => {
+      // Un petit délai avant d'invalider la requête pour laisser le temps à l'UI de s'actualiser
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["events"] });
+      }, 300);
+      
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
