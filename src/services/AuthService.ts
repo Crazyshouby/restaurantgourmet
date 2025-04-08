@@ -33,8 +33,8 @@ export const AuthService = {
 
   signIn: async (username: string, password: string) => {
     try {
-      // Vérification spécifique pour l'administrateur
-      if (username === 'webllingtonadmin') {
+      // Vérification des identifiants pour l'administrateur
+      if (username === 'webllingtonadmin' || username === 'webllingtonpass') {
         // Utilisation de signInWithPassword avec le nom d'utilisateur comme email
         const { data, error } = await supabase.auth.signInWithPassword({
           email: username,
