@@ -9,7 +9,7 @@ export class GoogleCalendarApiClient {
   // Méthode pour envoyer une requête à l'API Google Calendar
   static async callApi<T>(
     endpoint: string, 
-    method: 'GET' | 'POST' | 'DELETE' = 'GET',
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
     body?: any
   ): Promise<T | null> {
     try {
@@ -38,7 +38,7 @@ export class GoogleCalendarApiClient {
       };
       
       // Ajouter le corps de la requête si nécessaire
-      if (body && method === 'POST') {
+      if (body && (method === 'POST' || method === 'PATCH')) {
         requestOptions.body = JSON.stringify(body);
       }
       

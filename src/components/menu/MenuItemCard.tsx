@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Euro } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -54,7 +54,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({ item, onClick }) => {
       </CardContent>
       <CardFooter className="flex justify-between p-3 md:p-4 pt-0 items-center">
         <span className="font-medium text-primary flex items-center">
-          {parseFloat(item.price.toString()).toFixed(2)} <Euro className="ml-1 h-4 w-4" />
+          {parseFloat(item.price.toString()).toFixed(2)} <DollarSign className="ml-1 h-4 w-4" />
         </span>
       </CardFooter>
     </Card>

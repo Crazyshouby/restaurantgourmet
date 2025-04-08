@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import MenuAdmin from "./pages/MenuAdmin";
 import EventsAdmin from "./pages/EventsAdmin";
 import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/reservations" element={<Index />} />
               <Route path="/menu" element={<Menu />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/menu-admin" element={<MenuAdmin />} />
               <Route path="/events-admin" element={<EventsAdmin />} />

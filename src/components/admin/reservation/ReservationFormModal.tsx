@@ -1,10 +1,8 @@
 
 import React from "react";
-import { toast } from "sonner";
-
 import { Reservation } from "@/types";
-import { ReservationService } from "@/services/ReservationService";
 import ReservationForm, { EditReservationFormData } from "./ReservationForm";
+import { useReservationForm } from "@/hooks/useReservationForm";
 
 import {
   Dialog,
@@ -27,32 +25,14 @@ const ReservationFormModal: React.FC<ReservationFormModalProps> = ({
   onOpenChange,
   onReservationUpdated,
 }) => {
-  const handleSubmit = async (data: EditReservationFormData) => {
+  const { handleSubmit } = useReservationForm({
+    onSuccess: onReservationUpdated,
+    onClose: () => onOpenChange(false)
+  });
+
+  const onSubmit = async (data: EditReservationFormData) => {
     if (!reservation) return;
-
-    try {
-      const success = await ReservationService.updateReservation({
-        ...reservation,
-        ...data,
-      });
-
-      if (success) {
-        toast.success("Réservation mise à jour", {
-          description: "La réservation a été modifiée avec succès.",
-        });
-        onOpenChange(false);
-        onReservationUpdated();
-      } else {
-        toast.error("Erreur de mise à jour", {
-          description: "Impossible de mettre à jour la réservation.",
-        });
-      }
-    } catch (error) {
-      console.error("Erreur lors de la mise à jour:", error);
-      toast.error("Erreur de mise à jour", {
-        description: "Une erreur est survenue lors de la mise à jour.",
-      });
-    }
+    await handleSubmit(reservation, data);
   };
 
   if (!reservation) return null;
@@ -69,7 +49,7 @@ const ReservationFormModal: React.FC<ReservationFormModalProps> = ({
 
         <ReservationForm
           reservation={reservation}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           onCancel={() => onOpenChange(false)}
         />
       </DialogContent>
