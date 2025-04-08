@@ -21,32 +21,17 @@ const EventsList: React.FC<EventsListProps> = ({
   onUpdateEvent,
   onDeleteEvent
 }) => {
+  // Always declare all hooks at the top level
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  if (events.length === 0) {
-    return (
-      <div className="text-center py-12 border rounded-md bg-muted/20">
-        <p className="text-lg text-muted-foreground">Aucun événement trouvé</p>
-      </div>
-    );
-  }
-
   const handleDeleteClick = useCallback((eventId: string) => {
     console.log("EventCard - Clic sur supprimer pour l'événement:", eventId);
     setDeletingEventId(eventId);
   }, []);
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!deletingEventId || isDeleting) return;
     
     setIsDeleting(true);
@@ -64,13 +49,32 @@ const EventsList: React.FC<EventsListProps> = ({
       setIsDeleting(false);
       // Ne pas fermer la boîte de dialogue ici, laisser le composant DeleteConfirmationDialog s'en charger
     }
-  };
+  }, [deletingEventId, isDeleting, onDeleteEvent]);
 
   const handleDeleteDialogClose = useCallback(() => {
     console.log("[LIST] Fermeture de la boîte de dialogue de suppression");
     setDeletingEventId(null);
   }, []);
 
+  // Render loading state
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Render empty state
+  if (events.length === 0) {
+    return (
+      <div className="text-center py-12 border rounded-md bg-muted/20">
+        <p className="text-lg text-muted-foreground">Aucun événement trouvé</p>
+      </div>
+    );
+  }
+
+  // Render events list
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.map((event) => (
