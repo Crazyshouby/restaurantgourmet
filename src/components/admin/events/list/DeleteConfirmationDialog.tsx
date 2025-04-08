@@ -12,7 +12,7 @@ import {
 
 interface DeleteConfirmationDialogProps {
   eventTitle: string;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({ 
@@ -21,11 +21,18 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
 }) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleConfirm = () => {
-    if (!isDeleting) {
+  const handleConfirm = async () => {
+    if (isDeleting) return;
+    
+    try {
       setIsDeleting(true);
-      onConfirm();
+      console.log("DeleteConfirmationDialog - Début de la suppression");
+      await onConfirm();
+      console.log("DeleteConfirmationDialog - Suppression terminée avec succès");
+    } catch (error) {
+      console.error("DeleteConfirmationDialog - Erreur lors de la suppression:", error);
     }
+    // Ne pas réinitialiser isDeleting car le composant sera démonté après la suppression
   };
 
   return (
@@ -37,12 +44,13 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Annuler</AlertDialogCancel>
+        <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
         <AlertDialogAction 
           onClick={handleConfirm}
           disabled={isDeleting}
+          className={isDeleting ? "opacity-50 cursor-not-allowed" : ""}
         >
-          {isDeleting ? "Suppression..." : "Supprimer"}
+          {isDeleting ? "Suppression en cours..." : "Supprimer"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

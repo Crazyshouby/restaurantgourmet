@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ interface EventsAdminContainerProps {
   isLoading: boolean;
   onAddEvent: (newEvent: Omit<Event, "id">) => void;
   onUpdateEvent: (updatedEvent: Event) => void;
-  onDeleteEvent: (eventId: string) => void;
+  onDeleteEvent: (eventId: string) => Promise<any>;
 }
 
 const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
@@ -28,6 +29,7 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [showHeroEvent, setShowHeroEvent] = useState(true);
   const [isToggleLoading, setIsToggleLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchSetting = async () => {
@@ -72,12 +74,21 @@ const EventsAdminContainer: React.FC<EventsAdminContainerProps> = ({
   };
 
   const handleDeleteEvent = async (eventId: string) => {
-    console.log("EventsAdminContainer - Appel de onDeleteEvent avec ID:", eventId);
+    console.log("EventsAdminContainer - Début de suppression pour ID:", eventId);
+    
+    if (isDeleting) {
+      console.log("EventsAdminContainer - Suppression déjà en cours, ignore");
+      return;
+    }
+    
     try {
+      setIsDeleting(true);
       await onDeleteEvent(eventId);
-      console.log("EventsAdminContainer - Suppression réussie pour l'ID:", eventId);
+      console.log("EventsAdminContainer - Suppression réussie pour ID:", eventId);
     } catch (error) {
       console.error("EventsAdminContainer - Erreur lors de la suppression:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 

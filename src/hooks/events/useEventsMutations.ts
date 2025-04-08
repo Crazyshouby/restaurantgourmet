@@ -66,42 +66,39 @@ export const useDeleteEventMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (eventId: string) => {
-      console.log("Mutation - Début de suppression de l'événement avec ID:", eventId);
+    mutationFn: async (eventId: string): Promise<string> => {
+      console.log("Mutation - Début de suppression avec ID:", eventId);
       
       if (!eventId) {
-        console.error("Erreur: ID d'événement manquant");
         throw new Error("ID d'événement manquant");
       }
       
-      try {
-        const { error } = await supabase
-          .from("events")
-          .delete()
-          .eq("id", eventId);
+      // Exécution directe de la requête Supabase
+      const { error } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", eventId);
 
-        if (error) {
-          console.error("Erreur lors de la suppression de l'événement:", error);
-          throw new Error(error.message);
-        }
-        
-        console.log("Mutation - Événement supprimé avec succès de la base de données");
-        return eventId;
-      } catch (error: any) {
-        console.error("Exception lors de la suppression de l'événement:", error);
-        throw error;
+      if (error) {
+        console.error("Erreur Supabase lors de la suppression:", error);
+        throw new Error(error.message);
       }
+      
+      console.log("Mutation - Suppression réussie dans Supabase pour ID:", eventId);
+      return eventId;
     },
     onSuccess: (deletedEventId) => {
-      console.log("Mutation - Callback onSuccess appelé avec ID:", deletedEventId);
-      // Force a complete refetch rather than just invalidating
+      console.log("Mutation - onSuccess avec ID:", deletedEventId);
+      
+      // Force complète du rafraîchissement des données
       queryClient.removeQueries({ queryKey: ["events"] });
       queryClient.invalidateQueries({ queryKey: ["events"] });
+      
       toast.success("Événement supprimé avec succès");
     },
     onError: (error: Error) => {
-      console.error("Mutation - Erreur dans la mutation de suppression:", error);
-      toast.error(`Erreur: ${error.message}`);
+      console.error("Mutation - Erreur dans onError:", error);
+      toast.error(`Erreur de suppression: ${error.message}`);
     },
   });
 };
