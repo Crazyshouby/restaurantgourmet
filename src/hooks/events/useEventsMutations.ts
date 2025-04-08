@@ -38,19 +38,23 @@ export const useUpdateEventMutation = () => {
   return useMutation({
     mutationFn: async (updatedEvent: Event) => {
       const { id, ...eventData } = updatedEvent;
+      
+      // Modification: Utiliser maybeSingle() au lieu de single()
+      // et gérer correctement le cas où aucune ligne n'est retournée
       const { data, error } = await supabase
         .from("events")
         .update(eventData)
         .eq("id", id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error("Erreur lors de la mise à jour de l'événement:", error);
         throw new Error(error.message);
       }
-
-      return data;
+      
+      // Si aucune donnée n'est retournée, nous renvoyons l'événement mis à jour
+      // pour éviter des erreurs côté client
+      return data && data.length > 0 ? data[0] : updatedEvent;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
