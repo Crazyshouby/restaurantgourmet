@@ -69,7 +69,7 @@ export const useDeleteEventMutation = () => {
     mutationFn: async (eventId: string): Promise<string> => {
       console.log("Mutation - Début de suppression avec ID:", eventId);
       
-      // Suppression dans Supabase
+      // Suppression dans Supabase avec le retour d'erreur complet
       const { error } = await supabase
         .from("events")
         .delete()
@@ -86,13 +86,14 @@ export const useDeleteEventMutation = () => {
     onSuccess: (deletedEventId) => {
       console.log("Mutation - onSuccess avec ID:", deletedEventId);
       
-      // Suppression complète et réinitialisation du cache
+      // Optimistically remove the deleted event from the cache
       queryClient.setQueryData(["events"], (oldEvents: Event[] | undefined) => {
         if (!oldEvents) return [];
+        console.log("Filtering out event:", deletedEventId, "from events:", oldEvents.length);
         return oldEvents.filter(event => event.id !== deletedEventId);
       });
       
-      // Forcer le rafraîchissement complet
+      // Force a complete refresh
       queryClient.invalidateQueries({ queryKey: ["events"] });
       
       toast.success("Événement supprimé avec succès");

@@ -13,7 +13,7 @@ import {
 interface DeleteConfirmationDialogProps {
   eventTitle: string;
   onConfirm: () => Promise<void>;
-  onClose: () => void; // Ajout d'une fonction explicite pour fermer
+  onClose: () => void;
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({ 
@@ -36,13 +36,8 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
       onClose();
     } catch (error) {
       console.error("DeleteConfirmationDialog - Erreur lors de la suppression:", error);
-      setIsDeleting(false); // Réinitialiser l'état seulement en cas d'erreur
-    }
-  };
-
-  const handleCancel = () => {
-    if (!isDeleting) {
-      onClose();
+    } finally {
+      setIsDeleting(false); // Réinitialiser l'état même en cas de succès
     }
   };
 
@@ -55,7 +50,7 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>Annuler</AlertDialogCancel>
+        <AlertDialogCancel onClick={onClose} disabled={isDeleting}>Annuler</AlertDialogCancel>
         <AlertDialogAction 
           onClick={handleConfirm}
           disabled={isDeleting}

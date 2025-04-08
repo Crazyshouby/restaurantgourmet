@@ -32,10 +32,11 @@ export const useEventsOperations = () => {
     }
     
     try {
+      // Effectuer la suppression via la mutation
       const result = await deleteEventMutation.mutateAsync(eventId);
       console.log("useEventsOperations - Suppression réussie, résultat:", result);
       
-      // Force refresh explicite après suppression
+      // Force un rafraîchissement explicite des données après suppression
       await refetch();
       
       return result;
@@ -53,6 +54,6 @@ export const useEventsOperations = () => {
     addEvent,
     updateEvent,
     deleteEvent,
-    refetch, // Exporter refetch pour permettre des rafraîchissements manuels
+    refetch,
   };
 };
