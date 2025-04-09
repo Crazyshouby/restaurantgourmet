@@ -2,19 +2,17 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { GoogleCalendarService } from "@/services/google-calendar";
-import { ReservationService } from "@/services/reservation";
+import { GoogleCalendarService } from "@/services/GoogleCalendarService";
+import { ReservationService } from "@/services/ReservationService";
 import { AdminSettings } from "@/types";
-import LoadingSpinner from "@/components/common/LoadingSpinner";
-import { SyncResponse } from "@/services/google-calendar/types";
 
-// Import our component files
+// Import our new component files
 import GoogleIcon from "./google/GoogleIcon";
 import GoogleConnectionToggle from "./google/GoogleConnectionToggle";
 import GoogleConnectedAccount from "./google/GoogleConnectedAccount";
 import GoogleConnectionStatus from "./google/GoogleConnectionStatus";
+import GoogleAutoSyncStatus from "./google/GoogleAutoSyncStatus";
 import CapacitySettings from "./CapacitySettings";
-import { useLoadingState } from "@/hooks/useLoadingState";
 
 interface GoogleCalendarCardProps {
   adminSettings: AdminSettings;
@@ -33,16 +31,7 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
   setAdminSettings,
   onSettingsUpdated
 }) => {
-  const { 
-    isLoading: isSyncLoading, 
-    startLoading, 
-    stopLoading,
-    withLoading
-  } = useLoadingState();
-  
   const handleGoogleConnect = async () => {
-    if (isLoading || isSyncLoading) return;
-    
     try {
       console.log("Démarrage du processus de connexion Google...");
       toast.info("Redirection vers Google", {
@@ -56,7 +45,7 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
       
       if (!result.success) {
         toast.error("Erreur de connexion", {
-          description: result.error || "Une erreur est survenue lors de la connexion à Google."
+          description: "Une erreur est survenue lors de la connexion à Google."
         });
         setIsLoading(false);
       }
@@ -72,114 +61,101 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
   };
   
   const handleGoogleDisconnect = async () => {
-    if (isLoading || isSyncLoading) return;
+    setIsLoading(true);
     
-    await withLoading(async () => {
-      try {
-        console.log("Démarrage de la déconnexion Google...");
-        setIsLoading(true);
-        
-        const result = await GoogleCalendarService.disconnect();
-        
-        if (result.success) {
-          setAdminSettings({
-            ...adminSettings,
-            googleConnected: false,
-            googleEmail: undefined,
-            googleRefreshToken: undefined
-          });
-          
-          toast.success("Compte Google déconnecté", {
-            description: "La synchronisation est désactivée."
-          });
-        } else {
-          toast.error("Erreur de déconnexion", {
-            description: result.error || "Impossible de déconnecter le compte Google."
-          });
-        }
-      } catch (error) {
-        console.error("Erreur lors de la déconnexion de Google:", error);
-        toast.error("Erreur de déconnexion", {
-          description: "Une erreur est survenue. Veuillez réessayer."
+    try {
+      console.log("Démarrage de la déconnexion Google...");
+      const result = await GoogleCalendarService.disconnect();
+      
+      if (result.success) {
+        setAdminSettings({
+          ...adminSettings,
+          googleConnected: false,
+          googleEmail: undefined,
+          googleRefreshToken: undefined,
+          lastSyncTimestamp: undefined,
+          lastSyncStatus: undefined,
+          syncError: undefined
         });
-      } finally {
-        setIsLoading(false);
+        
+        toast.info("Compte Google déconnecté", {
+          description: "La synchronisation est désactivée."
+        });
+      } else {
+        toast.error("Erreur de déconnexion", {
+          description: "Impossible de déconnecter le compte Google."
+        });
       }
-    }, "Déconnexion en cours...");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion de Google:", error);
+      toast.error("Erreur de déconnexion", {
+        description: "Une erreur est survenue. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const syncNow = async () => {
-    if (isLoading || isSyncLoading) return;
+    setIsLoading(true);
     
-    await withLoading(async () => {
-      try {
-        console.log("Démarrage de la synchronisation...");
-        setIsLoading(true);
-        
-        const result = await ReservationService.syncWithGoogleCalendar();
-        
-        if (result.success) {
-          toast.success("Synchronisation terminée", {
-            description: `${result.syncedCount} réservation(s) synchronisée(s) avec Google Calendar.`
-          });
-          
-          onRefreshReservations();
-        } else {
-          toast.error("Erreur de synchronisation", {
-            description: result.error || "Impossible de synchroniser avec Google Calendar."
-          });
-        }
-      } catch (error) {
-        console.error("Erreur lors de la synchronisation:", error);
-        toast.error("Erreur de synchronisation", {
-          description: "Une erreur est survenue. Veuillez réessayer."
+    try {
+      console.log("Démarrage de la synchronisation...");
+      const result = await ReservationService.syncWithGoogleCalendar();
+      
+      if (result.success) {
+        toast.success("Synchronisation terminée", {
+          description: `${result.syncedCount} réservation(s) synchronisée(s) avec Google Calendar.`
         });
-      } finally {
-        setIsLoading(false);
+        
+        onRefreshReservations();
+        // Rafraîchir également les paramètres admin pour mettre à jour le statut de synchronisation
+        await onSettingsUpdated();
+      } else {
+        toast.error("Erreur de synchronisation", {
+          description: "Impossible de synchroniser avec Google Calendar."
+        });
       }
-    }, "Synchronisation en cours...");
+    } catch (error) {
+      console.error("Erreur lors de la synchronisation:", error);
+      toast.error("Erreur de synchronisation", {
+        description: "Une erreur est survenue. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const importFromGoogle = async () => {
-    if (isLoading || isSyncLoading) return;
+    setIsLoading(true);
     
-    await withLoading(async () => {
-      try {
-        console.log("Démarrage de l'importation depuis Google Calendar...");
-        setIsLoading(true);
-        
-        const result = await ReservationService.importFromGoogleCalendar();
-        
-        if (result.success) {
-          toast.success("Importation terminée", {
-            description: `${result.importedCount} réservation(s) importée(s) depuis Google Calendar.`
-          });
-          
-          onRefreshReservations();
-        } else {
-          toast.error("Erreur d'importation", {
-            description: result.error || "Impossible d'importer depuis Google Calendar."
-          });
-        }
-      } catch (error) {
-        console.error("Erreur lors de l'importation:", error);
-        toast.error("Erreur d'importation", {
-          description: "Une erreur est survenue. Veuillez réessayer."
+    try {
+      console.log("Démarrage de l'importation depuis Google Calendar...");
+      const result = await ReservationService.importFromGoogleCalendar();
+      
+      if (result.success) {
+        toast.success("Importation terminée", {
+          description: `${result.importedCount} réservation(s) importée(s) depuis Google Calendar.`
         });
-      } finally {
-        setIsLoading(false);
+        
+        onRefreshReservations();
+      } else {
+        toast.error("Erreur d'importation", {
+          description: "Impossible d'importer depuis Google Calendar."
+        });
       }
-    }, "Importation en cours...");
+    } catch (error) {
+      console.error("Erreur lors de l'importation:", error);
+      toast.error("Erreur d'importation", {
+        description: "Une erreur est survenue. Veuillez réessayer."
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Card className="shadow-card h-full relative">
-      {(isLoading || isSyncLoading) && (
-        <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-50 rounded-lg">
-          <LoadingSpinner size="lg" message={isSyncLoading ? "Opération en cours..." : "Chargement..."} />
-        </div>
-      )}
-      
+    <Card className="shadow-card h-full">
       <CardHeader className="py-3 px-4">
         <CardTitle className="flex items-center gap-2 text-base">
           <GoogleIcon />
@@ -192,18 +168,27 @@ const GoogleCalendarCard: React.FC<GoogleCalendarCardProps> = ({
       <CardContent className="space-y-3 px-4 py-2">
         <GoogleConnectionToggle 
           isConnected={adminSettings.googleConnected}
-          isLoading={isLoading || isSyncLoading}
+          isLoading={isLoading}
           onConnect={handleGoogleConnect}
           onDisconnect={handleGoogleDisconnect}
         />
         
         {adminSettings.googleConnected && (
-          <GoogleConnectedAccount
-            email={adminSettings.googleEmail}
-            onSyncToGoogle={syncNow}
-            onImportFromGoogle={importFromGoogle}
-            isLoading={isLoading || isSyncLoading}
-          />
+          <>
+            <GoogleConnectedAccount
+              email={adminSettings.googleEmail}
+              onSyncToGoogle={syncNow}
+              onImportFromGoogle={importFromGoogle}
+              isLoading={isLoading}
+            />
+            
+            <GoogleAutoSyncStatus
+              lastSyncTimestamp={adminSettings.lastSyncTimestamp}
+              lastSyncStatus={adminSettings.lastSyncStatus}
+              syncError={adminSettings.syncError}
+              onSync={syncNow}
+            />
+          </>
         )}
       </CardContent>
       <CardFooter className="flex flex-col items-start space-y-4 py-3 px-4">

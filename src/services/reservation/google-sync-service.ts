@@ -1,9 +1,7 @@
 
 import { GoogleCalendarService } from '../google-calendar';
 import { Reservation } from '@/types';
-import { ReservationUpdateService } from './update-service';
-import { ReservationFetchService } from './fetch-service';
-import { SyncResponse } from '../google-calendar/types';
+import { ReservationBaseService } from './base-service';
 
 /**
  * Service pour la synchronisation des réservations avec Google Calendar
@@ -12,12 +10,12 @@ export class ReservationGoogleSyncService {
   /**
    * Synchronise les réservations existantes avec Google Calendar
    */
-  static async syncWithGoogleCalendar(): Promise<SyncResponse> {
+  static async syncWithGoogleCalendar(): Promise<{ success: boolean; syncedCount: number }> {
     try {
       const isConnected = await GoogleCalendarService.isConnected();
       
       if (!isConnected) {
-        return { success: false, syncedCount: 0, error: "Google Calendar non connecté" };
+        return { success: false, syncedCount: 0 };
       }
       
       // Récupère toutes les réservations non synchronisées
@@ -29,7 +27,7 @@ export class ReservationGoogleSyncService {
       
       if (error) {
         console.error('Erreur lors de la récupération des réservations non synchronisées:', error);
-        return { success: false, syncedCount: 0, error: error.message };
+        return { success: false, syncedCount: 0 };
       }
       
       // Convertit les dates en objets Date
@@ -50,7 +48,7 @@ export class ReservationGoogleSyncService {
           
           if (success && eventId) {
             // Met à jour la réservation avec l'ID de l'événement Google Calendar
-            const updated = await ReservationUpdateService.updateGoogleEventId(reservation.id, eventId);
+            const updated = await ReservationBaseService.updateGoogleEventId(reservation.id, eventId);
             
             if (updated) {
               syncedCount++;
@@ -64,19 +62,19 @@ export class ReservationGoogleSyncService {
       return { success: true, syncedCount };
     } catch (error) {
       console.error('Erreur lors de la synchronisation avec Google Calendar:', error);
-      return { success: false, syncedCount: 0, error: error instanceof Error ? error.message : 'Erreur inconnue' };
+      return { success: false, syncedCount: 0 };
     }
   }
 
   /**
    * Importe les événements de Google Calendar
    */
-  static async importFromGoogleCalendar(): Promise<SyncResponse> {
+  static async importFromGoogleCalendar(): Promise<{ success: boolean; importedCount: number }> {
     try {
       const isConnected = await GoogleCalendarService.isConnected();
       
       if (!isConnected) {
-        return { success: false, importedCount: 0, error: "Google Calendar non connecté" };
+        return { success: false, importedCount: 0 };
       }
       
       // Récupère les événements Google Calendar
@@ -96,7 +94,7 @@ export class ReservationGoogleSyncService {
       console.log(`${calendarReservations.length} événements importés depuis Google Calendar`);
       
       // Récupère toutes les réservations existantes
-      const existingReservations = await ReservationFetchService.getReservations();
+      const existingReservations = await ReservationBaseService.getReservations();
       
       let importedCount = 0;
       
@@ -154,12 +152,12 @@ export class ReservationGoogleSyncService {
       return { success: true, importedCount };
     } catch (error) {
       console.error('Erreur lors de l\'importation depuis Google Calendar:', error);
-      return { success: false, importedCount: 0, error: error instanceof Error ? error.message : 'Erreur inconnue' };
+      return { success: false, importedCount: 0 };
     }
   }
 }
 
 // Importation supabase pour les requêtes spécifiques
 import { supabase } from '@/integrations/supabase/client';
-// Import pour créer des réservations après importation
+// Import cyclique résolu en important à la fin
 import { ReservationCreationService } from './creation-service';

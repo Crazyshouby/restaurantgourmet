@@ -18,7 +18,6 @@ export type Database = {
           last_sync_status: string | null
           last_sync_timestamp: string | null
           max_guests_per_day: number | null
-          show_hero_event: boolean | null
           sync_error: string | null
           time_slots: string[] | null
           updated_at: string
@@ -31,7 +30,6 @@ export type Database = {
           last_sync_status?: string | null
           last_sync_timestamp?: string | null
           max_guests_per_day?: number | null
-          show_hero_event?: boolean | null
           sync_error?: string | null
           time_slots?: string[] | null
           updated_at?: string
@@ -44,7 +42,6 @@ export type Database = {
           last_sync_status?: string | null
           last_sync_timestamp?: string | null
           max_guests_per_day?: number | null
-          show_hero_event?: boolean | null
           sync_error?: string | null
           time_slots?: string[] | null
           updated_at?: string

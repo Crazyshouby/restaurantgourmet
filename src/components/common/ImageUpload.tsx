@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Image, Upload, XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,8 +11,6 @@ interface ImageUploadProps {
   onImageUploaded: (imageUrl: string) => void;
   currentImageUrl?: string;
   className?: string;
-  maxSize?: number; // Taille maximale en Mo
-  aspectRatio?: number; // Rapport largeur/hauteur
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -20,71 +18,56 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   onImageUploaded,
   currentImageUrl,
   className = "",
-  maxSize = 2, // Par défaut 2 Mo
-  aspectRatio,
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
-
-  // Mettre à jour l'URL de prévisualisation si l'URL actuelle change
-  useEffect(() => {
-    setPreviewUrl(currentImageUrl);
-  }, [currentImageUrl]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Valider le type de fichier
+    // Validate file type
     if (!file.type.startsWith("image/")) {
       toast.error("Le fichier doit être une image");
       return;
     }
 
-    // Valider la taille du fichier
-    const maxSizeBytes = maxSize * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      toast.error(`L'image ne doit pas dépasser ${maxSize} Mo`);
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 2 Mo");
       return;
     }
 
     try {
       setIsUploading(true);
       
-      // Créer un nom de fichier unique avec timestamp et nom original
+      // Create a unique file name using timestamp and original name
       const timestamp = new Date().getTime();
       const fileExt = file.name.split('.').pop();
       const fileName = `${timestamp}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${fileName}`;
       
-      // Optimiser l'image côté client avant l'upload (si possible)
-      let fileToUpload = file;
-      
-      // Upload du fichier vers Supabase Storage
+      // Upload the file to Supabase Storage
       const { data, error } = await supabase.storage
         .from(bucketName)
-        .upload(filePath, fileToUpload, {
-          cacheControl: '3600', // Cache control d'1 heure
-          upsert: false
-        });
+        .upload(filePath, file);
 
       if (error) {
         throw error;
       }
 
-      // Obtenir l'URL publique pour le fichier uploadé
+      // Get the public URL for the uploaded file
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
 
-      // Définir la prévisualisation et appeler le callback onImageUploaded
+      // Set preview and call the onImageUploaded callback
       setPreviewUrl(publicUrl);
       onImageUploaded(publicUrl);
       
       toast.success("Image téléchargée avec succès");
     } catch (error) {
-      console.error("Erreur lors du téléchargement de l'image:", error);
+      console.error("Error uploading image:", error);
       toast.error("Erreur lors du téléchargement de l'image");
     } finally {
       setIsUploading(false);
@@ -93,7 +76,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleRemoveImage = () => {
     setPreviewUrl(undefined);
-    setIsImageLoaded(false);
     onImageUploaded("");
   };
 
@@ -101,21 +83,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     <div className={`${className} space-y-2`}>
       {previewUrl ? (
         <div className="relative">
-          {!isImageLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted/30">
-              <LoadingSpinner size="sm" />
-            </div>
-          )}
           <img 
             src={previewUrl} 
-            alt="Prévisualisation" 
-            loading="lazy" // Lazy loading natif
-            className={`w-full h-48 object-cover rounded-md transition-opacity ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onLoad={() => setIsImageLoaded(true)}
+            alt="Preview" 
+            className="w-full h-48 object-cover rounded-md"
             onError={(e) => {
               e.currentTarget.src = "/placeholder.svg";
               e.currentTarget.classList.add("p-6");
-              setIsImageLoaded(true);
             }}
           />
           <button 
@@ -139,7 +113,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               <Image className="h-10 w-10 text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground text-center">
                 Cliquez pour télécharger une image<br/>
-                <span className="text-xs">(JPG, PNG, max {maxSize} Mo)</span>
+                <span className="text-xs">(JPG, PNG, max 2 Mo)</span>
               </p>
             </>
           )}
@@ -167,7 +141,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         onChange={handleFileChange}
         className="hidden"
         disabled={isUploading}
-        aria-label="Sélectionner une image"
       />
     </div>
   );

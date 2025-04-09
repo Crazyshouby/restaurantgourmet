@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,114 +5,65 @@
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
-    --foreground: 49 38% 92%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 49 38% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
 
-    --popover: 0 0% 7%;
-    --popover-foreground: 49 38% 92%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --primary: 38 57% 58%;
-    --primary-foreground: 0 0% 7%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 30 25% 89%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 49 38% 82%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 38 57% 58%;
-    --accent-foreground: 0 0% 7%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 49 38% 92%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 38 57% 58%;
-    --input: 0 0% 20%;
-    --ring: 38 57% 58%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
 
-    --radius: 0.5rem;
-    
-    /* Couleur pour la barre de défilement */
-    --scrollbar-color: var(--gold, #D4B062);
+    --radius: 0.75rem;
   }
 
-  /* Variables pour le thème admin sombre */
-  .admin-dark {
-    --admin-bg: 222 47% 11%;
-    --admin-fg: 210 40% 98%;
-    
-    --admin-card: 215 25% 15%;
-    --admin-card-fg: 210 40% 98%;
-    
-    --admin-popover: 222 47% 11%;
-    --admin-popover-fg: 210 40% 98%;
-    
-    --admin-primary: 217 91% 60%;
-    --admin-primary-fg: 210 40% 98%;
-    
-    --admin-secondary: 215 25% 27%;
-    --admin-secondary-fg: 210 40% 98%;
-    
-    --admin-muted: 215 25% 18%;
-    --admin-muted-fg: 217 10% 64.9%;
-    
-    --admin-accent: 217 91% 60%;
-    --admin-accent-fg: 210 40% 98%;
-    
-    --admin-destructive: 0 84.2% 60.2%;
-    --admin-destructive-fg: 210 40% 98%;
-    
-    --admin-border: 215 25% 20%;
-    --admin-input: 215 25% 20%;
-    --admin-ring: 217 91% 60%;
-  }
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-  /* Nouvelle approche pour la barre de défilement - Superposition sur le contenu */
-  html {
-    /* Empêcher le débordement horizontal causé par la barre de défilement */
-    overflow-x: hidden;
-    /* Position relative pour contenir la barre de défilement */
-    position: relative;
-    /* Permettre le défilement vertical */
-    overflow-y: auto;
-    /* Assurer que la barre de défilement n'affecte pas la mise en page */
-    scrollbar-gutter: stable;
-    
-    /* Firefox */
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-  }
-  
-  /* Stylisation pour Firefox quand le défilement est requis */
-  html.scroll-active {
-    scrollbar-color: var(--scrollbar-color) transparent;
-  }
-  
-  /* WebKit browsers (Chrome, Safari) */
-  html::-webkit-scrollbar {
-    width: 10px;
-    /* Position absolue pour superposer sur le contenu */
-    position: absolute;
-    right: 0;
-  }
-  
-  html::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  html::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 4px;
-  }
-  
-  /* Au hover ou quand le défilement est actif */
-  html.scroll-active::-webkit-scrollbar-thumb,
-  html::-webkit-scrollbar-thumb:hover,
-  html::-webkit-scrollbar-thumb:active {
-    background: var(--scrollbar-color);
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 
   * {
@@ -121,20 +71,13 @@
   }
 
   body {
-    @apply bg-darkblack text-cream font-sans;
+    @apply bg-background text-foreground;
     -webkit-tap-highlight-color: transparent;
-    /* Ajout de padding-right pour compenser l'espace de la barre de défilement */
-    padding-right: 0 !important; 
-    /* Empêcher également le débordement horizontal du body */
-    overflow-x: hidden;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
   }
   
   /* Améliorer le défilement sur mobile */
   html, body {
+    @apply overflow-x-hidden;
     scroll-behavior: smooth;
   }
   
@@ -148,7 +91,7 @@
 @layer components {
   /* Glass effect for cards and modals */
   .glass {
-    @apply bg-darkblack/80 backdrop-blur-sm border border-gold/20;
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-white/20 dark:border-slate-700/20;
   }
 
   /* Touch-friendly styles */
@@ -160,87 +103,6 @@
   .scroll-area-mobile {
     @apply overflow-y-auto overscroll-contain -webkit-overflow-scrolling-touch;
   }
-
-  /* Gold border accent */
-  .border-gold-accent {
-    @apply border-b border-gold/50;
-  }
-
-  /* Button styles */
-  .btn-gold {
-    @apply bg-gold hover:bg-gold/90 text-darkblack transition-all duration-300;
-  }
-
-  /* Section styles */
-  .section-spacing {
-    @apply py-16 px-4;
-  }
-
-  /* Hover link effect */
-  .link-hover {
-    @apply relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-gold hover:after:w-full after:transition-all after:duration-300;
-  }
-
-  /* Elegant card */
-  .elegant-card {
-    @apply bg-card border border-gold/20 shadow-gold rounded-md transition-all duration-300 hover:shadow-lg;
-  }
-  
-  /* Admin theme styles */
-  #admin-container {
-    @apply transition-colors duration-300;
-    
-    background-color: hsl(var(--admin-bg));
-    color: hsl(var(--admin-fg));
-  }
-  
-  #admin-container .bg-background {
-    background-color: hsl(var(--admin-bg));
-  }
-  
-  #admin-container .text-foreground {
-    color: hsl(var(--admin-fg));
-  }
-  
-  #admin-container .bg-card,
-  #admin-container .bg-popover {
-    background-color: hsl(var(--admin-card));
-  }
-  
-  #admin-container .text-card-foreground,
-  #admin-container .text-popover-foreground {
-    color: hsl(var(--admin-card-fg));
-  }
-  
-  #admin-container .bg-muted {
-    background-color: hsl(var(--admin-muted));
-  }
-  
-  #admin-container .text-muted-foreground {
-    color: hsl(var(--admin-muted-fg));
-  }
-  
-  #admin-container .border {
-    border-color: hsl(var(--admin-border));
-  }
-  
-  #admin-container .border-primary {
-    border-color: hsl(var(--admin-primary));
-  }
-  
-  #admin-container .bg-primary {
-    background-color: hsl(var(--admin-primary));
-  }
-  
-  #admin-container .text-primary {
-    color: hsl(var(--admin-primary));
-  }
-  
-  #admin-container .bg-secondary {
-    background-color: hsl(var(--admin-secondary));
-  }
-  
-  #admin-container .text-destructive {
-    color: hsl(var(--admin-destructive));
-  }
 }
+
+/* ... keep existing code (Animations, Glass effect, Smooth transitions) */
