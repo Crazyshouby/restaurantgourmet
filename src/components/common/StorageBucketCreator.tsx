@@ -17,6 +17,7 @@ const StorageBucketCreator = () => {
         // Check if buckets exist and are accessible
         const eventBucketCheck = await checkBucket('event_images');
         const profileBucketCheck = await checkBucket('profile_images', false); // Silent check for profile_images
+        const menuBucketCheck = await checkBucket('menu_images');
         
         if (eventBucketCheck) {
           console.log('Event images bucket is properly configured and accessible');
@@ -24,6 +25,14 @@ const StorageBucketCreator = () => {
           console.error('Event images bucket is not accessible');
           setError('Event images bucket is not accessible');
           toast.error('Failed to access event images bucket');
+        }
+        
+        if (menuBucketCheck) {
+          console.log('Menu images bucket is properly configured and accessible');
+        } else {
+          console.error('Menu images bucket is not accessible');
+          setError('Menu images bucket is not accessible');
+          toast.error('Failed to access menu images bucket');
         }
         
         if (!profileBucketCheck) {
