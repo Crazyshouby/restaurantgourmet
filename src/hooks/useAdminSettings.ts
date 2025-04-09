@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSettings } from "@/types";
@@ -21,17 +22,22 @@ export function useAdminSettings() {
         .eq('id', 1)
         .single();
       
-      if (!error && data) {
+      if (error) {
+        console.error("Erreur lors du chargement des paramètres admin:", error);
+        return;
+      }
+
+      if (data) {
         console.log('Paramètres admin chargés:', data);
         setAdminSettings({
-          googleConnected: data.google_connected,
-          googleEmail: data.google_email,
-          googleRefreshToken: data.google_refresh_token,
+          googleConnected: data.google_connected || false,
+          googleEmail: data.google_email || undefined,
+          googleRefreshToken: data.google_refresh_token || undefined,
           timeSlots: data.time_slots || [],
           maxGuestsPerDay: data.max_guests_per_day || 20,
-          lastSyncTimestamp: data.last_sync_timestamp,
-          lastSyncStatus: data.last_sync_status,
-          syncError: data.sync_error
+          lastSyncTimestamp: data.last_sync_timestamp || undefined,
+          lastSyncStatus: data.last_sync_status || undefined,
+          syncError: data.sync_error || undefined
         });
       }
     } catch (error) {
@@ -56,26 +62,27 @@ export function useAdminSettings() {
           })
           .eq('id', 1);
         
-        if (!error) {
-          setAdminSettings(prevSettings => ({
-            ...prevSettings,
-            googleConnected: true,
-            googleEmail: session.user.email,
-            googleRefreshToken: session.refresh_token
-          }));
-          
-          toast.success("Connexion Google réussie", {
-            description: "Votre compte Google a été connecté avec succès."
-          });
-          
-          console.log('Paramètres mis à jour avec succès');
-          return true;
-        } else {
+        if (error) {
           console.error('Erreur lors de la mise à jour dans Supabase:', error);
           toast.error("Erreur de connexion", {
             description: "Impossible de mettre à jour les paramètres."
           });
+          return false;
         }
+        
+        setAdminSettings(prevSettings => ({
+          ...prevSettings,
+          googleConnected: true,
+          googleEmail: session.user.email,
+          googleRefreshToken: session.refresh_token
+        }));
+        
+        toast.success("Connexion Google réussie", {
+          description: "Votre compte Google a été connecté avec succès."
+        });
+        
+        console.log('Paramètres mis à jour avec succès');
+        return true;
       } else {
         console.warn('Session valide mais provider_token ou email manquant');
         toast.error("Erreur de connexion", {

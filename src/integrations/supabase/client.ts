@@ -11,67 +11,181 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Force TypeScript to correctly recognize the database tables
+/**
+ * TypeScript type definition for the database schema
+ * This is needed to provide type safety when using the Supabase client
+ */
+export type Tables = {
+  admin_settings: {
+    Row: {
+      id: number;
+      time_slots: string[] | null;
+      max_guests_per_day: number | null;
+      google_connected: boolean | null;
+      google_refresh_token: string | null;
+      google_email: string | null;
+      last_sync_timestamp: string | null;
+      last_sync_status: string | null;
+      sync_error: string | null;
+      created_at: string | null;
+      updated_at: string | null;
+    };
+    Insert: {
+      id?: number;
+      time_slots?: string[] | null;
+      max_guests_per_day?: number | null;
+      google_connected?: boolean | null;
+      google_refresh_token?: string | null;
+      google_email?: string | null;
+      last_sync_timestamp?: string | null;
+      last_sync_status?: string | null;
+      sync_error?: string | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+    Update: {
+      id?: number;
+      time_slots?: string[] | null;
+      max_guests_per_day?: number | null;
+      google_connected?: boolean | null;
+      google_refresh_token?: string | null;
+      google_email?: string | null;
+      last_sync_timestamp?: string | null;
+      last_sync_status?: string | null;
+      sync_error?: string | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+  };
+  events: {
+    Row: {
+      id: string;
+      title: string;
+      description: string;
+      image: string;
+      date: string;
+      time: string;
+      created_at: string | null;
+      updated_at: string | null;
+    };
+    Insert: {
+      id?: string;
+      title: string;
+      description: string;
+      image: string;
+      date: string;
+      time: string;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+    Update: {
+      id?: string;
+      title?: string;
+      description?: string;
+      image?: string;
+      date?: string;
+      time?: string;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+  };
+  menu_items: {
+    Row: {
+      id: string;
+      name: string;
+      description: string;
+      price: number;
+      category: string;
+      image: string;
+      featured: boolean | null;
+      created_at: string | null;
+      updated_at: string | null;
+    };
+    Insert: {
+      id?: string;
+      name: string;
+      description: string;
+      price: number;
+      category: string;
+      image: string;
+      featured?: boolean | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+    Update: {
+      id?: string;
+      name?: string;
+      description?: string;
+      price?: number;
+      category?: string;
+      image?: string;
+      featured?: boolean | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+  };
+  reservations: {
+    Row: {
+      id: string;
+      name: string;
+      date: string;
+      time: string;
+      guests: number;
+      phone: string;
+      email: string;
+      notes: string | null;
+      google_event_id: string | null;
+      imported_from_google: boolean | null;
+      created_at: string | null;
+      updated_at: string | null;
+    };
+    Insert: {
+      id?: string;
+      name: string;
+      date: string;
+      time: string;
+      guests: number;
+      phone: string;
+      email: string;
+      notes?: string | null;
+      google_event_id?: string | null;
+      imported_from_google?: boolean | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+    Update: {
+      id?: string;
+      name?: string;
+      date?: string;
+      time?: string;
+      guests?: number;
+      phone?: string;
+      email?: string;
+      notes?: string | null;
+      google_event_id?: string | null;
+      imported_from_google?: boolean | null;
+      created_at?: string | null;
+      updated_at?: string | null;
+    };
+  };
+};
+
+// Update Database type definition to include our tables
 declare module '@supabase/supabase-js' {
   interface Database {
     public: {
-      Tables: {
-        admin_settings: {
-          Row: {
-            id: number;
-            time_slots: string[] | null;
-            max_guests_per_day: number | null;
-            google_connected: boolean | null;
-            google_refresh_token: string | null;
-            google_email: string | null;
-            last_sync_timestamp: string | null;
-            last_sync_status: string | null;
-            sync_error: string | null;
-            created_at: string | null;
-            updated_at: string | null;
-          };
-        };
-        events: {
-          Row: {
-            id: string;
-            title: string;
-            description: string;
-            image: string;
-            date: string;
-            time: string;
-            created_at: string | null;
-            updated_at: string | null;
-          };
-        };
-        menu_items: {
-          Row: {
-            id: string;
-            name: string;
-            description: string;
-            price: number;
-            category: string;
-            image: string;
-            featured: boolean | null;
-            created_at: string | null;
-            updated_at: string | null;
-          };
-        };
-        reservations: {
-          Row: {
-            id: string;
-            name: string;
-            date: string;
-            time: string;
-            guests: number;
-            phone: string;
-            email: string;
-            notes: string | null;
-            google_event_id: string | null;
-            imported_from_google: boolean | null;
-            created_at: string | null;
-            updated_at: string | null;
-          };
-        };
+      Tables: Tables;
+      Views: {
+        [_ in never]: never;
+      };
+      Functions: {
+        [_ in never]: never;
+      };
+      Enums: {
+        [_ in never]: never;
+      };
+      CompositeTypes: {
+        [_ in never]: never;
       };
     };
   }

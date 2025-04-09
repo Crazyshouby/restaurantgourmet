@@ -54,7 +54,11 @@ const CapacitySettings: React.FC<CapacitySettingsProps> = ({
         .eq('id', 1);
       
       if (error) {
-        throw error;
+        console.error("Erreur lors de l'enregistrement des paramètres:", error);
+        toast.error("Erreur d'enregistrement", {
+          description: "Impossible d'enregistrer les paramètres."
+        });
+        return;
       }
       
       toast.success("Paramètres enregistrés", {

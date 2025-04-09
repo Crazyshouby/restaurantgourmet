@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Card, 
@@ -100,7 +101,11 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
         throw reservationsError;
       }
       
-      const bookedGuests = reservationsData.reduce((total, reservation) => total + reservation.guests, 0);
+      // Make sure reservationsData is an array before reducing
+      const bookedGuests = Array.isArray(reservationsData) 
+        ? reservationsData.reduce((total, reservation) => total + (reservation.guests || 0), 0)
+        : 0;
+        
       const remainingCapacity = Math.max(0, maxCapacity - bookedGuests);
       
       setDailyAvailability({
