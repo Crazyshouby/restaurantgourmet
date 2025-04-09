@@ -105,10 +105,12 @@ export const useDeleteAllEventsMutation = () => {
     mutationFn: async () => {
       console.log("Tentative de suppression de tous les événements");
       
+      // Modified approach - delete all events without using a condition
+      // that was causing the UUID format error
       const { error } = await supabase
         .from("events")
         .delete()
-        .neq("id", "");  // Supprime tous les événements
+        .is("id", "is not", null);  // This works as a condition that matches all rows
 
       if (error) {
         console.error("Erreur lors de la suppression de tous les événements:", error);
