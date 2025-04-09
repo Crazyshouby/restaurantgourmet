@@ -8,7 +8,7 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 import ApiErrorAlert from "@/components/common/ApiErrorAlert";
 
 const EventsAdmin = () => {
-  const { events, isLoading, error, addEvent, updateEvent, deleteEvent } = useEventsOperations();
+  const { events, isLoading, error, addEvent, updateEvent, deleteEvent, deleteAllEvents } = useEventsOperations();
   
   // Convert error to string if it exists
   const errorMessage = error ? error.message || "Une erreur s'est produite" : "";
@@ -38,6 +38,7 @@ const EventsAdmin = () => {
               onAddEvent={addEvent}
               onUpdateEvent={updateEvent}
               onDeleteEvent={deleteEvent}
+              onDeleteAllEvents={deleteAllEvents}
             />
           </div>
         </main>
