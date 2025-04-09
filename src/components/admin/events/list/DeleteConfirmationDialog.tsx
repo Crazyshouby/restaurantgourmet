@@ -9,15 +9,18 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 interface DeleteConfirmationDialogProps {
   eventTitle: string;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({ 
   eventTitle, 
-  onConfirm 
+  onConfirm,
+  isLoading = false
 }) => {
   return (
     <AlertDialogContent>
@@ -28,9 +31,20 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Annuler</AlertDialogCancel>
-        <AlertDialogAction onClick={onConfirm}>
-          Supprimer
+        <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
+        <AlertDialogAction 
+          onClick={onConfirm}
+          disabled={isLoading}
+          className="relative"
+        >
+          {isLoading && (
+            <span className="absolute inset-0 flex items-center justify-center">
+              <LoadingSpinner size="sm" />
+            </span>
+          )}
+          <span className={isLoading ? "opacity-0" : ""}>
+            Supprimer
+          </span>
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

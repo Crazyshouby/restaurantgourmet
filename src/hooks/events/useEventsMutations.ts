@@ -79,8 +79,13 @@ export const useDeleteEventMutation = () => {
 
       return eventId;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+    onSuccess: (deletedEventId) => {
+      // Mise à jour optimiste du cache au lieu d'invalider la requête
+      queryClient.setQueryData(["events"], (oldData: Event[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(event => event.id !== deletedEventId);
+      });
+      
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
