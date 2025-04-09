@@ -16,22 +16,19 @@ const StorageBucketCreator = () => {
       try {
         // Check if buckets exist and are accessible
         const eventBucketCheck = await checkBucket('event_images');
-        const profileBucketCheck = await checkBucket('profile_images');
+        const profileBucketCheck = await checkBucket('profile_images', false); // Silent check for profile_images
         
-        if (eventBucketCheck && profileBucketCheck) {
-          console.log('Storage buckets are properly configured and accessible');
+        if (eventBucketCheck) {
+          console.log('Event images bucket is properly configured and accessible');
         } else {
-          if (!eventBucketCheck) {
-            console.error('Event images bucket is not accessible');
-            setError('Event images bucket is not accessible');
-            toast.error('Failed to access event images bucket');
-          }
-          
-          if (!profileBucketCheck) {
-            console.error('Profile images bucket is not accessible');
-            setError('Profile images bucket is not accessible');
-            toast.error('Failed to access profile images bucket');
-          }
+          console.error('Event images bucket is not accessible');
+          setError('Event images bucket is not accessible');
+          toast.error('Failed to access event images bucket');
+        }
+        
+        if (!profileBucketCheck) {
+          // Only log this error, don't display toast for profile_images
+          console.log('Profile images bucket is not accessible, but this may not affect core functionality');
         }
       } catch (err) {
         console.error('Unexpected error checking buckets:', err);
@@ -43,7 +40,7 @@ const StorageBucketCreator = () => {
     };
 
     // Helper function to check if a bucket exists and is accessible
-    const checkBucket = async (bucketName: string): Promise<boolean> => {
+    const checkBucket = async (bucketName: string, showError: boolean = true): Promise<boolean> => {
       try {
         // Try to get bucket info to verify it exists
         const { data, error } = await supabase

@@ -55,6 +55,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       
       console.log(`Attempting to upload to ${bucketName}/${filePath}`);
       
+      // Check if bucket exists before attempting upload
+      const { data: bucketData, error: bucketError } = await supabase.storage
+        .getBucket(bucketName);
+
+      if (bucketError) {
+        console.error(`Error accessing bucket ${bucketName}:`, bucketError);
+        setUploadError(`Failed to access ${bucketName} bucket`);
+        toast.error(`Failed to access ${bucketName} bucket`);
+        return;
+      }
+      
       // Upload the file to Supabase Storage
       const { data, error } = await supabase.storage
         .from(bucketName)
