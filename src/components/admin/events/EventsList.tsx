@@ -42,6 +42,8 @@ const EventsList: React.FC<EventsListProps> = ({
   }
 
   const handleDeleteConfirm = async (eventId: string) => {
+    if (!eventId) return;
+    
     try {
       setIsDeletingEvent(true);
       console.log("Confirmation de suppression de l'événement:", eventId);
@@ -60,19 +62,14 @@ const EventsList: React.FC<EventsListProps> = ({
     setDeletingEventId(eventId);
   };
 
-  // Filtrer les événements en cours de suppression de l'affichage
-  const displayEvents = isDeletingEvent && deletingEventId 
-    ? events.filter(e => e.id !== deletingEventId) 
-    : events;
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {displayEvents.map((event) => (
+      {events.map((event) => (
         <EventCard 
           key={event.id}
           event={event}
           onEdit={() => setEditingEvent(event)}
-          onDeleteClick={handleDeleteClick}
+          onDeleteClick={() => handleDeleteClick(event.id)}
         />
       ))}
 
@@ -96,22 +93,19 @@ const EventsList: React.FC<EventsListProps> = ({
       </EventDialog>
 
       {/* Dialog de confirmation de suppression */}
-      {events.map(event => (
-        <AlertDialog 
-          key={`delete-dialog-${event.id}`}
-          open={deletingEventId === event.id} 
-          onOpenChange={(open) => !open && setDeletingEventId(null)}
-        >
-          <AlertDialogTrigger className="hidden" />
-          {deletingEventId === event.id && (
-            <DeleteConfirmationDialog 
-              eventTitle={event.title}
-              onConfirm={() => handleDeleteConfirm(deletingEventId)}
-              isLoading={isDeletingEvent}
-            />
-          )}
-        </AlertDialog>
-      ))}
+      <AlertDialog 
+        open={!!deletingEventId} 
+        onOpenChange={(open) => !open && setDeletingEventId(null)}
+      >
+        <AlertDialogTrigger className="hidden" />
+        {deletingEventId && (
+          <DeleteConfirmationDialog 
+            eventTitle={events.find(e => e.id === deletingEventId)?.title || ""}
+            onConfirm={() => handleDeleteConfirm(deletingEventId)}
+            isLoading={isDeletingEvent}
+          />
+        )}
+      </AlertDialog>
     </div>
   );
 };

@@ -33,7 +33,10 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
       <AlertDialogFooter>
         <AlertDialogCancel disabled={isLoading}>Annuler</AlertDialogCancel>
         <AlertDialogAction 
-          onClick={onConfirm}
+          onClick={(e) => {
+            e.preventDefault();
+            onConfirm();
+          }}
           disabled={isLoading}
           className="relative"
         >

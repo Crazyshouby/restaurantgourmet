@@ -67,10 +67,6 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      // Log pour débuggage
-      console.log("Tentative de suppression de l'événement avec ID:", eventId);
-      
-      // Vérifie que l'ID est valide
       if (!eventId) {
         throw new Error("ID d'événement invalide");
       }
@@ -85,15 +81,11 @@ export const useDeleteEventMutation = () => {
         throw new Error(error.message);
       }
       
-      console.log("Événement supprimé avec succès dans la base de données:", eventId);
       return eventId;
     },
-    onSuccess: (deletedEventId) => {
-      console.log("Mutation de suppression réussie, invalidation de la requête events");
-      
-      // Au lieu d'une mise à jour optimiste, invalidons correctement la requête
+    onSuccess: () => {
+      // Invalider la requête pour forcer un rechargement des données
       queryClient.invalidateQueries({ queryKey: ["events"] });
-      
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
