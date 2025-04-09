@@ -9,7 +9,162 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          google_connected: boolean | null
+          google_email: string | null
+          google_refresh_token: string | null
+          id: number
+          last_sync_status: string | null
+          last_sync_timestamp: string | null
+          max_guests_per_day: number | null
+          sync_error: string | null
+          time_slots: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          google_connected?: boolean | null
+          google_email?: string | null
+          google_refresh_token?: string | null
+          id: number
+          last_sync_status?: string | null
+          last_sync_timestamp?: string | null
+          max_guests_per_day?: number | null
+          sync_error?: string | null
+          time_slots?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          google_connected?: boolean | null
+          google_email?: string | null
+          google_refresh_token?: string | null
+          id?: number
+          last_sync_status?: string | null
+          last_sync_timestamp?: string | null
+          max_guests_per_day?: number | null
+          sync_error?: string | null
+          time_slots?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          created_at: string | null
+          date: string
+          description: string
+          id: string
+          image: string
+          time: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          description: string
+          id?: string
+          image: string
+          time: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          description?: string
+          id?: string
+          image?: string
+          time?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      menu_items: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string
+          featured: boolean | null
+          id: string
+          image: string
+          name: string
+          price: number
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description: string
+          featured?: boolean | null
+          id?: string
+          image: string
+          name: string
+          price: number
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string
+          featured?: boolean | null
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          created_at: string | null
+          date: string
+          email: string
+          google_event_id: string | null
+          guests: number
+          id: string
+          imported_from_google: boolean | null
+          name: string
+          notes: string | null
+          phone: string
+          time: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          email: string
+          google_event_id?: string | null
+          guests: number
+          id?: string
+          imported_from_google?: boolean | null
+          name: string
+          notes?: string | null
+          phone: string
+          time: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          email?: string
+          google_event_id?: string | null
+          guests?: number
+          id?: string
+          imported_from_google?: boolean | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          time?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
