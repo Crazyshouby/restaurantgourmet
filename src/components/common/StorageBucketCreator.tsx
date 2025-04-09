@@ -56,14 +56,13 @@ const StorageBucketCreator = () => {
                 
                 // Try to update bucket's public access
                 try {
-                  const { data: policyData, error: policyError } = await supabase
+                  // The getPublicUrl method doesn't return an error property
+                  const { data: policyData } = await supabase
                     .storage
                     .from('event_images')
                     .getPublicUrl('dummy-path');
                     
-                  if (policyError) {
-                    console.log('Error setting public policy:', policyError);
-                  }
+                  console.log('Public URL policy set for event_images:', policyData);
                 } catch (policyErr) {
                   console.log('Policy setting error:', policyErr);
                 }
@@ -119,14 +118,13 @@ const StorageBucketCreator = () => {
                 
                 // Try to update bucket's public access
                 try {
-                  const { data: policyData, error: policyError } = await supabase
+                  // The getPublicUrl method doesn't return an error property
+                  const { data: policyData } = await supabase
                     .storage
                     .from('profile_images')
                     .getPublicUrl('dummy-path');
                     
-                  if (policyError) {
-                    console.log('Error setting public policy:', policyError);
-                  }
+                  console.log('Public URL policy set for profile_images:', policyData);
                 } catch (policyErr) {
                   console.log('Policy setting error:', policyErr);
                 }
