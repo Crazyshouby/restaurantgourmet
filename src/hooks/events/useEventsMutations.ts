@@ -97,35 +97,3 @@ export const useDeleteEventMutation = () => {
     },
   });
 };
-
-export const useDeleteAllEventsMutation = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      console.log("Tentative de suppression de tous les événements");
-      
-      // Modified approach - delete all events without using a condition
-      // that was causing the UUID format error
-      const { error } = await supabase
-        .from("events")
-        .delete()
-        .is("id", "is not", null);  // This works as a condition that matches all rows
-
-      if (error) {
-        console.error("Erreur lors de la suppression de tous les événements:", error);
-        throw new Error(error.message);
-      }
-      
-      return true;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
-      toast.success("Tous les événements ont été supprimés avec succès");
-    },
-    onError: (error) => {
-      console.error("Échec de la suppression de tous les événements:", error);
-      toast.error(`Erreur: ${error.message}`);
-    },
-  });
-};
