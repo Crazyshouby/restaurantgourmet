@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 /**
  * This component helps ensure storage buckets exist for the application
@@ -18,8 +19,10 @@ const StorageBucketCreator = () => {
           .storage
           .getBucket('event_images');
 
-        if (eventBucketError && eventBucketError.message.includes('The resource was not found')) {
-          // Create the bucket as it doesn't exist
+        if (eventBucketError) {
+          console.log('Event bucket check error:', eventBucketError);
+          
+          // Create the bucket if it doesn't exist
           const { error } = await supabase
             .storage
             .createBucket('event_images', {
@@ -30,7 +33,23 @@ const StorageBucketCreator = () => {
           if (error) {
             console.error('Error creating event_images bucket:', error);
             setError('Failed to create event_images bucket');
+            toast.error('Failed to create event_images bucket');
+          } else {
+            console.log('Successfully created event_images bucket');
+            toast.success('Event images bucket created');
+            
+            // Add public bucket policy
+            const { error: policyError } = await supabase
+              .storage
+              .from('event_images')
+              .createSignedUrl('dummy-path', 1); // This is just to trigger policy creation
+              
+            if (policyError) {
+              console.log('Note: Expected error for dummy URL', policyError);
+            }
           }
+        } else {
+          console.log('Event images bucket already exists');
         }
 
         // Create profile_images bucket if it doesn't exist
@@ -38,7 +57,9 @@ const StorageBucketCreator = () => {
           .storage
           .getBucket('profile_images');
 
-        if (profileBucketError && profileBucketError.message.includes('The resource was not found')) {
+        if (profileBucketError) {
+          console.log('Profile bucket check error:', profileBucketError);
+          
           // Create the bucket as it doesn't exist
           const { error } = await supabase
             .storage
@@ -50,11 +71,28 @@ const StorageBucketCreator = () => {
           if (error) {
             console.error('Error creating profile_images bucket:', error);
             setError('Failed to create profile_images bucket');
+            toast.error('Failed to create profile_images bucket');
+          } else {
+            console.log('Successfully created profile_images bucket');
+            toast.success('Profile images bucket created');
+            
+            // Add public bucket policy
+            const { error: policyError } = await supabase
+              .storage
+              .from('profile_images')
+              .createSignedUrl('dummy-path', 1); // This is just to trigger policy creation
+              
+            if (policyError) {
+              console.log('Note: Expected error for dummy URL', policyError);
+            }
           }
+        } else {
+          console.log('Profile images bucket already exists');
         }
       } catch (err) {
         console.error('Unexpected error creating buckets:', err);
         setError('Unexpected error creating storage buckets');
+        toast.error('Failed to set up image storage');
       } finally {
         setIsCreating(false);
       }

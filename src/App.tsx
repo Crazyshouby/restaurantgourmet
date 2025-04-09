@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { Toaster } from 'sonner';
 import StorageBucketCreator from '@/components/common/StorageBucketCreator';
 
 // Import our pages
@@ -29,10 +30,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
+        {/* Add Sonner toast provider */}
+        <Toaster position="top-right" richColors />
+        
+        {/* This component creates necessary storage buckets */}
+        <StorageBucketCreator />
+        
         <Router>
-          {/* This component creates necessary storage buckets */}
-          <StorageBucketCreator />
-          
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/home" element={<Home />} />
