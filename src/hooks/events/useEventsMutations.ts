@@ -67,6 +67,14 @@ export const useDeleteEventMutation = () => {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
+      // Log pour débuggage
+      console.log("Tentative de suppression de l'événement avec ID:", eventId);
+      
+      // Vérifie que l'ID est valide
+      if (!eventId) {
+        throw new Error("ID d'événement invalide");
+      }
+      
       const { error } = await supabase
         .from("events")
         .delete()
@@ -76,19 +84,20 @@ export const useDeleteEventMutation = () => {
         console.error("Erreur lors de la suppression de l'événement:", error);
         throw new Error(error.message);
       }
-
+      
+      console.log("Événement supprimé avec succès dans la base de données:", eventId);
       return eventId;
     },
     onSuccess: (deletedEventId) => {
-      // Mise à jour optimiste du cache au lieu d'invalider la requête
-      queryClient.setQueryData(["events"], (oldData: Event[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter(event => event.id !== deletedEventId);
-      });
+      console.log("Mutation de suppression réussie, invalidation de la requête events");
+      
+      // Au lieu d'une mise à jour optimiste, invalidons correctement la requête
+      queryClient.invalidateQueries({ queryKey: ["events"] });
       
       toast.success("Événement supprimé avec succès");
     },
     onError: (error) => {
+      console.error("Échec de la suppression d'événement:", error);
       toast.error(`Erreur: ${error.message}`);
     },
   });
