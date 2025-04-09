@@ -71,6 +71,9 @@ export const useDeleteEventMutation = () => {
         throw new Error("ID d'événement invalide");
       }
       
+      // Journalisation pour le débogage
+      console.log("Tentative de suppression de l'événement:", eventId);
+      
       const { error } = await supabase
         .from("events")
         .delete()
