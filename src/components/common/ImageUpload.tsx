@@ -21,19 +21,25 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(currentImageUrl);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Reset error state
+    setUploadError(null);
+
     // Validate file type
     if (!file.type.startsWith("image/")) {
+      setUploadError("Le fichier doit être une image");
       toast.error("Le fichier doit être une image");
       return;
     }
 
     // Validate file size (2MB max)
     if (file.size > 2 * 1024 * 1024) {
+      setUploadError("L'image ne doit pas dépasser 2 Mo");
       toast.error("L'image ne doit pas dépasser 2 Mo");
       return;
     }
@@ -47,27 +53,39 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       const fileName = `${timestamp}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
       const filePath = `${fileName}`;
       
+      console.log(`Attempting to upload to ${bucketName}/${filePath}`);
+      
       // Upload the file to Supabase Storage
       const { data, error } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file);
 
       if (error) {
-        throw error;
+        console.error("Error uploading image:", error);
+        setUploadError(`Erreur: ${error.message}`);
+        toast.error("Erreur lors du téléchargement de l'image", {
+          description: error.message
+        });
+        return;
       }
 
+      console.log("File uploaded successfully:", data);
+      
       // Get the public URL for the uploaded file
       const { data: { publicUrl } } = supabase.storage
         .from(bucketName)
         .getPublicUrl(filePath);
 
+      console.log("Public URL generated:", publicUrl);
+      
       // Set preview and call the onImageUploaded callback
       setPreviewUrl(publicUrl);
       onImageUploaded(publicUrl);
       
       toast.success("Image téléchargée avec succès");
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    } catch (error: any) {
+      console.error("Unexpected error during upload:", error);
+      setUploadError(`Erreur inattendue: ${error.message || 'Erreur inconnue'}`);
       toast.error("Erreur lors du téléchargement de l'image");
     } finally {
       setIsUploading(false);
@@ -76,6 +94,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const handleRemoveImage = () => {
     setPreviewUrl(undefined);
+    setUploadError(null);
     onImageUploaded("");
   };
 
@@ -115,6 +134,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                 Cliquez pour télécharger une image<br/>
                 <span className="text-xs">(JPG, PNG, max 2 Mo)</span>
               </p>
+              {uploadError && (
+                <p className="text-xs text-destructive mt-2 text-center">{uploadError}</p>
+              )}
             </>
           )}
         </div>
