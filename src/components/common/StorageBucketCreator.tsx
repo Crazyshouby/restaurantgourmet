@@ -14,80 +14,133 @@ const StorageBucketCreator = () => {
   useEffect(() => {
     const createBuckets = async () => {
       try {
-        // Create event_images bucket if it doesn't exist
-        const { data: eventBucketData, error: eventBucketError } = await supabase
-          .storage
-          .getBucket('event_images');
-
-        if (eventBucketError) {
-          console.log('Event bucket check error:', eventBucketError);
-          
-          // Create the bucket if it doesn't exist
-          const { error } = await supabase
-            .storage
-            .createBucket('event_images', {
-              public: true,
-              fileSizeLimit: 5242880 // 5MB
-            });
-
-          if (error) {
-            console.error('Error creating event_images bucket:', error);
-            setError('Failed to create event_images bucket');
-            toast.error('Failed to create event_images bucket');
-          } else {
-            console.log('Successfully created event_images bucket');
-            toast.success('Event images bucket created');
-            
-            // Add public bucket policy
-            const { error: policyError } = await supabase
+        // First, let's check if RLS is preventing bucket creation
+        // If so, we'll try to make the buckets public
+        
+        // Create event_images bucket with retries
+        let eventBucketCreated = false;
+        let retries = 0;
+        
+        while (!eventBucketCreated && retries < 3) {
+          try {
+            // Check if event_images bucket exists
+            const { data: eventBucketData, error: eventBucketError } = await supabase
               .storage
-              .from('event_images')
-              .createSignedUrl('dummy-path', 1); // This is just to trigger policy creation
+              .getBucket('event_images');
+
+            if (eventBucketError) {
+              console.log('Event bucket check error:', eventBucketError);
               
-            if (policyError) {
-              console.log('Note: Expected error for dummy URL', policyError);
+              // Try to create the bucket
+              const { error } = await supabase
+                .storage
+                .createBucket('event_images', {
+                  public: true,
+                  fileSizeLimit: 5242880 // 5MB
+                });
+
+              if (error) {
+                console.error(`Error creating event_images bucket (attempt ${retries + 1}):`, error);
+                retries++;
+                
+                if (retries >= 3) {
+                  setError('Failed to create event_images bucket');
+                  toast.error('Failed to create event_images bucket');
+                }
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              } else {
+                console.log('Successfully created event_images bucket');
+                toast.success('Event images bucket created');
+                eventBucketCreated = true;
+                
+                // Try to update bucket's public access
+                try {
+                  const { data: policyData, error: policyError } = await supabase
+                    .storage
+                    .from('event_images')
+                    .getPublicUrl('dummy-path');
+                    
+                  if (policyError) {
+                    console.log('Error setting public policy:', policyError);
+                  }
+                } catch (policyErr) {
+                  console.log('Policy setting error:', policyErr);
+                }
+              }
+            } else {
+              console.log('Event images bucket already exists');
+              eventBucketCreated = true;
             }
+          } catch (err) {
+            console.error(`Unexpected error during event bucket creation (attempt ${retries + 1}):`, err);
+            retries++;
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000));
           }
-        } else {
-          console.log('Event images bucket already exists');
         }
 
-        // Create profile_images bucket if it doesn't exist
-        const { data: profileBucketData, error: profileBucketError } = await supabase
-          .storage
-          .getBucket('profile_images');
-
-        if (profileBucketError) {
-          console.log('Profile bucket check error:', profileBucketError);
-          
-          // Create the bucket as it doesn't exist
-          const { error } = await supabase
-            .storage
-            .createBucket('profile_images', {
-              public: true,
-              fileSizeLimit: 2097152 // 2MB
-            });
-
-          if (error) {
-            console.error('Error creating profile_images bucket:', error);
-            setError('Failed to create profile_images bucket');
-            toast.error('Failed to create profile_images bucket');
-          } else {
-            console.log('Successfully created profile_images bucket');
-            toast.success('Profile images bucket created');
-            
-            // Add public bucket policy
-            const { error: policyError } = await supabase
+        // Create profile_images bucket with similar retry logic
+        let profileBucketCreated = false;
+        retries = 0;
+        
+        while (!profileBucketCreated && retries < 3) {
+          try {
+            // Check if profile_images bucket exists
+            const { data: profileBucketData, error: profileBucketError } = await supabase
               .storage
-              .from('profile_images')
-              .createSignedUrl('dummy-path', 1); // This is just to trigger policy creation
+              .getBucket('profile_images');
+
+            if (profileBucketError) {
+              console.log('Profile bucket check error:', profileBucketError);
               
-            if (policyError) {
-              console.log('Note: Expected error for dummy URL', policyError);
+              // Try to create the bucket
+              const { error } = await supabase
+                .storage
+                .createBucket('profile_images', {
+                  public: true,
+                  fileSizeLimit: 2097152 // 2MB
+                });
+
+              if (error) {
+                console.error(`Error creating profile_images bucket (attempt ${retries + 1}):`, error);
+                retries++;
+                
+                if (retries >= 3) {
+                  setError('Failed to create profile_images bucket');
+                  toast.error('Failed to create profile_images bucket');
+                }
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              } else {
+                console.log('Successfully created profile_images bucket');
+                toast.success('Profile images bucket created');
+                profileBucketCreated = true;
+                
+                // Try to update bucket's public access
+                try {
+                  const { data: policyData, error: policyError } = await supabase
+                    .storage
+                    .from('profile_images')
+                    .getPublicUrl('dummy-path');
+                    
+                  if (policyError) {
+                    console.log('Error setting public policy:', policyError);
+                  }
+                } catch (policyErr) {
+                  console.log('Policy setting error:', policyErr);
+                }
+              }
+            } else {
+              console.log('Profile images bucket already exists');
+              profileBucketCreated = true;
             }
+          } catch (err) {
+            console.error(`Unexpected error during profile bucket creation (attempt ${retries + 1}):`, err);
+            retries++;
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000));
           }
-        } else {
-          console.log('Profile images bucket already exists');
         }
       } catch (err) {
         console.error('Unexpected error creating buckets:', err);
